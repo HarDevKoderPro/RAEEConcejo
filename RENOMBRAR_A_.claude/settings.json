@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test)",
+      "Bash(npm install *)",
+      "Bash(npm ci *)",
+      "Bash(npx playwright *)",
+      "Bash(node *)",
+      "Bash(sqlite3 *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(curl -s *)"
+    ],
+    "ask": [
+      "Bash(ssh *)",
+      "Bash(rsync *)",
+      "Bash(scp *)",
+      "Bash(git push *)",
+      "Bash(npm run demo:limpiar*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)"
+    ]
+  }
+}
