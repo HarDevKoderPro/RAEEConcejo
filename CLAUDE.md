@@ -44,7 +44,7 @@ mostrar ante un jurado, cargada con los datos de demostración de `db/seed.sql`.
    - muestra a la persona qué quedó funcionando, con la URL local y los pasos para verlo;
    - haz un commit `fase N: …`;
    - **espera su visto bueno** antes de pasar a la siguiente fase.
-3. **Antes de tocar el VPS** (fase 8), pide a la persona: IP o dominio, usuario SSH, cómo entra
+3. **Antes de tocar el VPS** (fase 2 y siguientes), pide a la persona: IP o dominio, usuario SSH, cómo entra
    (llave o contraseña) y si el servidor ya aloja otros sitios. **Nunca** sobrescribas una
    configuración de Nginx existente: crea un `server` block nuevo. **Nunca** ejecutes
    `ufw enable` sin confirmar que el puerto 22 (o el puerto SSH real) queda permitido.
@@ -53,7 +53,8 @@ mostrar ante un jurado, cargada con los datos de demostración de `db/seed.sql`.
    - Los demás registros sembrados son de demostración (`demo = 1`, seriales `D-…`).
    - Las pruebas usan una base temporal, nunca `data/raee.db`.
 5. **Secretos:** nada de contraseñas, llaves ni `.env` en el repositorio. Usa `.env.example`.
-   `.gitignore` debe incluir `.env`, `data/`, `node_modules/` y `*.db*`.
+   `.gitignore` debe incluir `.env`, `data/`, `node_modules/`, `*.db*` y `Desktop.ini`
+   (ícono de carpeta de Windows de la persona: no se borra, solo se ignora).
 6. **Dependencias mínimas** (lista cerrada en §3). Si necesitas otra, justifícala y pregunta.
    Nada de CDN: todo se sirve desde el propio servidor, para que la demo funcione aunque falle
    el internet externo.
@@ -101,9 +102,10 @@ raee-web/
 │   │   ├── escaneo.js        ← extraerId() — ver §6.2
 │   │   ├── ids.js            ← siguienteId(), formato RAEE-NNNN
 │   │   ├── qr.js             ← SVG del QR con URL de ficha
+│   │   ├── eventos.js        ← canal en vivo (Server-Sent Events) — ver §6.6
 │   │   └── validacion.js     ← reglas de negocio §6
 │   ├── routes/               ← publicas.js, piezas.js, etiquetas.js, panel.js, auth.js, api.js
-│   └── views/                ← EJS: layout, ficha, consulta, buscar, registrar, panel, etiquetas…
+│   └── views/                ← EJS: layout, ficha, consulta, buscar, registrar, panel, demo, etiquetas…
 ├── public/                   ← css/, js/, img/, vendor/ (chart.js)
 ├── scripts/
 │   ├── db-init.js            ← aplica schema.sql (+ seed.sql si --seed)
@@ -147,7 +149,10 @@ SESSION_SECRET=cambiar-por-una-cadena-larga-aleatoria
 DB_PATH=./data/raee.db
 FOTOS_DIR=./data/fotos
 MOSTRAR_AVISO_DEMO=true
+# TZ=America/Bogota               # solo en el VPS: las fechas 'localtime' de SQLite dependen de esto
 ```
+
+El `.env` se carga con `process.loadEnvFile()` de Node (sin dependencia `dotenv`).
 
 ## 5. Modelo de datos
 
@@ -204,6 +209,11 @@ puede llegar de cuatro formas, y todas deben resolverse:
 Regex base: `/RAEE[\s\-_]?0*(\d{1,4})/i`. Cubre esta función con pruebas unitarias de **todos**
 los casos de la tabla.
 
+**Orden de evaluación:** primero se detecta el QR antiguo (contiene `Tipo:` u otros rótulos de
+datos, o varias líneas) y **después** se aplica la regex. Si se hiciera al revés, un QR antiguo
+que incluya el ID en su texto pasaría como válido y nunca saldría el aviso ámbar. Pedir a la
+persona un ejemplo real del texto de esos QR para la prueba.
+
 ### 6.3 Qué pasa al escanear un ID
 
 | Situación | Público (sin sesión) | Con sesión de editor |
@@ -246,7 +256,24 @@ Usa `v_panel`. Los rótulos deben ser **honestos**: el jurado puede preguntar po
 
 Gráficos: piezas por categoría (barras horizontales), por destino (dona) y por estado (barras).
 Además, una línea de "últimos movimientos". Agrega `?tv=1` para la versión de proyector: letra
-grande, sin menú y que se recarga cada 30 s.
+grande, sin menú y **actualizado en vivo** (§6.6): las cifras suben con animación y cada
+movimiento aparece como aviso ("🌱 RAEE-0022 → PC-15"). Si el canal en vivo se cae, la página
+vuelve a recargarse cada 30 s como respaldo.
+
+### 6.6 Actualización en vivo (Server-Sent Events)
+
+Es el "momento wow" de la demo: lo que se cambia en el PC proyectado aparece al instante en el
+celular del jurado y en el panel.
+
+- `GET /eventos` abre un canal SSE nativo de Express (`text/event-stream`), **sin dependencias
+  nuevas**. `src/lib/eventos.js` mantiene la lista de clientes y expone `emitir(tipo, datos)`.
+- Cada escritura en `movimientos` emite `movimiento` con `{pieza_id, tipo, valor_nuevo,
+  icono, categoria}` (nunca `notas` ni datos de usuarios).
+- La ficha `/p/:id`, `/panel` y `/demo` escuchan el canal: la ficha se refresca si el evento es
+  de su pieza; el panel vuelve a pedir `v_panel` y anima las cifras.
+- Latido cada 25 s (comentario `:`) para que Nginx y los celulares no corten la conexión. En
+  Nginx: `proxy_buffering off` y `proxy_read_timeout 1h` para `/eventos`.
+- Reconexión automática del `EventSource` del navegador; si no hay soporte, se recarga cada 30 s.
 
 ## 7. Pantallas y rutas
 
@@ -256,8 +283,10 @@ grande, sin menú y que se recarga cada 30 s.
 | `/p/:id` | público | **Ficha** de la pieza, pensada primero para celular. Ver contenido abajo |
 | `/consulta` | público | **Modo kiosco para Barcode to PC.** Un campo grande con foco permanente (si lo pierde, se recupera solo cada 1 s). Al recibir ENTER muestra la ficha en grande, debajo, sin recargar, y limpia el campo. Cada escaneo reemplaza la ficha anterior. Errores en rojo; QR antiguo en ámbar |
 | `/buscar` | público | Texto libre (ID, marca, modelo, serial, descripción) + filtros por categoría, estado, destino y ubicación. Resultados con ícono, ubicación y estado. Filtros en la URL (se pueden compartir). Botón "Exportar a Excel" |
-| `/ubicaciones` y `/ubicaciones/:codigo` | público | Qué hay en cada caja o estante: responde "¿dónde está?" al revés |
-| `/panel` | público | Panel de impacto (§6.5) |
+| `/ubicaciones` y `/ubicaciones/:codigo` | público | **Mapa visual** de la sala: cada caja o estante es una tarjeta con su conteo e íconos de lo que contiene. Responde "¿dónde está?" al revés. `/ubicaciones?resaltar=RAEE-0010` ilumina la caja donde está esa pieza (se enlaza desde la ficha) |
+| `/panel` | público | Panel de impacto (§6.5), en vivo (§6.6) |
+| `/demo` | editor | **Escenario del proyector:** en una sola pantalla, el campo de escaneo con acciones rápidas (como `/movimiento`), la ficha de la pieza escaneada y el panel en vivo con el aviso de movimientos. Evita cambiar de ventana frente al jurado. A 1920 px se ve en tres columnas; en pantallas pequeñas se apila |
+| `/eventos` | público | Canal SSE (§6.6) |
 | `/proyecto` | público | Problema, solución, diagrama del flujo, marco legal (§10.3), equipo de aprendices |
 | `/entrar`, `/salir` | — | Inicio de sesión (límite de 5 intentos cada 15 min por IP) |
 | `/registrar` | editor | Alta. Su primer campo con foco recibe el escaneo del ID (flujo a) o queda vacío para ID automático (flujo b) |
@@ -273,15 +302,18 @@ grande, sin menú y que se recarga cada 30 s.
 
 - ícono y categoría en grande;
 - ID;
-- **ubicación destacada** (es lo primero que se busca);
+- **ubicación destacada** (es lo primero que se busca), con enlace "Ver en el mapa";
 - estado y destino como etiquetas de color;
 - marca, modelo, serial, descripción y peso (con "medido" o "estimado");
 - foto;
 - borrado seguro (solo discos);
-- historial de movimientos;
+- historial de movimientos como **línea de tiempo** vertical con íconos (registro, estado,
+  destino, ubicación, borrado seguro): es la prueba visual de la trazabilidad;
 - mensaje de impacto, según el destino:
   - 🌱 "Volvió a la vida en el equipo PC-15";
   - ♻ "Va a reciclaje certificado: no termina en la basura".
+- se actualiza sola si la pieza cambia mientras está abierta (§6.6), con un resaltado breve
+  de lo que cambió.
 
 Si la pieza es demo, muestra una etiqueta discreta "dato de demostración".
 
@@ -359,17 +391,24 @@ dé una fuente citable. Si las agrega, muestra la fuente en pantalla.
 
 Cada fase termina con: pruebas en verde, demostración a la persona, commit y visto bueno.
 
+El orden prioriza la **ruta crítica de la demo** y despliega **temprano**: los QR llevan
+`BASE_URL`, así que el dominio definitivo debe existir antes de imprimir etiquetas, y conviene
+probar con celulares reales desde el principio.
+
 | Fase | Entrega | Hecho cuando… |
 |---|---|---|
 | **0 · Base** | `package.json`, estructura §4, `.env.example`, `.gitignore`, `db:init`, `db:seed`, `/salud` | `npm run db:seed && npm run dev` → `/salud` responde `{"ok":true,"piezas":36}` |
-| **1 · Lectura** | `extraerId`, `/p/:id` (ficha), `/consulta` (kiosco), `/api/piezas/:id`, layout y estilos | Las pruebas de `extraerId` pasan. En `/consulta`, escribir `RAEE-0010` + ENTER muestra la ficha, y `RAEE-0999` muestra el error rojo |
-| **2 · Búsqueda** | `/buscar`, `/ubicaciones` | Buscar "DDR3" da las RAM DDR3; filtrar por "Sala 1 · Caja 2" da solo lo de esa caja |
-| **3 · Edición** | Sesiones, `admin:crear`, `/registrar` (flujos a y b), editar, fotos, `/movimiento`, historial | Registrar `RAEE-0037` escaneando (preimpresa) funciona. Intentar donar `RAEE-0014` muestra el aviso de borrado seguro. Se crea un movimiento |
-| **4 · Panel** | `/panel` + `?tv=1`, portada con cifras | Las cifras coinciden con `SELECT * FROM v_panel` |
-| **5 · Etiquetas** | `/etiquetas`: hoja A4 y etiqueta pequeña, reservar IDs | Imprimir en PDF y leer 3 QR con la cámara del celular abre la ficha correcta |
-| **6 · Excel** | `excel:importar`, exportar | Importar el Excel original crea o actualiza `RAEE-0001` sin duplicar, y exportar abre bien en Excel |
-| **7 · Pulido** | `/proyecto`, aviso demo, modo oscuro, accesibilidad, `demo:limpiar`, `docs/` | `npm run test:e2e` pasa en 360 px y 1920 px. Lighthouse móvil en la ficha ≥ 90 en accesibilidad |
-| **8 · Despliegue** | VPS (§14) | La URL HTTPS pública abre la ficha al escanear una etiqueta impresa |
+| **1 · Lectura** | `extraerId`, `/p/:id` (ficha mobile-first con línea de tiempo), `/consulta` (kiosco), `/api/piezas/:id`, layout y estilos | Las pruebas de `extraerId` pasan. En `/consulta`, escribir `RAEE-0010` + ENTER muestra la ficha, y `RAEE-0999` muestra el error rojo |
+| **2 · Despliegue temprano** | VPS (§14) con HTTPS y dominio definitivo, `deploy/`, comando `/desplegar` probado | `https://dominio/p/RAEE-0001` abre desde un celular con datos móviles |
+| **3 · Búsqueda** | `/buscar`, `/ubicaciones` con mapa visual y resaltado | Buscar "DDR3" da las RAM DDR3; filtrar por "Sala 1 · Caja 2" da solo lo de esa caja; desde la ficha, "Ver en el mapa" ilumina la caja |
+| **4 · Edición** | Sesiones, `admin:crear`, `/registrar` (flujos a y b), editar, fotos, `/movimiento`, historial | Registrar `RAEE-0037` escaneando (preimpresa) funciona. Intentar donar `RAEE-0014` muestra el aviso de borrado seguro. Se crea un movimiento |
+| **5 · Panel en vivo** | `/panel` + `?tv=1`, `/eventos` (SSE), `/demo`, portada con cifras | Las cifras coinciden con `SELECT * FROM v_panel`. Con la ficha abierta en un celular y `/panel?tv=1` en otra pantalla, un cambio en `/demo` aparece en ambas en menos de 2 s sin recargar |
+| **6 · Etiquetas** | `/etiquetas`: hoja A4 y etiqueta pequeña, reservar IDs | Imprimir en PDF con el `BASE_URL` definitivo y leer 3 QR con la cámara del celular abre la ficha correcta |
+| **7 · Excel** | Exportar (obligatorio, plan B); `excel:importar` solo si el Excel trae piezas reales además de `RAEE-0001` | Exportar abre bien en Excel con las columnas de la hoja Inventario. Si se importa: crea o actualiza `RAEE-0001` sin duplicar |
+| **8 · Pulido** | `/proyecto`, aviso demo, accesibilidad, `demo:limpiar`, `docs/` (guion, protocolo, Barcode to PC), `/admin` mínimo (usuarios, meta, exportar, respaldo, limpiar demo). Si sobra tiempo: modo oscuro, edición de catálogos, acta de entrega imprimible para donación o gestor RAEE | `npm run test:e2e` (recorrido de la demo) pasa en 360 px y 1920 px. Lighthouse móvil en la ficha ≥ 90 en accesibilidad. `/ensayo-demo` sale todo en ✔ |
+
+Cada fase posterior a la 2 termina también con `/desplegar`, para que el VPS tenga siempre la
+última versión aprobada.
 
 ## 12. Pruebas
 
@@ -386,7 +425,8 @@ Cada fase termina con: pruebas en verde, demostración a la persona, commit y vi
 - editar sin sesión: redirige a `/entrar`;
 - POST sin token CSRF: 403;
 - las cifras del panel coinciden con `v_panel`;
-- la API no expone `notas`.
+- la API no expone `notas`;
+- un movimiento emite el evento SSE correspondiente, sin `notas`.
 
 ### 12.3 Protocolo manual con escáner real (`docs/PROTOCOLO_PRUEBAS.md`)
 
@@ -419,12 +459,14 @@ posible:
 1. **Problema** (1 min): fotos de las cajas desordenadas, "nadie sabe qué hay ni dónde".
 2. **Solución** (1 min): diagrama de etiqueta → escaneo → base de datos → ficha, búsqueda y panel
    (`/proyecto`).
-3. **Demo en vivo** (3 min):
-   - un jurado elige una pieza física y la escanea **con su propio celular**: se abre la ficha
-     con su ubicación;
-   - en el PC proyectado, `/movimiento`: se escanea y se cambia a "Reutilizada en la sala ·
-     PC-xx";
-   - `/panel?tv=1` muestra la cifra que sube.
+3. **Demo en vivo** (3 min), los tres momentos:
+   - **"Escanéala tú mismo":** un jurado elige una pieza física y la escanea **con su propio
+     celular**: se abre la ficha con su ubicación y su línea de tiempo;
+   - **"Lo que hago aquí aparece en tu mano":** con la ficha aún abierta en el celular del
+     jurado, en el PC proyectado (`/demo`) se escanea la misma pieza y se cambia a
+     "Reutilizada en la sala · PC-xx". Al instante el celular muestra 🌱 y el panel del
+     proyector sube la cifra con el aviso del movimiento;
+   - **"El sistema protege la información":** ver punto 5.
 4. **Búsqueda** (30 s): "¿Tenemos RAM DDR3 funcional?" se responde con `/buscar`.
 5. **Seguridad de la información** (1 min): un disco no sale sin borrado seguro; se muestra el
    bloqueo.
@@ -446,9 +488,10 @@ posible:
 - datos demo coherentes (o reales cargados);
 - etiquetas de las piezas de la demo impresas y pegadas;
 - HTTPS válido;
-- celular con Barcode to PC conectado a la misma red que el PC.
+- celular con Barcode to PC conectado a la misma red que el PC. **Llevar router o hotspot
+  propio**: no depender del wifi del lugar. Los celulares del jurado entran por datos móviles.
 
-## 14. Despliegue en el VPS (fase 8)
+## 14. Despliegue en el VPS (fase 2, y actualizaciones al cerrar cada fase)
 
 Supuesto: **Ubuntu 22.04/24.04**. Confirma el sistema con `lsb_release -a` y pide los datos de la
 regla 2.3 antes de empezar. Pasos (documentarlos también en `deploy/DESPLIEGUE.md`):
@@ -459,14 +502,16 @@ regla 2.3 antes de empezar. Pasos (documentarlos también en `deploy/DESPLIEGUE.
    --exclude data ./ usuario@vps:/opt/raee-web/`.
 3. Instalar y preparar:
    - `npm ci --omit=dev`;
-   - crear `.env` en el servidor, con `BASE_URL` = dominio o IP pública y `SESSION_SECRET`
-     generado con `openssl rand -hex 32`;
+   - crear `.env` en el servidor, con `BASE_URL` = dominio o IP pública, `SESSION_SECRET`
+     generado con `openssl rand -hex 32` y `TZ=America/Bogota`;
    - `npm run db:seed`;
-   - `npm run admin:crear` (la persona escribe la contraseña; Claude no la ve ni la guarda).
+   - `npm run admin:crear` cuando exista (fase 4) (la persona escribe la contraseña; Claude no
+     la ve ni la guarda).
 4. Arrancar con PM2: `pm2 start deploy/ecosystem.config.cjs && pm2 save && pm2 startup`.
 5. Nginx:
    - copiar `deploy/nginx-raee.conf` a `sites-available` con el dominio correcto (proxy a
-     `127.0.0.1:3100`, `client_max_body_size 10m`);
+     `127.0.0.1:3100`, `client_max_body_size 10m`, y para `/eventos`: `proxy_buffering off`,
+     `proxy_read_timeout 1h`);
    - enlazarlo y ejecutar `nginx -t` **antes** de `systemctl reload nginx`.
 6. HTTPS: `certbot --nginx -d dominio`. **Sin dominio:** desplegar por `http://IP` solo como
    prueba, y advertir que la cámara del celular abrirá el enlace igual, pero sin candado.
@@ -488,7 +533,11 @@ Actualizaciones posteriores: `/desplegar` (comando) hace respaldo, rsync, `npm c
 
 ## 15. Pendientes que dependen de la persona (no inventar)
 
+- [ ] Fecha de la exposición (define qué entra de la fase 8).
 - [ ] Datos del VPS: IP o dominio, usuario SSH, si hay otros sitios en Nginx.
+- [ ] Excel original `Inventario_RAEE_Sala_Sistemas.xlsx` (columnas de la exportación e
+      importación).
+- [ ] Ejemplo real del texto de un QR antiguo (prueba de `QR_ANTIGUO`, §6.2).
 - [ ] Dominio o subdominio definitivo para los QR.
 - [ ] Nombres de los aprendices del equipo y del instructor para `/proyecto`.
 - [ ] Fotos reales de "antes" para la portada y la exposición.

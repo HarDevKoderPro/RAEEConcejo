@@ -1,0 +1,8 @@
+node_modules/
+data/
+*.db
+*.db-*
+.env
+Desktop.ini
+test-results/
+playwright-report/

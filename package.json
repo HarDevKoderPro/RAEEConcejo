@@ -1,0 +1,24 @@
+{
+  "name": "raee-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Inventario RAEE de la Sala de Sistemas: etiquetas QR, ficha pública, búsqueda y panel de impacto",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "db:init": "node scripts/db-init.js",
+    "db:seed": "node scripts/db-init.js --seed",
+    "test": "node --test \"tests/**/*.test.js\""
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.22.3"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
+  }
+}
