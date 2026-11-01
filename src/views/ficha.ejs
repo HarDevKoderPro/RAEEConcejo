@@ -1,0 +1,82 @@
+<%- include('parciales/cabecera') %>
+<article class="ficha" aria-labelledby="ficha-id">
+  <header class="tarjeta ficha-cabecera">
+    <div class="ficha-icono" aria-hidden="true"><%= pieza.icono %></div>
+    <div class="ficha-titulos">
+      <p class="ficha-categoria"><%= pieza.categoria %></p>
+      <h1 id="ficha-id" class="ficha-id"><%= pieza.id %></h1>
+      <% if (pieza.demo) { %><span class="etiqueta-demo">dato de demostración</span><% } %>
+    </div>
+  </header>
+
+  <section class="tarjeta ubicacion-destacada" aria-label="Ubicación">
+    <span class="ubicacion-icono" aria-hidden="true">📍</span>
+    <div>
+      <p class="rotulo">Dónde está</p>
+      <% if (pieza.ubicacion) { %>
+        <p class="ubicacion-nombre"><%= pieza.ubicacion_nombre %></p>
+        <p class="ubicacion-codigo">Código <%= pieza.ubicacion %></p>
+      <% } else { %>
+        <p class="ubicacion-nombre">Sin ubicación asignada</p>
+      <% } %>
+    </div>
+  </section>
+
+  <div class="insignias">
+    <span class="insignia estado-<%= pieza.clase_estado %>"><span class="insignia-rotulo">Estado</span> <%= pieza.estado %></span>
+    <span class="insignia destino-<%= pieza.clase_destino %>"><span class="insignia-rotulo">Destino</span> <%= pieza.destino %></span>
+  </div>
+
+  <p class="impacto impacto-<%= pieza.clase_destino %>">
+    <span aria-hidden="true"><%= pieza.impacto.icono %></span> <%= pieza.impacto.texto %>
+  </p>
+
+  <section class="tarjeta" aria-labelledby="t-datos">
+    <h2 id="t-datos">Datos de la pieza</h2>
+    <dl class="datos">
+      <div><dt>Marca</dt><dd><%= pieza.marca || 'Sin registrar' %></dd></div>
+      <div><dt>Modelo / P/N</dt><dd><%= pieza.modelo_pn || 'Sin registrar' %></dd></div>
+      <div><dt>Serial</dt><dd class="mono"><%= pieza.serial || 'Sin registrar' %></dd></div>
+      <div><dt>Peso</dt><dd><%= pieza.peso_texto %> <span class="nota-peso">(<%= pieza.peso_origen %>)</span></dd></div>
+      <div class="ancho"><dt>Descripción</dt><dd><%= pieza.descripcion || 'Sin descripción' %></dd></div>
+      <% if (pieza.equipo_destino) { %>
+      <div><dt>Equipo de destino</dt><dd><%= pieza.equipo_destino %></dd></div>
+      <% } %>
+      <div><dt>Ingreso</dt><dd><%= pieza.fecha_ingreso_texto %></dd></div>
+    </dl>
+    <% if (pieza.requiere_borrado) { %>
+      <% if (pieza.borrado_seguro === 'Sí') { %>
+      <p class="borrado borrado-si"><span aria-hidden="true">🔒</span> <strong>Borrado seguro realizado.</strong> La información del disco ya se eliminó.</p>
+      <% } else { %>
+      <p class="borrado borrado-no"><span aria-hidden="true">⚠️</span> <strong>Borrado seguro pendiente.</strong> Este disco no puede donarse, reutilizarse ni entregarse a reciclaje hasta borrarlo.</p>
+      <% } %>
+    <% } %>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-historial">
+    <h2 id="t-historial">Historial</h2>
+    <% if (historial.length === 0) { %>
+      <p class="vacio">Todavía no hay movimientos registrados.</p>
+    <% } else { %>
+    <ol class="linea-tiempo">
+      <% for (const m of historial) { %>
+      <li class="hito hito-<%= m.tipo %>">
+        <span class="hito-icono" aria-hidden="true"><%= m.icono %></span>
+        <div class="hito-cuerpo">
+          <p class="hito-titulo"><%= m.titulo %></p>
+          <p class="hito-detalle">
+            <% if (m.tipo === 'borrado_seguro' && m.valor_nuevo === 'Sí') { %>Información eliminada y verificada
+            <% } else if (m.valor_anterior) { %><%= m.valor_anterior %> <span aria-label="cambió a">→</span> <strong><%= m.valor_nuevo %></strong>
+            <% } else { %><%= m.valor_nuevo %><% } %>
+          </p>
+          <time class="hito-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time>
+        </div>
+      </li>
+      <% } %>
+    </ol>
+    <% } %>
+  </section>
+
+  <p class="ficha-pie">Última actualización: <%= pieza.actualizado_texto %></p>
+</article>
+<%- include('parciales/pie') %>

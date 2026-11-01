@@ -1,0 +1,26 @@
+<%- include('parciales/cabecera') %>
+<section class="kiosco-escaner">
+  <h1>Consulta por escaneo</h1>
+  <form id="form-escaneo" class="form-escaneo" autocomplete="off">
+    <label for="escaneo">Haz clic aquí y escanea la etiqueta (o escribe el ID y presiona ENTER)</label>
+    <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus
+           spellcheck="false" autocapitalize="characters" maxlength="2000"
+           placeholder="Escanea aquí…" aria-describedby="estado-escaneo">
+    <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+  </form>
+  <noscript><p class="resultado resultado-error">Esta pantalla necesita JavaScript. Usa el formulario “Ver ficha” de la portada.</p></noscript>
+</section>
+
+<section id="resultado" class="kiosco-resultado" aria-live="polite">
+  <div class="tarjeta resultado resultado-neutro">
+    <p class="resultado-icono" aria-hidden="true">📷</p>
+    <p>Aquí aparecerá la ficha de la pieza escaneada.</p>
+  </div>
+</section>
+
+<section class="kiosco-recientes" aria-labelledby="t-recientes" hidden>
+  <h2 id="t-recientes">Escaneos recientes</h2>
+  <ol id="recientes" class="lista-recientes"></ol>
+</section>
+<% scripts.push('/js/consulta.js') %>
+<%- include('parciales/pie') %>

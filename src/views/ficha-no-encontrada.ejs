@@ -1,0 +1,14 @@
+<%- include('parciales/cabecera') %>
+<% const sinRegistrar = resultado === 'sin_registrar'; %>
+<section class="tarjeta resultado <%= sinRegistrar ? 'resultado-info' : 'resultado-error' %>" role="status">
+  <p class="resultado-icono" aria-hidden="true"><%= sinRegistrar ? '🏷️' : '✖' %></p>
+  <h1><%= sinRegistrar ? 'Etiqueta sin registrar' : 'No está en el inventario' %></h1>
+  <p class="resultado-id mono"><%= idBuscado %></p>
+  <% if (sinRegistrar) { %>
+    <p>Esta etiqueta ya se imprimió<% if (etiqueta && etiqueta.lote) { %> (<%= etiqueta.lote %>)<% } %>, pero la pieza todavía no se ha registrado en el inventario.</p>
+  <% } else { %>
+    <p>Revisa que el código esté bien escrito o escanéalo de nuevo.</p>
+  <% } %>
+</section>
+<%- include('parciales/buscar-id') %>
+<%- include('parciales/pie') %>

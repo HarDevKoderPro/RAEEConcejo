@@ -33,6 +33,17 @@ Comprobación rápida: <http://localhost:3100/salud> debe responder `{"ok":true,
 
 Comandos de Claude Code: `/verificar`, `/ensayo-demo`, `/desplegar`.
 
+## Pantallas disponibles
+
+| Ruta | Qué muestra |
+|---|---|
+| `/` | Portada con acceso a la consulta y fichas de ejemplo |
+| `/p/RAEE-0010` | Ficha de la pieza: ubicación, estado, destino, datos e historial |
+| `/consulta` | Modo kiosco para Barcode to PC: escanear y ver la ficha sin recargar |
+| `/api/piezas/:id` | Datos de la pieza en JSON (sin notas internas) |
+| `/api/escaneo?texto=…` | Interpreta el texto crudo del escáner (lo usa `/consulta`) |
+| `/salud` | Estado del servicio |
+
 ## Datos incluidos
 
 `db/seed.sql` tiene 36 piezas. `RAEE-0001` es el registro real del Excel; las demás son datos
