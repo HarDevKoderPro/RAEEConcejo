@@ -1,5 +1,15 @@
-# Inventario RAEE · imagen de producción
-# better-sqlite3 trae binarios precompilados para Linux x64 (glibc), por eso se usa bookworm-slim.
+# Inventario RAEE · imagen de producción (dos etapas)
+
+# 1) Dependencias: better-sqlite3 se compila si no hay binario precompilado para esta versión de Node.
+FROM node:22-bookworm-slim AS dependencias
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends python3 make g++ \
+ && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# 2) Imagen final, sin herramientas de compilación.
 FROM node:22-bookworm-slim
 
 ENV NODE_ENV=production \
@@ -10,8 +20,8 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
+COPY --from=dependencias /app/node_modules ./node_modules
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
 
 COPY db ./db
 COPY src ./src
