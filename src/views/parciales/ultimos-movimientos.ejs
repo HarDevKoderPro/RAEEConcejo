@@ -1,0 +1,10 @@
+<% if (!movimientos.length) { %>
+<li class="vacio">Todavía no hay movimientos.</li>
+<% } %>
+<% for (const m of movimientos) { %>
+<li class="ultimo ultimo-<%= m.tipo %>">
+  <span class="ultimo-icono" aria-hidden="true"><%= m.icono %></span>
+  <span class="ultimo-texto"><a class="mono" href="/p/<%= m.pieza_id %>"><%= m.pieza_id %></a> <span aria-hidden="true"><%= m.icono_categoria %></span> <%= m.texto %></span>
+  <time class="ultimo-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time>
+</li>
+<% } %>

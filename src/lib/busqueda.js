@@ -38,7 +38,8 @@ const escaparLike = (t) => t.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 // Cada palabra del texto debe aparecer en algún campo (ID, marca, modelo, serial,
 // descripción, categoría o ubicación). Un ID escrito como "raee 10" se reconoce también.
-export function buscarPiezas(db, f) {
+// Condición WHERE parametrizada de una búsqueda (la usan /buscar y la exportación a Excel).
+export function filtroSql(f) {
   const condiciones = [];
   const params = [];
 
@@ -63,7 +64,11 @@ export function buscarPiezas(db, f) {
   if (f.destino) { condiciones.push('destino = ?'); params.push(f.destino); }
   if (f.ubicacion) { condiciones.push('ubicacion = ?'); params.push(f.ubicacion); }
 
-  const where = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+  return { where: condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '', params };
+}
+
+export function buscarPiezas(db, f) {
+  const { where, params } = filtroSql(f);
   const filas = db
     .prepare(
       `SELECT id, categoria, icono, marca, modelo_pn, descripcion, estado, destino,

@@ -1,5 +1,7 @@
 # Recorrido de punta a punta · versión de escritorio
 
+> Para una revisión rápida usa primero [`GUIA_DE_PRUEBA.md`](GUIA_DE_PRUEBA.md). Este documento es el detalle.
+
 Guía para probar el flujo completo del inventario con ejemplos reales de la base de demostración.
 Cada escenario dice qué hacer y qué debe pasar. Marca ✔ o ✘ en cada uno.
 
@@ -81,9 +83,7 @@ pieza". El peso aparece como *medido*.
 
 **Debe pasar:**
 - en Movimiento sale "✔ Destino → Reutilizada en la sala · PC-15. 🌱 Volvió a la vida en el equipo PC-15";
-- al **recargar** la otra ventana, la ficha muestra 🌱 y el historial "Pendiente → Reutilizada en la sala → PC-15".
-
-> En la **fase 5** la otra ventana se actualizará **sola, sin recargar**, y el panel subirá la cifra.
+- la otra ventana se actualiza **sola, sin recargar**: muestra 🌱 con un resaltado y el historial "Pendiente → Reutilizada en la sala → PC-15".
 
 ### B5 · Cambiar estado y ubicación sin formularios
 

@@ -1,0 +1,89 @@
+<%- include('parciales/cabecera') %>
+<article class="proyecto">
+  <header class="portada">
+    <p class="portada-sobretitulo">Proyecto productivo SENA · <%= config.programa || 'Técnico en Sistemas Teleinformáticos' %></p>
+    <h1>Inventario trazable de residuos electrónicos</h1>
+    <p class="portada-texto">En la <%= config.nombre_sala || 'Sala de Sistemas' %> había cajas con piezas de computador en desuso.
+      Nadie sabía con certeza qué había, dónde estaba ni qué pasaba con cada pieza. Este proyecto le da a cada una
+      un nombre, un lugar y un destino.</p>
+  </header>
+
+  <section class="tarjeta" aria-labelledby="t-problema">
+    <h2 id="t-problema">El problema</h2>
+    <ul class="lista-puntos">
+      <li>Tarjetas madre, memorias, discos y fuentes guardados en cajas sin orden.</li>
+      <li>Un inventario en Excel que solo se podía consultar en un PC, sin fotos ni historial.</li>
+      <li>Discos que podían salir de la institución con información adentro.</li>
+      <li>Sin forma de mostrar cuánto se recuperaba realmente.</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-solucion">
+    <h2 id="t-solucion">La solución: de la caja a la ficha</h2>
+    <ol class="flujo">
+      <li class="flujo-paso"><span class="flujo-icono" aria-hidden="true">🏷️</span><strong>Etiqueta</strong><span>Cada pieza recibe un QR único: RAEE-0001, RAEE-0002…</span></li>
+      <li class="flujo-paso"><span class="flujo-icono" aria-hidden="true">📱</span><strong>Escaneo</strong><span>Con Barcode to PC o con la cámara de cualquier celular.</span></li>
+      <li class="flujo-paso"><span class="flujo-icono" aria-hidden="true">🗄️</span><strong>Base de datos</strong><span>Se registra o actualiza, y cada cambio queda en el historial.</span></li>
+      <li class="flujo-paso"><span class="flujo-icono" aria-hidden="true">📊</span><strong>Ficha, búsqueda y panel</strong><span>Dónde está, qué es, qué pasó con ella y cuánto se ha recuperado.</span></li>
+    </ol>
+    <p class="acciones">
+      <a class="boton" href="/consulta">Probar la consulta</a>
+      <a class="boton boton-secundario" href="/buscar">Buscar piezas</a>
+      <a class="boton boton-secundario" href="/panel">Ver el panel</a>
+    </p>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-mejoras">
+    <h2 id="t-mejoras">Lo que el Excel no podía hacer</h2>
+    <ul class="rejilla-mejoras">
+      <li>📱 Ver la ficha desde cualquier celular, sin instalar nada</li>
+      <li>🔍 Buscar y filtrar por componente o por ubicación</li>
+      <li>👥 Trabajar varias personas a la vez</li>
+      <li>🏷️ Generar las etiquetas solo</li>
+      <li>🕒 Guardar el historial de cada pieza</li>
+      <li>⚡ Mostrar los cambios en vivo</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-seguridad">
+    <h2 id="t-seguridad">🔒 Seguridad de la información</h2>
+    <p>Un disco duro puede guardar información de la institución. El sistema <strong>no deja</strong> que un disco se done, se
+      reinstale ni vaya a reciclaje hasta que alguien haga el borrado seguro y lo marque. La regla está en la base de
+      datos misma, no solo en la pantalla.</p>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-hallazgos">
+    <h2 id="t-hallazgos">Pruebas y hallazgos</h2>
+    <p>Se probó leer los códigos de barras que traen las piezas de fábrica: <strong>no se leyeron bien</strong>. Por eso el modelo
+      y el serial se escriben a mano, y el escaneo se usa solo para la etiqueta propia del inventario.</p>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-legal">
+    <h2 id="t-legal">Marco legal en Colombia</h2>
+    <ul class="lista-normas">
+      <li><strong>Ley 1672 de 2013</strong>: política pública de gestión integral de residuos de aparatos eléctricos y electrónicos (RAEE).</li>
+      <li><strong>Decreto 284 de 2018</strong>: reglamenta la gestión integral de los RAEE.</li>
+      <li><strong>Resolución 1512 de 2010</strong>: sistemas de recolección selectiva y gestión ambiental de residuos de computadores y/o periféricos.</li>
+    </ul>
+  </section>
+
+  <section class="tarjeta" aria-labelledby="t-tecnica">
+    <h2 id="t-tecnica">Cómo está hecho</h2>
+    <p>Node.js y Express en el servidor, base de datos SQLite (un solo archivo con respaldo diario), páginas que funcionan en
+      celulares sencillos y actualización en vivo con Server-Sent Events. Publicado con HTTPS en un servidor propio.
+      Todo se sirve desde el mismo servidor: la demostración funciona aunque falle el internet externo.</p>
+  </section>
+
+  <% if (equipo.length || config.instructor) { %>
+  <section class="tarjeta" aria-labelledby="t-equipo">
+    <h2 id="t-equipo">Equipo</h2>
+    <% if (equipo.length) { %>
+    <ul class="lista-equipo">
+      <% for (const persona of equipo) { %><li>👤 <%= persona %></li><% } %>
+    </ul>
+    <% } %>
+    <% if (config.instructor) { %><p><strong>Instructor:</strong> <%= config.instructor %></p><% } %>
+  </section>
+  <% } %>
+</article>
+<%- include('parciales/pie') %>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo %> · Inventario RAEE</title>
+  <link rel="icon" href="/img/icono.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/etiquetas.css">
+</head>
+<body class="tam-<%= tam %>">
+  <header class="barra-impresion">
+    <div class="barra-impresion-interior">
+      <div>
+        <h1>🏷️ <%= tituloHoja %></h1>
+        <p><strong><%= total %></strong> etiqueta<%= total === 1 ? '' : 's' %> <%= tam === 'pequena' ? 'pequeñas (2 × 1 cm)' : 'normales' %> · <%= hojas.length %> hoja<%= hojas.length === 1 ? '' : 's' %> A4</p>
+      </div>
+      <div class="barra-acciones">
+        <a class="boton boton-claro" href="/etiquetas/hoja?<%= new URLSearchParams({ ...query, tam: tam === 'pequena' ? 'normal' : 'pequena' }).toString() %>"><%= tam === 'pequena' ? 'Ver tamaño normal' : 'Ver tamaño pequeño' %></a>
+        <button class="boton" type="button" id="imprimir">🖨️ Imprimir</button>
+      </div>
+    </div>
+    <ol class="instrucciones">
+      <li><strong>Imprimir al 100 %, sin ajustar a página</strong> (escala «Predeterminada» o 100 %, márgenes «Ninguno»), en papel A4.</li>
+      <li>Prueba primero con la cámara del celular: el QR debe abrir la ficha a 10–20 cm.</li>
+      <li>Cuando las hayas pegado, márcalas como impresas:</li>
+    </ol>
+    <% if (local) { %>
+    <p class="alerta">⚠️ Los QR apuntan a <strong><%= baseUrl %></strong>: un celular no podrá abrirlos. Imprime las definitivas desde https://raee.smarteksoft.com.</p>
+    <% } %>
+    <form action="/etiquetas/impresas" method="post" class="form-impresas">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <input type="hidden" name="ids" value="<%= ids.join(',') %>">
+      <button class="boton boton-claro" type="submit">✔ Ya las imprimí y pegué</button>
+      <a href="/etiquetas">← Volver a etiquetas</a>
+    </form>
+  </header>
+
+  <main>
+    <% for (const hoja of hojas) { %>
+    <section class="hoja" aria-label="Hoja A4">
+      <% for (const e of hoja) { %>
+      <% if (tam === 'pequena') { %>
+      <div class="etiqueta-pequena">
+        <%- e.qr %>
+        <span class="id-pequeno"><%= e.id.replace('RAEE-', '') %><small>RAEE</small></span>
+      </div>
+      <% } else { %>
+      <div class="etiqueta">
+        <span class="franja" aria-hidden="true"></span>
+        <%- e.qr %>
+        <div class="etiqueta-texto">
+          <span class="sala">SALA DE SISTEMAS<% if (e.icono) { %> <span class="icono-cat" title="<%= e.categoria %>"><%= e.icono %></span><% } %></span>
+          <span class="id"><%= e.id %></span>
+          <span class="leyenda">Inventario de residuos electrónicos</span>
+          <span class="no-retirar">No retirar esta etiqueta</span>
+        </div>
+      </div>
+      <% } %>
+      <% } %>
+    </section>
+    <% } %>
+  </main>
+  <script src="/js/imprimir.js" type="module"></script>
+</body>
+</html>

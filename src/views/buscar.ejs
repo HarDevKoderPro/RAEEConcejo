@@ -53,6 +53,9 @@
   <p>
     <strong><%= piezas.length %></strong> <%= piezas.length === 1 ? 'pieza' : 'piezas' %><%= conFiltros ? '' : ' en total' %>
     <% if (recortado) { %>(se muestran las primeras <%= piezas.length %>; afina la búsqueda)<% } %>
+    <% if (piezas.length) { %>
+    <a class="boton boton-secundario boton-exportar" href="<%= urlBusqueda({}).replace('/buscar', '/exportar.xlsx') %>" download>⬇ Exportar a Excel</a>
+    <% } %>
   </p>
   <% if (!conFiltros) { %>
   <p class="chips"><span class="rotulo-ejemplos">Prueba:</span>

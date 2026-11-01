@@ -1,8 +1,11 @@
   </main>
+  <% if (!locals.modoTv) { %>
   <footer class="pie">
     <p>Proyecto productivo SENA · Técnico en Sistemas Teleinformáticos</p>
     <p>Residuos de aparatos eléctricos y electrónicos (RAEE) con trazabilidad</p>
+    <p><a href="/proyecto">Sobre el proyecto</a></p>
   </footer>
+  <% } %>
   <% for (const s of scripts) { %><script src="<%= s %>" type="module"></script><% } %>
 </body>
 </html>

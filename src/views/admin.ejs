@@ -1,0 +1,132 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <h1>⚙️ Administración</h1>
+  <p class="subtitulo">Usuarios, meta del semestre, respaldo y limpieza de los datos de demostración.</p>
+
+  <nav class="indice-admin" aria-label="Secciones">
+    <a href="#usuarios">Usuarios</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a>
+  </nav>
+
+  <section class="tarjeta" id="usuarios" aria-labelledby="t-usuarios">
+    <h2 id="t-usuarios">👤 Usuarios</h2>
+    <% if (errores.usuarios) { %><p class="campo-error-general" role="alert"><%= errores.usuarios %></p><% } %>
+    <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead><tr><th scope="col">Usuario</th><th scope="col">Nombre</th><th scope="col">Rol</th><th scope="col">Creado</th><th scope="col"><span class="sr">Acción</span></th></tr></thead>
+      <tbody>
+        <% for (const u of usuarios) { %>
+        <tr>
+          <td class="mono"><%= u.usuario %></td>
+          <td><%= u.nombre %></td>
+          <td><%= u.rol === 'admin' ? 'Administrador' : 'Editor' %></td>
+          <td><%= u.creado_en.slice(0, 10) %></td>
+          <td>
+            <% if (u.usuario !== usuario.usuario) { %>
+            <form action="/admin/usuarios/<%= u.id %>/borrar" method="post" class="form-en-linea">
+              <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+              <button type="submit" class="boton-texto boton-peligro">Borrar</button>
+            </form>
+            <% } else { %><span class="rotulo">tú</span><% } %>
+          </td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+
+    <h3 class="separado">Nuevo usuario</h3>
+    <form action="/admin/usuarios" method="post" class="formulario" autocomplete="off">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <% if (errores.usuario) { %><p class="campo-error-general" role="alert"><%= errores.usuario %></p><% } %>
+      <div class="rejilla-campos">
+        <div class="campo">
+          <label for="n-usuario">Usuario</label>
+          <input id="n-usuario" name="usuario" type="text" maxlength="30" required value="<%= nuevo.usuario || '' %>" placeholder="ej.: aprendiz.ana" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="campo">
+          <label for="n-nombre">Nombre para mostrar</label>
+          <input id="n-nombre" name="nombre" type="text" maxlength="60" required value="<%= nuevo.nombre || '' %>" placeholder="ej.: Ana Gómez">
+        </div>
+        <div class="campo">
+          <label for="n-rol">Rol</label>
+          <select id="n-rol" name="rol">
+            <option value="editor" <%= nuevo.rol !== 'admin' ? 'selected' : '' %>>Editor (registra y mueve piezas)</option>
+            <option value="admin" <%= nuevo.rol === 'admin' ? 'selected' : '' %>>Administrador (además, esta página)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="n-clave">Contraseña <span class="recomendado">mín. 8</span></label>
+          <input id="n-clave" name="contrasena" type="password" minlength="8" required autocomplete="new-password">
+        </div>
+        <div class="campo">
+          <label for="n-repetir">Repite la contraseña</label>
+          <input id="n-repetir" name="repetir" type="password" minlength="8" required autocomplete="new-password">
+        </div>
+      </div>
+      <button class="boton" type="submit">Crear usuario</button>
+    </form>
+  </section>
+
+  <section class="tarjeta" id="config" aria-labelledby="t-config">
+    <h2 id="t-config">🎯 Proyecto y meta</h2>
+    <form action="/admin/config" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <div class="rejilla-campos">
+        <div class="campo">
+          <label for="c-meta">Meta del semestre (piezas)</label>
+          <input id="c-meta" name="meta_semestre" type="number" min="1" max="100000" required value="<%= config.meta_semestre || '' %>"
+            <%- errores.meta_semestre ? 'aria-invalid="true" aria-describedby="e-meta"' : '' %>>
+          <% if (errores.meta_semestre) { %><p class="campo-error" id="e-meta"><%= errores.meta_semestre %></p><% } %>
+        </div>
+        <div class="campo">
+          <label for="c-sala">Nombre de la sala</label>
+          <input id="c-sala" name="nombre_sala" type="text" maxlength="80" required value="<%= config.nombre_sala || '' %>"
+            <%- errores.nombre_sala ? 'aria-invalid="true" aria-describedby="e-sala"' : '' %>>
+          <% if (errores.nombre_sala) { %><p class="campo-error" id="e-sala"><%= errores.nombre_sala %></p><% } %>
+        </div>
+        <div class="campo">
+          <label for="c-instructor">Instructor <span class="recomendado">opcional</span></label>
+          <input id="c-instructor" name="instructor" type="text" maxlength="80" value="<%= config.instructor || '' %>">
+        </div>
+      </div>
+      <div class="campo">
+        <label for="c-equipo">Aprendices del equipo <span class="recomendado">uno por línea</span></label>
+        <textarea id="c-equipo" name="equipo" rows="4" maxlength="2000"><%= config.equipo || '' %></textarea>
+        <p class="ayuda">Aparecen en la página <a href="/proyecto">Sobre el proyecto</a>. Si queda vacío, esa sección no se muestra.</p>
+      </div>
+      <button class="boton" type="submit">Guardar</button>
+    </form>
+  </section>
+
+  <section class="tarjeta" id="datos" aria-labelledby="t-datos">
+    <h2 id="t-datos">💾 Exportar y respaldar</h2>
+    <p>El Excel tiene las columnas de la hoja Inventario, más el panel y el historial de movimientos. Es el <strong>plan B</strong> de la exposición.</p>
+    <p class="acciones">
+      <a class="boton" href="/exportar.xlsx" download>⬇ Exportar inventario a Excel</a>
+      <a class="boton boton-secundario" href="/admin/respaldo" download>⬇ Descargar respaldo de la base</a>
+    </p>
+    <p class="ayuda">El respaldo es una copia exacta de la base (incluye usuarios con sus contraseñas cifradas): guárdalo en un lugar privado.
+      En el VPS, además, se hace un respaldo automático cada noche a las 2:00 a. m. y se guardan 14 días.</p>
+  </section>
+
+  <section class="tarjeta zona-peligro" id="demo" aria-labelledby="t-demo">
+    <h2 id="t-demo">🧹 Datos de demostración</h2>
+    <% if (demo.piezas) { %>
+    <p>Hay <strong><%= demo.piezas %></strong> piezas de demostración y <strong><%= demo.reales %></strong> real<%= demo.reales === 1 ? '' : 'es' %>.
+      Bórralas <strong>después de la exposición</strong>, cuando empiecen a cargar las piezas reales. Las piezas reales (como RAEE-0001) y las etiquetas impresas no se tocan.</p>
+    <form action="/admin/limpiar-demo" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <div class="campo">
+        <label for="confirmar">Para confirmar, escribe <strong class="mono"><%= frase %></strong></label>
+        <input id="confirmar" name="confirmar" type="text" autocomplete="off" spellcheck="false" maxlength="30"
+          <%- errores.demo ? 'aria-invalid="true" aria-describedby="e-demo"' : '' %>>
+        <% if (errores.demo) { %><p class="campo-error" id="e-demo"><%= errores.demo %></p><% } %>
+      </div>
+      <button class="boton boton-peligro" type="submit">Borrar las <%= demo.piezas %> piezas de demostración</button>
+    </form>
+    <% } else { %>
+    <p class="vacio">No quedan datos de demostración: todo el inventario es real.</p>
+    <% } %>
+  </section>
+</div>
+<%- include('parciales/pie') %>

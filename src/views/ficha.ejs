@@ -1,5 +1,6 @@
 <%- include('parciales/cabecera') %>
-<article class="ficha" aria-labelledby="ficha-id">
+<p id="aviso-actualizada" class="aviso aviso-ok aviso-flotante" role="status" hidden>✔ Esta ficha se acaba de actualizar</p>
+<article class="ficha" aria-labelledby="ficha-id" data-pieza="<%= pieza.id %>">
   <header class="tarjeta ficha-cabecera">
     <div class="ficha-icono" aria-hidden="true"><%= pieza.icono %></div>
     <div class="ficha-titulos">
@@ -13,13 +14,14 @@
   <nav class="acciones-editor" aria-label="Acciones del editor">
     <a class="boton" href="/movimiento?id=<%= pieza.id %>">⚡ Movimiento rápido</a>
     <a class="boton boton-secundario" href="/p/<%= pieza.id %>/editar">✏️ Editar todo</a>
+    <a class="boton boton-secundario" href="/etiquetas/hoja?ids=<%= pieza.id %>">🏷️ Imprimir etiqueta</a>
   </nav>
   <% if (etiqueta && etiqueta.formato === 'ID') { %>
-  <p class="aviso aviso-info">🏷️ Su etiqueta es del lote antiguo (solo texto). Conviene reimprimirla con enlace para que cualquier celular abra esta ficha.</p>
+  <p class="aviso aviso-info">🏷️ Su etiqueta es del lote antiguo (solo texto). Conviene reimprimirla con enlace para que cualquier celular abra esta ficha. <a href="/etiquetas/hoja?ids=<%= pieza.id %>">Reimprimir etiqueta</a></p>
   <% } %>
   <% } %>
 
-  <section class="tarjeta ubicacion-destacada" aria-label="Ubicación">
+  <section class="tarjeta ubicacion-destacada" aria-label="Ubicación" data-vivo="ubicacion">
     <span class="ubicacion-icono" aria-hidden="true">📍</span>
     <div>
       <p class="rotulo">Dónde está</p>
@@ -34,11 +36,11 @@
   </section>
 
   <div class="insignias">
-    <span class="insignia estado-<%= pieza.clase_estado %>"><span class="insignia-rotulo">Estado</span> <%= pieza.estado %></span>
-    <span class="insignia destino-<%= pieza.clase_destino %>"><span class="insignia-rotulo">Destino</span> <%= pieza.destino %></span>
+    <span class="insignia estado-<%= pieza.clase_estado %>" data-vivo="estado"><span class="insignia-rotulo">Estado</span> <%= pieza.estado %></span>
+    <span class="insignia destino-<%= pieza.clase_destino %>" data-vivo="destino"><span class="insignia-rotulo">Destino</span> <%= pieza.destino %></span>
   </div>
 
-  <p class="impacto impacto-<%= pieza.clase_destino %>">
+  <p class="impacto impacto-<%= pieza.clase_destino %>" data-vivo="impacto">
     <span aria-hidden="true"><%= pieza.impacto.icono %></span> <%= pieza.impacto.texto %>
   </p>
 
@@ -63,9 +65,9 @@
     </dl>
     <% if (pieza.requiere_borrado) { %>
       <% if (pieza.borrado_seguro === 'Sí') { %>
-      <p class="borrado borrado-si"><span aria-hidden="true">🔒</span> <strong>Borrado seguro realizado.</strong> La información del disco ya se eliminó.</p>
+      <p class="borrado borrado-si" data-vivo="borrado"><span aria-hidden="true">🔒</span> <strong>Borrado seguro realizado.</strong> La información del disco ya se eliminó.</p>
       <% } else { %>
-      <p class="borrado borrado-no"><span aria-hidden="true">⚠️</span> <strong>Borrado seguro pendiente.</strong> Este disco no puede donarse, reutilizarse ni entregarse a reciclaje hasta borrarlo.</p>
+      <p class="borrado borrado-no" data-vivo="borrado"><span aria-hidden="true">⚠️</span> <strong>Borrado seguro pendiente.</strong> Este disco no puede donarse, reutilizarse ni entregarse a reciclaje hasta borrarlo.</p>
       <% } %>
     <% } %>
     <% if (usuario && pieza.notas) { %>
@@ -78,7 +80,7 @@
     <% if (historial.length === 0) { %>
       <p class="vacio">Todavía no hay movimientos registrados.</p>
     <% } else { %>
-    <ol class="linea-tiempo">
+    <ol class="linea-tiempo" data-vivo="historial">
       <% for (const m of historial) { %>
       <li class="hito hito-<%= m.tipo %>">
         <span class="hito-icono" aria-hidden="true"><%= m.icono %></span>
@@ -100,4 +102,5 @@
 
   <p class="ficha-pie">Última actualización: <%= pieza.actualizado_texto %></p>
 </article>
+<% scripts.push('/js/ficha.js') %>
 <%- include('parciales/pie') %>

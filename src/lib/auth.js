@@ -39,3 +39,14 @@ export function requiereEditor(req, res, next) {
   }
   res.redirect(303, `/entrar?siguiente=${encodeURIComponent(req.originalUrl)}`);
 }
+
+// Solo administradores (/admin). Un editor con sesión recibe un 403 amable.
+export function requiereAdmin(req, res, next) {
+  if (!req.session?.usuario) return requiereEditor(req, res, next);
+  if (req.session.usuario.rol === 'admin') return next();
+  res.status(403).render('error', {
+    titulo: 'Solo administradores',
+    icono: '🔒',
+    mensaje: 'Esta sección es solo para administradores. Pídele a un administrador que haga este cambio.',
+  });
+}

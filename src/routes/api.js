@@ -5,6 +5,7 @@ import { catalogos, leerFiltros, buscarPiezas } from '../lib/busqueda.js';
 import { requiereEditor } from '../lib/auth.js';
 import { catalogosFormulario, traducirErrorSqlite, MENSAJE_BORRADO_SEGURO } from '../lib/validacion.js';
 import { cambioRapido } from '../lib/movimientos.js';
+import { datosPanel } from '../lib/panel.js';
 
 const MENSAJES_RESULTADO = {
   sin_registrar: 'Etiqueta sin registrar: el ID existe, pero la pieza aún no se ha registrado.',
@@ -50,6 +51,11 @@ export function rutasApi({ db }) {
     const filtros = leerFiltros(req.query, catalogos(db));
     const { piezas, recortado } = buscarPiezas(db, filtros);
     res.json({ filtros, total: piezas.length, recortado, piezas });
+  });
+
+  // Cifras del panel (v_panel), gráficos y últimos movimientos, sin usuarios ni notas.
+  r.get('/panel', (req, res) => {
+    res.set('Cache-Control', 'no-store').json(datosPanel(db));
   });
 
   // Cambio rápido desde /movimiento: { campo, valor, equipo_destino? }. Exige sesión y token CSRF.

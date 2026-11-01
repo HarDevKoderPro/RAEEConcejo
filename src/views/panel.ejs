@@ -1,0 +1,51 @@
+<%- include('parciales/cabecera') %>
+<div class="panel<%= modoTv ? ' panel-tv' : '' %>">
+  <header class="panel-cabecera">
+    <div>
+      <h1>Panel de impacto</h1>
+      <p class="subtitulo">Lo que se ha recuperado de las cajas de la Sala de Sistemas</p>
+    </div>
+    <p class="estado-vivo" data-estado-vivo="conectando"><span class="punto-vivo" aria-hidden="true"></span><span>Conectando…</span></p>
+  </header>
+
+  <div id="avisos-vivo" class="avisos-vivo" aria-live="polite"></div>
+
+  <%- include('parciales/cifras-panel') %>
+
+  <div class="graficos">
+    <section class="tarjeta grafico grafico-ancho" aria-labelledby="t-cat">
+      <h2 id="t-cat">Piezas por categoría</h2>
+      <div class="lienzo lienzo-alto"><canvas id="g-categoria" role="img" aria-label="Gráfico de barras: piezas por categoría">
+        <% for (const g of graficos.porCategoria) { %><%= g.nombre %>: <%= g.n %>. <% } %>
+      </canvas></div>
+    </section>
+    <section class="tarjeta grafico" aria-labelledby="t-dest">
+      <h2 id="t-dest">Por destino</h2>
+      <div class="lienzo"><canvas id="g-destino" role="img" aria-label="Gráfico de dona: piezas por destino">
+        <% for (const g of graficos.porDestino) { %><%= g.nombre %>: <%= g.n %>. <% } %>
+      </canvas></div>
+    </section>
+    <section class="tarjeta grafico" aria-labelledby="t-est">
+      <h2 id="t-est">Por estado</h2>
+      <div class="lienzo"><canvas id="g-estado" role="img" aria-label="Gráfico de barras: piezas por estado">
+        <% for (const g of graficos.porEstado) { %><%= g.nombre %>: <%= g.n %>. <% } %>
+      </canvas></div>
+    </section>
+  </div>
+
+  <section class="tarjeta" aria-labelledby="t-ultimos">
+    <h2 id="t-ultimos">Últimos movimientos</h2>
+    <ol id="ultimos" class="ultimos">
+      <%- include('parciales/ultimos-movimientos') %>
+    </ol>
+  </section>
+
+  <p class="panel-nota">
+    Los kilos son <strong>inventariados</strong>: cuando una pieza no se ha pesado se usa el peso promedio de su
+    categoría. Hoy hay <strong data-cifra="piezas_pesadas" data-valor="<%= cifras.piezas_pesadas %>"><%= cifras.piezas_pesadas %></strong> pesos medidos.
+    <% if (!modoTv) { %><a href="/panel?tv=1">Versión para proyector →</a><% } %>
+  </p>
+</div>
+<script type="application/json" id="datos-panel"><%- JSON.stringify(graficos).replace(/</g, '\\u003c') %></script>
+<% scripts.push('/vendor/chart.umd.min.js', '/js/panel.js') %>
+<%- include('parciales/pie') %>

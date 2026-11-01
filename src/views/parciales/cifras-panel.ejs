@@ -1,0 +1,58 @@
+<%#
+  Tarjetas de cifras del panel (§6.5). Rótulos honestos: el jurado puede preguntar por ellos.
+  Variables: cifras, textos, compacto (solo las 4 principales).
+%>
+<% const c = cifras; %>
+<ul class="cifras<%= locals.compacto ? ' cifras-compactas' : '' %>">
+  <li class="cifra">
+    <span class="cifra-valor" data-cifra="piezas_registradas" data-valor="<%= c.piezas_registradas %>"><%= c.piezas_registradas.toLocaleString('es-CO') %></span>
+    <span class="cifra-rotulo">Piezas registradas</span>
+  </li>
+  <li class="cifra">
+    <span class="cifra-valor" data-cifra="kg_inventariados" data-formato="kg" data-valor="<%= c.kg_inventariados %>"><%= textos.kg_inventariados %></span>
+    <span class="cifra-rotulo">Kg inventariados</span>
+    <% if (!locals.compacto) { %><span class="cifra-nota">Peso de todas las piezas, medido o estimado</span><% } %>
+  </li>
+  <li class="cifra cifra-verde">
+    <span class="cifra-valor" data-cifra="reutilizadas_en_sala" data-valor="<%= c.reutilizadas_en_sala %>"><%= c.reutilizadas_en_sala %></span>
+    <span class="cifra-rotulo">🌱 Reutilizadas en la sala</span>
+  </li>
+  <li class="cifra cifra-verde">
+    <span class="cifra-valor" data-cifra="equipos_reparados" data-valor="<%= c.equipos_reparados %>"><%= c.equipos_reparados %></span>
+    <span class="cifra-rotulo">Equipos reparados</span>
+    <% if (!locals.compacto) { %><span class="cifra-nota">Equipos distintos de la sala que recibieron piezas</span><% } %>
+  </li>
+  <% if (!locals.compacto) { %>
+  <li class="cifra">
+    <span class="cifra-valor" data-cifra="kg_con_destino_final" data-formato="kg" data-valor="<%= c.kg_con_destino_final %>"><%= textos.kg_con_destino_final %></span>
+    <span class="cifra-rotulo">Kg con destino final</span>
+    <span class="cifra-nota">Piezas que ya no están pendientes</span>
+  </li>
+  <li class="cifra">
+    <span class="cifra-valor" data-cifra="pct_no_va_a_basura" data-formato="pct" data-valor="<%= c.pct_no_va_a_basura %>"><%= c.pct_no_va_a_basura.toLocaleString('es-CO') %> %</span>
+    <span class="cifra-rotulo">No va a la basura</span>
+    <span class="cifra-nota">Piezas con destino final que evita el relleno, sobre el total</span>
+  </li>
+  <li class="cifra">
+    <span class="cifra-valor"><span data-cifra="discos_borrados" data-valor="<%= c.discos_borrados %>"><%= c.discos_borrados %></span> <small>de <span data-cifra="discos_total" data-valor="<%= c.discos_total %>"><%= c.discos_total %></span></small></span>
+    <span class="cifra-rotulo">🔒 Discos con borrado seguro</span>
+    <span class="cifra-nota">Seguridad de la información de la institución</span>
+  </li>
+  <li class="cifra">
+    <span class="cifra-valor"><span data-cifra="piezas_pesadas" data-valor="<%= c.piezas_pesadas %>"><%= c.piezas_pesadas %></span> <small>de <span data-cifra="piezas_registradas" data-valor="<%= c.piezas_registradas %>"><%= c.piezas_registradas %></span></small></span>
+    <span class="cifra-rotulo">⚖️ Pesos medidos</span>
+    <span class="cifra-nota">Las demás usan el peso promedio de su categoría</span>
+  </li>
+  <% } %>
+</ul>
+<% if (!locals.compacto && c.meta_semestre) { %>
+<div class="meta tarjeta">
+  <div class="meta-texto">
+    <span class="rotulo">Meta del semestre</span>
+    <span><strong data-cifra="piezas_registradas" data-valor="<%= c.piezas_registradas %>"><%= c.piezas_registradas %></strong> de <%= c.meta_semestre %> piezas · <span data-cifra="pct_meta" data-formato="pct" data-valor="<%= c.pct_meta %>"><%= c.pct_meta %> %</span></span>
+  </div>
+  <progress class="meta-barra" max="100" value="<%= c.pct_meta %>" data-meta>
+    <%= c.pct_meta %> %
+  </progress>
+</div>
+<% } %>

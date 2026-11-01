@@ -2,9 +2,14 @@ import { Router } from 'express';
 import { extraerId } from '../lib/escaneo.js';
 import { buscarPorId } from '../lib/piezas.js';
 import { catalogos, leerFiltros, hayFiltros, buscarPiezas, urlBusqueda } from '../lib/busqueda.js';
+import { cifrasPanel } from '../lib/panel.js';
+import { kg } from '../lib/formato.js';
+import { libroInventario } from '../lib/excel.js';
+import { hoyLocal } from '../lib/validacion.js';
+import { leerConfig } from '../lib/admin.js';
 import { mapaUbicaciones, obtenerUbicacion, ubicacionDePieza } from '../lib/ubicaciones.js';
 
-export function rutasPublicas({ db }) {
+export function rutasPublicas({ db, ajustes = {} }) {
   const r = Router();
 
   r.get('/', (req, res) => {
@@ -14,7 +19,14 @@ export function rutasPublicas({ db }) {
           WHERE id IN ('RAEE-0001','RAEE-0010','RAEE-0005','RAEE-0014') ORDER BY id`,
       )
       .all();
-    res.render('portada', { titulo: 'Inicio', ejemplos });
+    const cifras = cifrasPanel(db);
+    res.render('portada', { titulo: 'Inicio', ejemplos, cifras, kgTexto: kg(cifras.kg_inventariados) });
+  });
+
+  r.get('/proyecto', (req, res) => {
+    const config = leerConfig(db);
+    const equipo = String(config.equipo ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    res.render('proyecto', { titulo: 'Sobre el proyecto', config, equipo });
   });
 
   r.get('/consulta', (req, res) => {
@@ -69,6 +81,24 @@ export function rutasPublicas({ db }) {
       conFiltros: hayFiltros(filtros),
       urlBusqueda: (cambios) => urlBusqueda(filtros, cambios),
     });
+  });
+
+  // Exportar a Excel (plan B): mismos filtros que /buscar. Sin sesión no van las notas internas.
+  r.get('/exportar.xlsx', async (req, res, next) => {
+    try {
+      const filtros = leerFiltros(req.query, catalogos(db));
+      const { libro } = await libroInventario(db, filtros, { privado: Boolean(req.session?.usuario), baseUrl: ajustes.baseUrl });
+      const nombre = `Inventario_RAEE_${hoyLocal()}${hayFiltros(filtros) ? '_filtrado' : ''}.xlsx`;
+      res.set({
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="${nombre}"`,
+        'Cache-Control': 'no-store',
+      });
+      await libro.xlsx.write(res);
+      res.end();
+    } catch (err) {
+      next(err);
+    }
   });
 
   // Mapa de la sala. ?resaltar=RAEE-0010 ilumina el lugar donde está esa pieza.

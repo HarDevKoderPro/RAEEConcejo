@@ -8,11 +8,12 @@
   <link rel="icon" href="/img/icono.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/estilos.css">
 </head>
-<body class="<%= modoKiosco ? 'kiosco' : '' %>">
+<body class="<%= [modoKiosco ? 'kiosco' : '', locals.modoTv ? 'tv' : '', locals.modoDemo ? 'demo' : ''].filter(Boolean).join(' ') %>">
   <a class="saltar" href="#contenido">Saltar al contenido</a>
   <% if (avisoDemo) { %>
   <div class="aviso-demo" role="note">Incluye datos de demostración</div>
   <% } %>
+  <% if (!locals.modoTv) { %>
   <header class="barra">
     <div class="barra-interior">
       <a class="marca" href="/">
@@ -24,10 +25,16 @@
         <a href="/consulta" <%- rutaActual === '/consulta' ? 'aria-current="page"' : '' %>>Consultar</a>
         <a href="/buscar" <%- rutaActual === '/buscar' ? 'aria-current="page"' : '' %>>Buscar</a>
         <a href="/ubicaciones" <%- rutaActual.startsWith('/ubicaciones') ? 'aria-current="page"' : '' %>>Mapa</a>
+        <a href="/panel" <%- rutaActual === '/panel' ? 'aria-current="page"' : '' %>>Panel</a>
         <% if (usuario) { %>
         <span class="nav-separador" aria-hidden="true"></span>
         <a href="/registrar" class="nav-editor" <%- rutaActual === '/registrar' ? 'aria-current="page"' : '' %>>＋ Registrar</a>
         <a href="/movimiento" class="nav-editor" <%- rutaActual === '/movimiento' ? 'aria-current="page"' : '' %>>⚡ Movimiento</a>
+        <a href="/demo" class="nav-editor" <%- rutaActual === '/demo' ? 'aria-current="page"' : '' %>>🎬 Demo</a>
+        <a href="/etiquetas" class="nav-editor" <%- rutaActual.startsWith('/etiquetas') ? 'aria-current="page"' : '' %>>🏷️ Etiquetas</a>
+        <% if (usuario.rol === 'admin') { %>
+        <a href="/admin" class="nav-editor" <%- rutaActual.startsWith('/admin') ? 'aria-current="page"' : '' %>>⚙️ Admin</a>
+        <% } %>
         <% } %>
       </nav>
       <div class="sesion">
@@ -43,6 +50,7 @@
       </div>
     </div>
   </header>
+  <% } %>
   <main id="contenido" class="contenedor">
   <% if (aviso) { %>
   <p class="aviso aviso-<%= aviso.tipo %>" role="status"><%= aviso.tipo === 'ok' ? '✔' : 'ℹ' %> <%= aviso.texto %></p>

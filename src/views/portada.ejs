@@ -11,7 +11,26 @@
     <a class="boton boton-grande" href="/consulta">Consultar por escaneo</a>
     <a class="boton boton-grande boton-secundario" href="/buscar">Buscar piezas</a>
     <a class="boton boton-grande boton-secundario" href="/ubicaciones">Mapa de la sala</a>
+    <a class="boton boton-grande boton-secundario" href="/panel">Panel de impacto</a>
   </div>
+</section>
+
+<section class="portada-cifras" aria-label="Cifras del inventario">
+  <ul class="cifras cifras-portada">
+    <li class="cifra">
+      <span class="cifra-valor" data-cifra="piezas_registradas" data-valor="<%= cifras.piezas_registradas %>"><%= cifras.piezas_registradas %></span>
+      <span class="cifra-rotulo">Piezas registradas</span>
+    </li>
+    <li class="cifra">
+      <span class="cifra-valor" data-cifra="kg_inventariados" data-formato="kg" data-valor="<%= cifras.kg_inventariados %>"><%= kgTexto %></span>
+      <span class="cifra-rotulo">Kg inventariados</span>
+    </li>
+    <li class="cifra cifra-verde">
+      <span class="cifra-valor" data-cifra="reutilizadas_en_sala" data-valor="<%= cifras.reutilizadas_en_sala %>"><%= cifras.reutilizadas_en_sala %></span>
+      <span class="cifra-rotulo">🌱 Reutilizadas en la sala</span>
+    </li>
+  </ul>
+  <p class="portada-ver-panel"><a href="/panel">Ver el panel completo →</a></p>
 </section>
 
 <%- include('parciales/buscar-id') %>
@@ -32,4 +51,5 @@
   </ul>
 </section>
 <% } %>
+<% scripts.push('/js/portada.js') %>
 <%- include('parciales/pie') %>

@@ -1,0 +1,60 @@
+<%- include('parciales/cabecera') %>
+<meta name="csrf-token" content="<%= csrfToken() %>">
+<div class="escenario">
+  <section class="escenario-col escenario-escaneo" aria-labelledby="t-escaneo">
+    <div class="kiosco-escaner">
+      <h1 id="t-escaneo">① Escanea y cambia</h1>
+      <form id="form-escaneo" class="form-escaneo" autocomplete="off">
+        <label for="escaneo">Escanea la etiqueta y toca el cambio</label>
+        <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus spellcheck="false"
+               autocapitalize="characters" maxlength="2000" placeholder="Escanea aquí…"
+               aria-describedby="estado-escaneo" value="<%= idInicial %>">
+        <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+      </form>
+    </div>
+    <div id="resultado" class="mov-resultado" aria-live="polite">
+      <div class="tarjeta resultado resultado-neutro">
+        <p class="resultado-icono" aria-hidden="true">📷</p>
+        <p>Escanea una pieza para ver sus botones de cambio.</p>
+        <p class="demo-sugerencia">Prueba con <strong class="mono">RAEE-0022</strong> (tarjeta madre pendiente) o <strong class="mono">RAEE-0014</strong> (disco sin borrado).</p>
+      </div>
+    </div>
+    <section class="kiosco-recientes" aria-labelledby="t-cambios" hidden>
+      <h2 id="t-cambios">Cambios de esta sesión</h2>
+      <ol id="cambios" class="lista-recientes"></ol>
+    </section>
+  </section>
+
+  <section class="escenario-col escenario-ficha" aria-labelledby="t-ficha">
+    <h2 id="t-ficha" class="escenario-titulo">② Lo que ve quien escanea</h2>
+    <div id="demo-ficha" aria-live="polite">
+      <div class="tarjeta resultado resultado-neutro">
+        <p class="resultado-icono" aria-hidden="true">📱</p>
+        <p>Aquí aparece la ficha pública de la pieza, como la ve un celular.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="escenario-col escenario-panel" aria-labelledby="t-panel">
+    <div class="escenario-titulo-fila">
+      <h2 id="t-panel" class="escenario-titulo">③ Panel en vivo</h2>
+      <p class="estado-vivo" data-estado-vivo="conectando"><span class="punto-vivo" aria-hidden="true"></span><span>Conectando…</span></p>
+    </div>
+    <div id="avisos-vivo" class="avisos-vivo" aria-live="polite"></div>
+    <%- include('parciales/cifras-panel', { compacto: true }) %>
+    <section class="tarjeta" aria-labelledby="t-ultimos">
+      <h3 id="t-ultimos">Últimos movimientos</h3>
+      <ol id="ultimos" class="ultimos ultimos-compactos">
+        <%- include('parciales/ultimos-movimientos') %>
+      </ol>
+    </section>
+  </section>
+</div>
+
+<script type="application/json" id="catalogos"><%- JSON.stringify({
+  estados: cat.estados,
+  destinos: cat.destinos.map((d) => ({ nombre: d.nombre, terceros: d.entrega_a_terceros === 1 })),
+  ubicaciones: cat.ubicaciones,
+}).replace(/</g, '\\u003c') %></script>
+<% scripts.push('/js/demo.js') %>
+<%- include('parciales/pie') %>

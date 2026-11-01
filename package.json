@@ -13,19 +13,23 @@
     "db:init": "node scripts/db-init.js",
     "db:seed": "node scripts/db-init.js --seed",
     "test": "node --test \"tests/**/*.test.js\"",
-    "admin:crear": "node scripts/crear-admin.js"
+    "admin:crear": "node scripts/crear-admin.js",
+    "demo:limpiar": "node scripts/demo-limpiar.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
     "better-sqlite3-session-store": "^0.1.0",
+    "chart.js": "^4.6.1",
     "csrf-sync": "^4.2.1",
     "ejs": "^7.0.2",
+    "exceljs": "^4.4.0",
     "express": "^4.22.3",
     "express-rate-limit": "^8.7.2",
     "express-session": "^1.19.0",
     "helmet": "^8.3.0",
     "multer": "^2.5.0",
+    "qrcode": "^1.5.4",
     "sharp": "^0.35.5"
   },
   "devDependencies": {

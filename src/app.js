@@ -10,6 +10,11 @@ import { rutasApi } from './routes/api.js';
 import { rutasAuth } from './routes/auth.js';
 import { rutasPiezas } from './routes/piezas.js';
 import { middlewareSesion, csrf } from './lib/sesiones.js';
+import { rutasPanel } from './routes/panel.js';
+import { rutasEtiquetas } from './routes/etiquetas.js';
+import { rutasAdmin } from './routes/admin.js';
+import { conectarEventos, emitir, eventoMovimiento } from './lib/eventos.js';
+import { alRegistrarMovimiento } from './lib/movimientos.js';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -47,6 +52,16 @@ export function crearApp({ db, opciones = {} }) {
   );
 
   app.use(express.static(path.join(raiz, 'public'), { maxAge: ajustes.produccion ? '1h' : 0 }));
+  // Chart.js servido desde node_modules: sin CDN (§2.6).
+  app.get('/vendor/chart.umd.min.js', (req, res) => {
+    res.set('Cache-Control', ajustes.produccion ? 'public, max-age=86400' : 'no-cache');
+    res.sendFile(path.join(raiz, 'node_modules', 'chart.js', 'dist', 'chart.umd.min.js'));
+  });
+
+  // Canal en vivo (§6.6): antes de las sesiones, para no tocar la base por cada conexión.
+  alRegistrarMovimiento(db, (mov) => emitir('movimiento', eventoMovimiento(db, mov)));
+  app.get('/eventos', conectarEventos);
+
   app.use('/fotos', express.static(path.resolve(ajustes.fotosDir), { maxAge: '7d', immutable: true, fallthrough: false }));
 
   app.use(middlewareSesion(db, ajustes));
@@ -91,7 +106,10 @@ export function crearApp({ db, opciones = {} }) {
   app.use('/api', rutasApi({ db, ajustes }));
   app.use(rutasAuth({ db }));
   app.use(rutasPiezas({ db, ajustes }));
-  app.use(rutasPublicas({ db }));
+  app.use(rutasPanel({ db }));
+  app.use(rutasEtiquetas({ db, ajustes }));
+  app.use(rutasAdmin({ db, ajustes }));
+  app.use(rutasPublicas({ db, ajustes }));
 
   app.use((req, res) => {
     res.status(404).render('error', {

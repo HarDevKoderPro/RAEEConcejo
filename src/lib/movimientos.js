@@ -1,6 +1,6 @@
 // Escrituras sobre piezas. Cada alta y cada cambio deja su rastro en 'movimientos' con el
-// usuario (CLAUDE.md §6.4). Todo cambio pasa por aquí: la fase 5 emitirá el evento en vivo
-// desde escribirMovimiento().
+// usuario (CLAUDE.md §6.4). Todo cambio pasa por aquí, y cada movimiento avisa al canal en
+// vivo (§6.6) cuando la transacción ya quedó guardada.
 import { siguienteId } from './ids.js';
 import { extraerId } from './escaneo.js';
 
@@ -15,10 +15,11 @@ const ROTULOS = {
   equipo_destino: 'equipo',
 };
 
-let alEscribir = () => {};
-// La fase 5 conecta aquí el canal en vivo.
-export function alRegistrarMovimiento(fn) {
-  alEscribir = typeof fn === 'function' ? fn : () => {};
+// Un oyente por base (las pruebas abren varias bases en el mismo proceso).
+const oyentes = new WeakMap();
+export function alRegistrarMovimiento(db, fn) {
+  if (typeof fn === 'function') oyentes.set(db, fn);
+  else oyentes.delete(db);
 }
 
 function escribirMovimiento(db, mov) {
@@ -26,11 +27,38 @@ function escribirMovimiento(db, mov) {
     `INSERT INTO movimientos (pieza_id, tipo, valor_anterior, valor_nuevo, usuario, nota)
      VALUES (@pieza_id, @tipo, @valor_anterior, @valor_nuevo, @usuario, @nota)`,
   ).run({ valor_anterior: null, nota: null, ...mov });
-  try {
-    alEscribir(mov);
-  } catch (err) {
-    console.error('[movimiento]', err);
+  const oyente = oyentes.get(db);
+  if (!oyente) return;
+  // Se avisa después de la transacción: si algo falla y se revierte, el aviso no sale.
+  const pendientes = avisosPendientes.get(db) ?? [];
+  pendientes.push(mov);
+  avisosPendientes.set(db, pendientes);
+  if (!db.inTransaction) despacharAvisos(db);
+}
+
+const avisosPendientes = new WeakMap();
+function despacharAvisos(db) {
+  const pendientes = avisosPendientes.get(db) ?? [];
+  avisosPendientes.delete(db);
+  const oyente = oyentes.get(db);
+  for (const mov of pendientes) {
+    try {
+      oyente?.(mov);
+    } catch (err) {
+      console.error('[movimiento]', err);
+    }
   }
+}
+
+// Ejecuta una transacción y, si se guardó, despacha los avisos en vivo; si falló, los descarta.
+function enTransaccion(db, fn) {
+  try {
+    db.transaction(fn)();
+  } catch (err) {
+    avisosPendientes.delete(db);
+    throw err;
+  }
+  despacharAvisos(db);
 }
 
 const textoDestino = (destino, equipo) => (destino === 'Reutilizada en la sala' && equipo ? `${destino} → ${equipo}` : destino);
@@ -50,7 +78,7 @@ export function resolverIdRegistro(db, textoId) {
 
 // Alta de una pieza. Si el ID no tenía etiqueta, la reserva (formato URL) para imprimirla en la fase 6.
 export function registrarPieza(db, id, datos, usuario, { automatico = false } = {}) {
-  const tx = db.transaction(() => {
+  enTransaccion(db, () => {
     db.prepare(
       `INSERT OR IGNORE INTO etiquetas (id, formato, lote) VALUES (?, 'URL', ?)`,
     ).run(id, automatico ? 'Asignadas al registrar (por imprimir)' : 'Reservadas al registrar (por imprimir)');
@@ -63,7 +91,6 @@ export function registrarPieza(db, id, datos, usuario, { automatico = false } = 
       escribirMovimiento(db, { pieza_id: id, tipo: 'borrado_seguro', valor_anterior: 'No', valor_nuevo: 'Sí', usuario });
     }
   });
-  tx();
   return id;
 }
 
@@ -71,14 +98,13 @@ export function registrarPieza(db, id, datos, usuario, { automatico = false } = 
 export function editarPieza(db, id, nuevos, usuario) {
   const actual = db.prepare(`SELECT ${CAMPOS.join(', ')}, foto FROM piezas WHERE id = ?`).get(id);
   if (!actual) throw new Error('PIEZA_INEXISTENTE');
-  const tx = db.transaction(() => {
+  enTransaccion(db, () => {
     const sets = Object.keys(nuevos).filter((k) => CAMPOS.includes(k) || k === 'foto');
     if (sets.length) {
       db.prepare(`UPDATE piezas SET ${sets.map((k) => `${k} = @${k}`).join(', ')} WHERE id = @id`).run({ id, ...nuevos });
     }
     registrarCambios(db, id, actual, { ...actual, ...nuevos }, usuario);
   });
-  tx();
 }
 
 function registrarCambios(db, id, antes, despues, usuario) {

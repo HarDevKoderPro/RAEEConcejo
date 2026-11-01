@@ -30,6 +30,7 @@ Comprobación rápida: <http://localhost:3100/salud> debe responder `{"ok":true,
 | `npm run db:init` | Crea la base vacía desde `db/schema.sql` |
 | `npm run db:seed` | Crea la base y carga `db/seed.sql` (usa `-- --force` para rehacerla) |
 | `npm run admin:crear` | Crea un usuario editor o admin (pide la contraseña sin mostrarla) |
+| `npm run demo:limpiar` | Borra los datos de demostración (pide confirmación; no toca RAEE-0001) |
 | `npm test` | Pruebas unitarias y de integración |
 
 Comandos de Claude Code: `/verificar`, `/ensayo-demo`, `/desplegar`.
@@ -43,7 +44,7 @@ Publicado en **https://raee.smarteksoft.com** (Docker + Caddy en el VPS). Ver
 
 | Ruta | Qué muestra |
 |---|---|
-| `/` | Portada con acceso a la consulta y fichas de ejemplo |
+| `/` | Portada con 3 cifras del panel en vivo y fichas de ejemplo |
 | `/p/RAEE-0010` | Ficha de la pieza: ubicación, estado, destino, datos e historial |
 | `/consulta` | Modo kiosco para Barcode to PC: escanear y ver la ficha sin recargar |
 | `/buscar` | Búsqueda por texto y filtros (categoría, estado, destino, ubicación); la URL se puede compartir |
@@ -54,13 +55,23 @@ Publicado en **https://raee.smarteksoft.com** (Docker + Caddy en el VPS). Ver
 | `/registrar` | Alta: escaneando la etiqueta preimpresa o con ID automático |
 | `/p/RAEE-0010/editar` | Editar todo y subir foto |
 | `/movimiento` | Cambio rápido por escaneo: estado, destino, ubicación y borrado seguro |
+| `/panel` | Panel de impacto en vivo; `?tv=1` es la versión para proyector |
+| `/demo` | Escenario del proyector: escaneo, ficha y panel en una pantalla (editor) |
+| `/etiquetas` | Hojas A4 de etiquetas QR: nuevas, por rango, sueltas, lote antiguo (editor) |
+| `/exportar.xlsx` | Inventario en Excel con los filtros de `/buscar` |
+| `/admin` | Usuarios, meta, respaldo y limpieza de datos demo (admin) |
+| `/proyecto` | Problema, solución, marco legal y equipo |
+| `/eventos` | Canal en vivo (Server-Sent Events) |
+| `/api/panel` | Cifras del panel en JSON |
 | `/api/buscar?q=…` | La misma búsqueda en JSON |
 | `/api/escaneo?texto=…` | Interpreta el texto crudo del escáner (lo usa `/consulta`) |
 | `/salud` | Estado del servicio |
 
 ## Probar el flujo completo
 
-[`docs/RECORRIDO_ESCRITORIO.md`](docs/RECORRIDO_ESCRITORIO.md): escenarios paso a paso con datos reales de la demo.
+- [`docs/GUIA_DE_PRUEBA.md`](docs/GUIA_DE_PRUEBA.md): **empieza aquí** (19 pasos, 15 minutos).
+- [`docs/RECORRIDO_ESCRITORIO.md`](docs/RECORRIDO_ESCRITORIO.md): escenarios detallados.
+- [`docs/GUION_EXPOSICION.md`](docs/GUION_EXPOSICION.md), [`docs/PROTOCOLO_PRUEBAS.md`](docs/PROTOCOLO_PRUEBAS.md), [`docs/BARCODE_TO_PC.md`](docs/BARCODE_TO_PC.md).
 
 ## Datos incluidos
 

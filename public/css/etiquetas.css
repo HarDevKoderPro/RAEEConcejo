@@ -1,0 +1,85 @@
+/* Hoja de etiquetas QR (CLAUDE.md §8).
+   A4, 3 columnas × 8 filas = 24 etiquetas de 63,5 × 33,9 mm (medida estándar de hojas
+   adhesivas de 24, tipo L7159). Imprimir al 100 %, sin ajustar a página. */
+
+@page { size: A4 portrait; margin: 0; }
+
+* { box-sizing: border-box; }
+html { background: #d9dedc; }
+body {
+  margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1d2a28;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+/* --- Barra (solo pantalla) ---------------------------------------------------------- */
+.barra-impresion { background: #12403c; color: #fff; padding: 1rem 1.5rem; }
+.barra-impresion-interior { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; max-width: 60rem; margin: 0 auto; }
+.barra-impresion h1 { margin: 0 0 .2rem; font-size: 1.4rem; }
+.barra-impresion p { margin: 0; }
+.barra-acciones { display: flex; flex-wrap: wrap; gap: .5rem; }
+.instrucciones, .form-impresas, .barra-impresion .alerta { max-width: 60rem; margin: .8rem auto 0; }
+.instrucciones { padding-left: 1.3rem; color: #d7efe8; }
+.instrucciones strong { color: #fff; }
+.alerta { background: #fff4d6; color: #7a4d00; border-radius: 8px; padding: .5rem .8rem; font-weight: 600; }
+.form-impresas { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.form-impresas a { color: #fff; font-weight: 600; }
+.boton {
+  font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: .65rem 1.1rem; min-height: 44px;
+  background: #1f7a6b; color: #fff; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+}
+.boton:hover { background: #2a9482; }
+.boton-claro { background: #e6f4f0; color: #12403c; }
+.boton-claro:hover { background: #fff; }
+.boton:focus-visible, a:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
+
+/* --- Hoja A4 ------------------------------------------------------------------------ */
+main { padding: 1.5rem 0 3rem; }
+.hoja {
+  width: 210mm; height: 297mm; margin: 0 auto 1.5rem; background: #fff; overflow: hidden;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 18%);
+  display: grid; align-content: start;
+  padding: 12.9mm 7.2mm 0;
+  grid-template-columns: repeat(3, 63.5mm); grid-auto-rows: 33.9mm; column-gap: 2.5mm;
+}
+
+/* Etiqueta normal */
+.etiqueta {
+  position: relative; display: flex; align-items: center; gap: 2.2mm;
+  padding: 2mm 2.5mm 2mm 5mm; overflow: hidden;
+  border: .2mm dashed #c9d3d0; /* guía de corte solo en pantalla */
+}
+.franja { position: absolute; left: 0; top: 0; bottom: 0; width: 2.6mm; background: #1f7a6b; }
+.etiqueta .qr { flex: none; width: 25mm; height: 25mm; display: block; }
+.etiqueta-texto { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.sala { font-size: 6.5pt; font-weight: 800; letter-spacing: .04em; color: #12403c; }
+.icono-cat { font-size: 8pt; letter-spacing: 0; }
+.id { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13.5pt; font-weight: 800; color: #000; margin: .8mm 0; white-space: nowrap; }
+.leyenda { font-size: 5.8pt; color: #333; }
+.no-retirar { font-size: 5.8pt; font-weight: 700; color: #7a1f1f; margin-top: .6mm; }
+
+/* Etiqueta pequeña: 2 × 1 cm, solo QR + ID (RAM y procesadores). 9 × 25 por hoja. */
+.tam-pequena .hoja {
+  padding: 10mm 9mm 0;
+  grid-template-columns: repeat(9, 20mm); grid-auto-rows: 10mm; column-gap: 1.5mm; row-gap: 1mm;
+}
+.etiqueta-pequena {
+  display: flex; align-items: center; gap: .6mm; padding: .5mm; overflow: hidden;
+  border: .2mm dashed #c9d3d0; border-left: 1mm solid #1f7a6b;
+}
+.etiqueta-pequena .qr { flex: none; width: 9mm; height: 9mm; display: block; }
+.id-pequeno { display: flex; flex-direction: column; font-family: ui-monospace, Consolas, monospace; font-weight: 800; font-size: 8pt; line-height: 1; color: #000; }
+.id-pequeno small { font-size: 4.5pt; font-weight: 700; color: #12403c; margin-top: .4mm; }
+
+@media print {
+  html, body { background: #fff; }
+  .barra-impresion { display: none; }
+  main { padding: 0; }
+  .hoja { margin: 0; box-shadow: none; break-after: page; page-break-after: always; }
+  .hoja:last-child { break-after: auto; page-break-after: auto; }
+  .etiqueta, .etiqueta-pequena { border-color: transparent; }
+  .etiqueta-pequena { border-left-color: #1f7a6b; }
+}
+
+@media screen and (max-width: 820px) {
+  .hoja { zoom: .45; }
+}

@@ -1,0 +1,87 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <h1>🏷️ Etiquetas QR</h1>
+  <p class="subtitulo">Hojas A4 listas para imprimir. Cada QR lleva el enlace a la ficha
+    (<span class="mono"><%= baseUrl %>/p/RAEE-…</span>): sirve con Barcode to PC y con la cámara de cualquier celular.</p>
+
+  <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
+  <% if (/localhost|127\.0\.0\.1/.test(baseUrl)) { %>
+  <p class="aviso aviso-ambar">⚠️ Estás en la versión local: los QR apuntarían a <span class="mono"><%= baseUrl %></span> y un celular no podría abrirlos. Imprime las etiquetas definitivas desde <strong>https://raee.smarteksoft.com</strong>.</p>
+  <% } %>
+
+  <div class="rejilla-opciones">
+    <form class="tarjeta formulario opcion-etiqueta" action="/etiquetas/reservar" method="post">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <h2>① Etiquetas nuevas</h2>
+      <p class="ayuda">Reserva IDs libres desde <strong class="mono"><%= proximoId %></strong> para pegarlos antes de registrar las piezas.</p>
+      <div class="campo">
+        <label for="cantidad">Cuántas</label>
+        <input id="cantidad" name="cantidad" type="number" min="1" max="<%= maximo %>" value="<%= valores.cantidad || 24 %>" required>
+        <p class="ayuda">24 llenan una hoja.</p>
+      </div>
+      <div class="campo">
+        <label for="lote">Nombre del lote <span class="recomendado">opcional</span></label>
+        <input id="lote" name="lote" type="text" maxlength="60" value="<%= valores.lote || '' %>" placeholder="Lote del <%= new Date().toISOString().slice(0, 10) %>">
+      </div>
+      <%- include('parciales/tam-etiqueta', { nombre: 'tam', id: 'tam-reservar' }) %>
+      <button class="boton" type="submit">Reservar y ver la hoja</button>
+    </form>
+
+    <form class="tarjeta formulario opcion-etiqueta" action="/etiquetas/hoja" method="get">
+      <h2>② Por rango</h2>
+      <p class="ayuda">Para reponer etiquetas dañadas o imprimir un tramo.</p>
+      <div class="rejilla-campos rejilla-dos">
+        <div class="campo">
+          <label for="desde">Desde</label>
+          <input id="desde" name="desde" type="number" min="1" max="9999" value="<%= valores.desde || 1 %>" required>
+        </div>
+        <div class="campo">
+          <label for="hasta">Hasta</label>
+          <input id="hasta" name="hasta" type="number" min="1" max="9999" value="<%= valores.hasta || 24 %>" required>
+        </div>
+      </div>
+      <%- include('parciales/tam-etiqueta', { nombre: 'tam', id: 'tam-rango' }) %>
+      <button class="boton" type="submit">Ver la hoja</button>
+    </form>
+
+    <form class="tarjeta formulario opcion-etiqueta" action="/etiquetas/hoja" method="get">
+      <h2>③ IDs sueltos</h2>
+      <p class="ayuda">Escribe o escanea los IDs separados por coma o espacio.</p>
+      <div class="campo">
+        <label for="ids">IDs</label>
+        <input id="ids" name="ids" type="text" maxlength="3000" value="<%= valores.ids || '' %>" placeholder="RAEE-0010, RAEE-0014" required>
+      </div>
+      <%- include('parciales/tam-etiqueta', { nombre: 'tam', id: 'tam-ids' }) %>
+      <button class="boton" type="submit">Ver la hoja</button>
+    </form>
+  </div>
+
+  <section class="tarjeta" aria-labelledby="t-lotes">
+    <h2 id="t-lotes">Lotes de etiquetas</h2>
+    <% if (pendientes) { %>
+    <p class="aviso aviso-info">🖨️ Hay <strong><%= pendientes %></strong> etiqueta<%= pendientes === 1 ? '' : 's' %> asignada<%= pendientes === 1 ? '' : 's' %> al registrar piezas que falta imprimir.
+      <a class="boton boton-secundario" href="/etiquetas/hoja?pendientes=1">Imprimir pendientes</a></p>
+    <% } %>
+    <% if (!lotes.length) { %>
+    <p class="vacio">Todavía no hay etiquetas.</p>
+    <% } else { %>
+    <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead><tr><th scope="col">Lote</th><th scope="col">IDs</th><th scope="col">Cantidad</th><th scope="col">QR</th><th scope="col"><span class="sr">Acción</span></th></tr></thead>
+      <tbody>
+        <% for (const l of lotes) { %>
+        <tr>
+          <td><%= l.lote %></td>
+          <td class="mono"><%= l.desde %><%= l.n > 1 ? ` – ${l.hasta}` : '' %></td>
+          <td><%= l.n %></td>
+          <td><%= l.formato === 'ID' ? 'Solo texto (antiguo)' : 'Con enlace' %></td>
+          <td><a href="/etiquetas/hoja?lote=<%= encodeURIComponent(l.lote) %>"><%= l.formato === 'ID' ? 'Reimprimir con enlace' : 'Imprimir' %></a></td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+    <% } %>
+  </section>
+</div>
+<%- include('parciales/pie') %>
