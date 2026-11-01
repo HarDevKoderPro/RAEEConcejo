@@ -653,3 +653,6 @@ input[type="number"]:focus { border-color: var(--verde); }
 /* Portada en escritorio: los cuatro botones en una sola fila */
 .portada, .portada-cifras, .portada-cifras ~ .form-ir { max-width: 58rem; }
 @media (min-width: 900px) { .portada .acciones { flex-wrap: nowrap; } }
+
+/* Tarjetas de cifras centradas (portada, panel y demo) */
+.cifra { align-items: center; text-align: center; }

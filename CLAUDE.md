@@ -51,6 +51,10 @@ mostrar ante un jurado, cargada con los datos de demostración de `db/seed.sql`.
    el puerto SSH queda permitido.
 4. **Datos:**
    - `RAEE-0001` es un registro **real**; no lo borres ni lo modifiques en pruebas.
+     *(2026-11-01: por pedido de la persona, la base de producción se dejó en cero, sin
+     RAEE-0001 ni datos demo, para empezar a ingresar piezas reales. Su etiqueta impresa se
+     conserva: al escanearla se puede registrar de nuevo. Respaldo previo en
+     `~/backups/raee/raee-2026-11-01.db`.)*
    - Los demás registros sembrados son de demostración (`demo = 1`, seriales `D-…`).
    - Las pruebas usan una base temporal, nunca `data/raee.db`.
 5. **Secretos:** nada de contraseñas, llaves ni `.env` en el repositorio. Usa `.env.example`.
