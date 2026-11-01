@@ -17,7 +17,7 @@ export function crearApp({ db, opciones = {} }) {
   app.disable('x-powered-by');
   app.set('views', path.join(raiz, 'src', 'views'));
   app.set('view engine', 'ejs');
-  app.set('trust proxy', 'loopback'); // detrás de Nginx en el VPS
+  app.set('trust proxy', ajustes.trustProxy); // detrás del proxy inverso (Caddy) en el VPS
 
   // CSP propia: scripts y estilos solo del propio servidor, sin 'unsafe-inline' (§10.1).
   app.use(

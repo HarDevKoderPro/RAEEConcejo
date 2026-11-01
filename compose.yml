@@ -1,0 +1,33 @@
+# Inventario RAEE · servicio en el VPS (/opt/apps/raee)
+# Caddy (en /opt/caddy) lo publica en https://raee.smarteksoft.com por la red externa "proxy".
+# La base SQLite y las fotos viven en el volumen raee_data (sobreviven a cada despliegue).
+name: raee
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        GIT_COMMIT: ${GIT_COMMIT:-dev}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      TZ: America/Bogota
+      BASE_URL: ${BASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      MOSTRAR_AVISO_DEMO: ${MOSTRAR_AVISO_DEMO:-true}
+      TRUST_PROXY: '1'
+    volumes:
+      - raee_data:/app/data
+    networks: [proxy]
+    deploy:
+      resources:
+        limits: { memory: 256m, cpus: '0.5' }
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+volumes:
+  raee_data:

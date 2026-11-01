@@ -16,4 +16,6 @@ export const config = {
   fotosDir: env.FOTOS_DIR || './data/fotos',
   mostrarAvisoDemo: env.MOSTRAR_AVISO_DEMO !== 'false',
   produccion: env.NODE_ENV === 'production',
+  // Proxy de confianza: 'loopback' si el proxy corre en la misma máquina; 1 detrás de Caddy en Docker.
+  trustProxy: /^\d+$/.test(env.TRUST_PROXY ?? '') ? Number(env.TRUST_PROXY) : env.TRUST_PROXY || 'loopback',
 };

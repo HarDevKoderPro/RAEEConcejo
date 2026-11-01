@@ -1,0 +1,14 @@
+# Bloque que se agrega al final de /opt/caddy/Caddyfile en el VPS.
+# Caddy obtiene y renueva solo el certificado HTTPS de Let's Encrypt.
+# /eventos (Server-Sent Events, fase 5) no se comprime para que cada evento salga al instante;
+# reverse_proxy de Caddy ya envía text/event-stream sin búfer y sin tiempo límite de lectura.
+raee.smarteksoft.com {
+    @comprimible not path /eventos
+    encode @comprimible zstd gzip
+
+    request_body {
+        max_size 10MB
+    }
+
+    reverse_proxy raee-app-1:3100
+}
