@@ -1,0 +1,107 @@
+<%#
+  Campos de la pieza, compartidos por Registrar y Editar (CLAUDE.md §6.4).
+  Recibe: cat, valores, errores, modo ('registrar' | 'editar').
+%>
+<% const v = (k) => (valores[k] ?? '') === null ? '' : String(valores[k] ?? ''); %>
+<% const err = (k) => errores[k] ? `<p class="campo-error" id="error-${k}">${errores[k].replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])}</p>` : ''; %>
+<% const inv = (k) => errores[k] ? `aria-invalid="true" aria-describedby="error-${k}"` : ''; %>
+
+<fieldset class="grupo">
+  <legend>1 · Qué pieza es <span class="obligatorio">obligatorio</span></legend>
+  <div class="rejilla-campos">
+    <div class="campo">
+      <label for="categoria_id">Categoría</label>
+      <select id="categoria_id" name="categoria_id" required <%- inv('categoria_id') %>>
+        <option value="">Elige…</option>
+        <% for (const c of cat.categorias) { %>
+        <option value="<%= c.id %>" data-guia="<%= c.guia_descripcion || '' %>" data-peso="<%= c.peso_estimado_kg %>"
+                data-borrado="<%= c.requiere_borrado %>" <%= v('categoria_id') === String(c.id) ? 'selected' : '' %>><%= c.icono %> <%= c.nombre %></option>
+        <% } %>
+      </select>
+      <%- err('categoria_id') %>
+      <p class="ayuda-categoria" id="ayuda-categoria" aria-live="polite" hidden></p>
+    </div>
+    <div class="campo">
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado" required <%- inv('estado') %>>
+        <option value="">Elige…</option>
+        <% for (const e of cat.estados) { %><option <%= v('estado') === e ? 'selected' : '' %>><%= e %></option><% } %>
+      </select>
+      <%- err('estado') %>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset class="grupo">
+  <legend>2 · Dónde está y a dónde va <span class="obligatorio">obligatorio</span></legend>
+  <div class="rejilla-campos">
+    <div class="campo">
+      <label for="ubicacion">Ubicación</label>
+      <select id="ubicacion" name="ubicacion" required <%- inv('ubicacion') %>>
+        <option value="">Elige…</option>
+        <% for (const u of cat.ubicaciones) { %><option value="<%= u.codigo %>" <%= v('ubicacion') === u.codigo ? 'selected' : '' %>><%= u.nombre %> (<%= u.codigo %>)</option><% } %>
+      </select>
+      <%- err('ubicacion') %>
+    </div>
+    <div class="campo">
+      <label for="destino">Destino</label>
+      <select id="destino" name="destino" required <%- inv('destino') %>>
+        <option value="">Elige…</option>
+        <% for (const d of cat.destinos) { %><option data-terceros="<%= d.entrega_a_terceros %>" <%= v('destino') === d.nombre ? 'selected' : '' %>><%= d.nombre %></option><% } %>
+      </select>
+      <%- err('destino') %>
+    </div>
+    <div class="campo" id="campo-equipo" <%= v('destino') === 'Reutilizada en la sala' ? '' : 'hidden' %>>
+      <label for="equipo_destino">Equipo donde se instaló</label>
+      <input id="equipo_destino" name="equipo_destino" type="text" maxlength="30" placeholder="PC-15"
+             value="<%= v('equipo_destino') %>" autocapitalize="characters" <%- inv('equipo_destino') %>>
+      <%- err('equipo_destino') %>
+    </div>
+  </div>
+
+  <div class="campo campo-borrado" id="campo-borrado" hidden>
+    <p class="etiqueta-campo" id="t-borrado">🔒 Borrado seguro del disco <span class="obligatorio">obligatorio en discos</span></p>
+    <div class="opciones" role="radiogroup" aria-labelledby="t-borrado">
+      <label class="opcion"><input type="radio" name="borrado_seguro" value="Sí" <%= v('borrado_seguro') === 'Sí' ? 'checked' : '' %>> Sí, ya se hizo</label>
+      <label class="opcion"><input type="radio" name="borrado_seguro" value="No" <%= v('borrado_seguro') === 'No' ? 'checked' : '' %>> No, está pendiente</label>
+    </div>
+    <p class="ayuda">Sin borrado seguro, el disco no puede reutilizarse, donarse ni ir a reciclaje.</p>
+    <%- err('borrado_seguro') %>
+  </div>
+</fieldset>
+
+<fieldset class="grupo">
+  <legend>3 · Datos del fabricante <span class="recomendado">recomendado</span></legend>
+  <p class="ayuda">Escríbelos a mano: los códigos de barras de los fabricantes no se leen bien con el escáner.</p>
+  <div class="rejilla-campos">
+    <div class="campo"><label for="marca">Marca</label>
+      <input id="marca" name="marca" type="text" maxlength="60" value="<%= v('marca') %>" placeholder="Kingston"></div>
+    <div class="campo"><label for="modelo_pn">Modelo / P/N</label>
+      <input id="modelo_pn" name="modelo_pn" type="text" maxlength="80" value="<%= v('modelo_pn') %>" placeholder="KVR13N9S8/4"></div>
+    <div class="campo"><label for="serial">Serial</label>
+      <input id="serial" name="serial" type="text" maxlength="80" value="<%= v('serial') %>" class="mono" <%- inv('serial') %>>
+      <%- err('serial') %></div>
+  </div>
+  <div class="campo">
+    <label for="descripcion">Descripción</label>
+    <input id="descripcion" name="descripcion" type="text" maxlength="300" value="<%= v('descripcion') %>"
+           placeholder="Lo importante para reconocerla y reutilizarla">
+  </div>
+</fieldset>
+
+<fieldset class="grupo">
+  <legend>4 · Otros datos</legend>
+  <div class="rejilla-campos">
+    <div class="campo"><label for="peso_real_kg">Peso medido (kg)</label>
+      <input id="peso_real_kg" name="peso_real_kg" type="text" inputmode="decimal" maxlength="10" value="<%= v('peso_real_kg') %>" <%- inv('peso_real_kg') %>>
+      <p class="ayuda" id="ayuda-peso">Déjalo vacío si no la pesaste: se usará el peso estimado de la categoría.</p>
+      <%- err('peso_real_kg') %></div>
+    <div class="campo"><label for="fecha_ingreso">Fecha de ingreso</label>
+      <input id="fecha_ingreso" name="fecha_ingreso" type="date" value="<%= v('fecha_ingreso') %>" <%- inv('fecha_ingreso') %>>
+      <%- err('fecha_ingreso') %></div>
+  </div>
+  <div class="campo">
+    <label for="notas">Notas internas <span class="recomendado">solo las ven los editores</span></label>
+    <textarea id="notas" name="notas" rows="2" maxlength="1000"><%= v('notas') %></textarea>
+  </div>
+</fieldset>

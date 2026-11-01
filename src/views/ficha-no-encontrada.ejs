@@ -8,6 +8,9 @@
     <p>Esta etiqueta ya se imprimió<% if (etiqueta && etiqueta.lote) { %> (<%= etiqueta.lote %>)<% } %>, pero la pieza todavía no se ha registrado en el inventario.</p>
   <% } else { %>
     <p>Revisa que el código esté bien escrito o escanéalo de nuevo.</p>
+    <% if (usuario && /^RAEE-\d{4}$/.test(idBuscado)) { %>
+    <p><a class="boton" href="/registrar?id=<%= idBuscado %>">＋ Registrar con el ID <%= idBuscado %></a></p>
+    <% } %>
   <% } %>
 </section>
 <%- include('parciales/buscar-id') %>

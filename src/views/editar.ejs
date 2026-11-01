@@ -1,0 +1,37 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <p class="migas"><a href="/p/<%= pieza.id %>">← Volver a la ficha</a></p>
+  <h1>Editar <span class="mono"><%= pieza.id %></span> <small class="subtitulo-h1"><%= pieza.icono %> <%= pieza.categoria %></small></h1>
+  <% if (Object.keys(errores).length) { %>
+  <p class="campo-error-general" role="alert">Revisa los campos marcados en rojo. No se guardó ningún cambio.</p>
+  <% } %>
+  <form action="/p/<%= pieza.id %>/editar" method="post" enctype="multipart/form-data" class="formulario" id="form-pieza" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+
+    <%- include('parciales/form-pieza', { cat, valores, errores, modo: 'editar' }) %>
+
+    <fieldset class="grupo">
+      <legend>5 · Foto</legend>
+      <div class="foto-editar">
+        <img id="vista-foto" class="foto-vista" alt="Foto de <%= pieza.id %>"
+             src="<%= pieza.foto ? '/fotos/' + pieza.foto : '' %>" <%= pieza.foto ? '' : 'hidden' %>>
+        <div>
+          <label for="foto">Subir o cambiar la foto <span class="recomendado">JPG, PNG o WebP · máx. 8 MB</span></label>
+          <input id="foto" name="foto" type="file" accept="image/*" <%- errores.foto ? 'aria-invalid="true" aria-describedby="error-foto"' : '' %>>
+          <input type="hidden" name="foto_enviada" id="foto_enviada" value="0">
+          <% if (errores.foto) { %><p class="campo-error" id="error-foto"><%= errores.foto %></p><% } %>
+          <% if (pieza.foto) { %>
+          <label class="opcion"><input type="checkbox" name="quitar_foto" value="1"> Quitar la foto actual</label>
+          <% } %>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="acciones-form">
+      <button class="boton boton-grande" type="submit">Guardar cambios</button>
+      <a class="boton boton-secundario" href="/p/<%= pieza.id %>">Cancelar</a>
+    </div>
+  </form>
+</div>
+<% scripts.push('/js/form-pieza.js') %>
+<%- include('parciales/pie') %>

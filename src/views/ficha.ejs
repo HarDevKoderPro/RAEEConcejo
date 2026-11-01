@@ -9,6 +9,16 @@
     </div>
   </header>
 
+  <% if (usuario) { %>
+  <nav class="acciones-editor" aria-label="Acciones del editor">
+    <a class="boton" href="/movimiento?id=<%= pieza.id %>">⚡ Movimiento rápido</a>
+    <a class="boton boton-secundario" href="/p/<%= pieza.id %>/editar">✏️ Editar todo</a>
+  </nav>
+  <% if (etiqueta && etiqueta.formato === 'ID') { %>
+  <p class="aviso aviso-info">🏷️ Su etiqueta es del lote antiguo (solo texto). Conviene reimprimirla con enlace para que cualquier celular abra esta ficha.</p>
+  <% } %>
+  <% } %>
+
   <section class="tarjeta ubicacion-destacada" aria-label="Ubicación">
     <span class="ubicacion-icono" aria-hidden="true">📍</span>
     <div>
@@ -32,6 +42,12 @@
     <span aria-hidden="true"><%= pieza.impacto.icono %></span> <%= pieza.impacto.texto %>
   </p>
 
+  <% if (pieza.foto) { %>
+  <figure class="tarjeta ficha-foto">
+    <img src="/fotos/<%= pieza.foto %>" alt="Foto de <%= pieza.id %> (<%= pieza.categoria %>)" loading="lazy">
+  </figure>
+  <% } %>
+
   <section class="tarjeta" aria-labelledby="t-datos">
     <h2 id="t-datos">Datos de la pieza</h2>
     <dl class="datos">
@@ -52,6 +68,9 @@
       <p class="borrado borrado-no"><span aria-hidden="true">⚠️</span> <strong>Borrado seguro pendiente.</strong> Este disco no puede donarse, reutilizarse ni entregarse a reciclaje hasta borrarlo.</p>
       <% } %>
     <% } %>
+    <% if (usuario && pieza.notas) { %>
+    <div class="notas-internas"><p class="rotulo">Notas internas (solo editores)</p><p><%= pieza.notas %></p></div>
+    <% } %>
   </section>
 
   <section class="tarjeta" aria-labelledby="t-historial">
@@ -70,7 +89,8 @@
             <% } else if (m.valor_anterior) { %><%= m.valor_anterior %> <span aria-label="cambió a">→</span> <strong><%= m.valor_nuevo %></strong>
             <% } else { %><%= m.valor_nuevo %><% } %>
           </p>
-          <time class="hito-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time>
+          <time class="hito-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time><% if (m.usuario) { %><span class="hito-usuario"> · 👤 <%= m.usuario %></span><% } %>
+          <% if (m.nota) { %><p class="hito-nota"><%= m.nota %></p><% } %>
         </div>
       </li>
       <% } %>

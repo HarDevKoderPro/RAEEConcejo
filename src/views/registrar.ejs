@@ -1,0 +1,29 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <h1>Registrar pieza</h1>
+  <% if (Object.keys(errores).length) { %>
+  <p class="campo-error-general" role="alert">Revisa los campos marcados en rojo.</p>
+  <% } %>
+  <form action="/registrar" method="post" class="formulario" id="form-pieza" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+
+    <fieldset class="grupo grupo-escaneo">
+      <legend>Etiqueta</legend>
+      <label for="id">Escanea la etiqueta preimpresa <span class="ayuda-en-linea">o déjalo vacío y se asignará <strong class="mono"><%= proximoId %></strong></span></label>
+      <input id="id" name="id" type="text" class="campo-escaneo" autofocus autocomplete="off" spellcheck="false"
+             maxlength="200" placeholder="Escanea aquí… (vacío = <%= proximoId %>)" value="<%= valores.id || '' %>"
+             <%- errores.id ? 'aria-invalid="true" aria-describedby="error-id"' : '' %>>
+      <p class="estado-id" id="estado-id" aria-live="polite"></p>
+      <% if (errores.id) { %><p class="campo-error" id="error-id"><%= errores.id %></p><% } %>
+    </fieldset>
+
+    <%- include('parciales/form-pieza', { cat, valores, errores, modo: 'registrar' }) %>
+
+    <div class="acciones-form">
+      <button class="boton boton-grande" type="submit">Registrar pieza</button>
+      <a class="boton boton-secundario" href="/">Cancelar</a>
+    </div>
+  </form>
+</div>
+<% scripts.push('/js/form-pieza.js') %>
+<%- include('parciales/pie') %>

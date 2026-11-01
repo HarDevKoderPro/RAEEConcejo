@@ -40,11 +40,14 @@ export function rutasPublicas({ db }) {
     }
     if (id !== req.params.id) return res.redirect(301, `/p/${id}`);
 
-    const datos = buscarPorId(db, id);
+    const editor = Boolean(req.session?.usuario);
+    const datos = buscarPorId(db, id, { privado: editor });
     if (datos.resultado === 'registrada') {
       return res.render('ficha', { titulo: `${datos.pieza.id} · ${datos.pieza.categoria}`, ...datos });
     }
     const sinRegistrar = datos.resultado === 'sin_registrar';
+    // §6.3: con sesión, una etiqueta preimpresa sin pieza abre Registrar con el ID ya puesto.
+    if (sinRegistrar && editor) return res.redirect(303, `/registrar?id=${id}`);
     res.status(sinRegistrar ? 200 : 404).render('ficha-no-encontrada', {
       titulo: sinRegistrar ? 'Etiqueta sin registrar' : 'No está en el inventario',
       idBuscado: id,

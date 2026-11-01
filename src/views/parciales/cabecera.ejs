@@ -24,7 +24,26 @@
         <a href="/consulta" <%- rutaActual === '/consulta' ? 'aria-current="page"' : '' %>>Consultar</a>
         <a href="/buscar" <%- rutaActual === '/buscar' ? 'aria-current="page"' : '' %>>Buscar</a>
         <a href="/ubicaciones" <%- rutaActual.startsWith('/ubicaciones') ? 'aria-current="page"' : '' %>>Mapa</a>
+        <% if (usuario) { %>
+        <span class="nav-separador" aria-hidden="true"></span>
+        <a href="/registrar" class="nav-editor" <%- rutaActual === '/registrar' ? 'aria-current="page"' : '' %>>＋ Registrar</a>
+        <a href="/movimiento" class="nav-editor" <%- rutaActual === '/movimiento' ? 'aria-current="page"' : '' %>>⚡ Movimiento</a>
+        <% } %>
       </nav>
+      <div class="sesion">
+        <% if (usuario) { %>
+        <span class="sesion-nombre" title="<%= usuario.usuario %> · <%= usuario.rol %>">👤 <%= usuario.nombre %></span>
+        <form action="/salir" method="post" class="form-salir">
+          <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+          <button type="submit" class="boton-salir">Salir</button>
+        </form>
+        <% } else if (rutaActual !== '/entrar') { %>
+        <a class="enlace-entrar" href="/entrar?siguiente=<%= encodeURIComponent(rutaActual) %>">Entrar</a>
+        <% } %>
+      </div>
     </div>
   </header>
   <main id="contenido" class="contenedor">
+  <% if (aviso) { %>
+  <p class="aviso aviso-<%= aviso.tipo %>" role="status"><%= aviso.tipo === 'ok' ? '✔' : 'ℹ' %> <%= aviso.texto %></p>
+  <% } %>

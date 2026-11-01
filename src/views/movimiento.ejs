@@ -1,0 +1,32 @@
+<%- include('parciales/cabecera') %>
+<meta name="csrf-token" content="<%= csrfToken() %>">
+<section class="kiosco-escaner">
+  <h1>⚡ Movimiento rápido</h1>
+  <form id="form-escaneo" class="form-escaneo" autocomplete="off">
+    <label for="escaneo">Escanea la etiqueta de la pieza y toca el cambio que quieres hacer</label>
+    <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus spellcheck="false"
+           autocapitalize="characters" maxlength="2000" placeholder="Escanea aquí…"
+           aria-describedby="estado-escaneo" value="<%= idInicial %>">
+    <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+  </form>
+</section>
+
+<section id="resultado" class="mov-resultado" aria-live="polite">
+  <div class="tarjeta resultado resultado-neutro">
+    <p class="resultado-icono" aria-hidden="true">📷</p>
+    <p>Escanea una pieza para ver sus botones de cambio.</p>
+  </div>
+</section>
+
+<section class="kiosco-recientes" aria-labelledby="t-cambios" hidden>
+  <h2 id="t-cambios">Cambios de esta sesión</h2>
+  <ol id="cambios" class="lista-recientes"></ol>
+</section>
+
+<script type="application/json" id="catalogos"><%- JSON.stringify({
+  estados: cat.estados,
+  destinos: cat.destinos.map((d) => ({ nombre: d.nombre, terceros: d.entrega_a_terceros === 1 })),
+  ubicaciones: cat.ubicaciones,
+}).replace(/</g, '\\u003c') %></script>
+<% scripts.push('/js/movimiento.js') %>
+<%- include('parciales/pie') %>

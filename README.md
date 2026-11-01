@@ -29,6 +29,7 @@ Comprobación rápida: <http://localhost:3100/salud> debe responder `{"ok":true,
 | `npm start` | Servidor de producción |
 | `npm run db:init` | Crea la base vacía desde `db/schema.sql` |
 | `npm run db:seed` | Crea la base y carga `db/seed.sql` (usa `-- --force` para rehacerla) |
+| `npm run admin:crear` | Crea un usuario editor o admin (pide la contraseña sin mostrarla) |
 | `npm test` | Pruebas unitarias y de integración |
 
 Comandos de Claude Code: `/verificar`, `/ensayo-demo`, `/desplegar`.
@@ -49,9 +50,17 @@ Publicado en **https://raee.smarteksoft.com** (Docker + Caddy en el VPS). Ver
 | `/ubicaciones` | Mapa de la sala: cada caja o estante con su contenido; `?resaltar=RAEE-0010` ilumina dónde está |
 | `/ubicaciones/S1-C2` | Piezas de un lugar |
 | `/api/piezas/:id` | Datos de la pieza en JSON (sin notas internas) |
+| `/entrar` | Inicio de sesión de editores (5 intentos fallidos cada 15 min) |
+| `/registrar` | Alta: escaneando la etiqueta preimpresa o con ID automático |
+| `/p/RAEE-0010/editar` | Editar todo y subir foto |
+| `/movimiento` | Cambio rápido por escaneo: estado, destino, ubicación y borrado seguro |
 | `/api/buscar?q=…` | La misma búsqueda en JSON |
 | `/api/escaneo?texto=…` | Interpreta el texto crudo del escáner (lo usa `/consulta`) |
 | `/salud` | Estado del servicio |
+
+## Probar el flujo completo
+
+[`docs/RECORRIDO_ESCRITORIO.md`](docs/RECORRIDO_ESCRITORIO.md): escenarios paso a paso con datos reales de la demo.
 
 ## Datos incluidos
 

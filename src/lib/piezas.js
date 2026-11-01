@@ -66,11 +66,11 @@ function prepararPieza(fila) {
   return pieza;
 }
 
-// Historial público: sin usuario ni nota.
-function historial(db, id) {
+// Historial: el público no ve usuario ni nota; un editor con sesión sí.
+function historial(db, id, privado) {
   return db
     .prepare(
-      `SELECT id, fecha, tipo, valor_anterior, valor_nuevo
+      `SELECT id, fecha, tipo, valor_anterior, valor_nuevo${privado ? ', usuario, nota' : ''}
          FROM movimientos WHERE pieza_id = ? ORDER BY fecha DESC, id DESC`,
     )
     .all(id)
@@ -83,12 +83,14 @@ function historial(db, id) {
 }
 
 // Resuelve un ID ya normalizado (RAEE-NNNN) a uno de los tres casos de §6.3.
-export function buscarPorId(db, id) {
-  const fila = db.prepare(`SELECT ${COLUMNAS_PUBLICAS} FROM v_piezas WHERE id = ?`).get(id);
+// Con { privado: true } (editor con sesión) incluye 'notas' y el usuario de cada movimiento.
+export function buscarPorId(db, id, { privado = false } = {}) {
+  const columnas = privado ? `${COLUMNAS_PUBLICAS}, notas, categoria_id` : COLUMNAS_PUBLICAS;
+  const fila = db.prepare(`SELECT ${columnas} FROM v_piezas WHERE id = ?`).get(id);
   const etiqueta = db.prepare('SELECT id, formato, lote FROM etiquetas WHERE id = ?').get(id) ?? null;
 
   if (fila) {
-    return { resultado: 'registrada', pieza: prepararPieza(fila), historial: historial(db, id), etiqueta };
+    return { resultado: 'registrada', pieza: prepararPieza(fila), historial: historial(db, id, privado), etiqueta };
   }
   if (etiqueta) return { resultado: 'sin_registrar', etiqueta };
   return { resultado: 'no_existe' };

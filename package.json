@@ -12,13 +12,21 @@
     "start": "node src/server.js",
     "db:init": "node scripts/db-init.js",
     "db:seed": "node scripts/db-init.js --seed",
-    "test": "node --test \"tests/**/*.test.js\""
+    "test": "node --test \"tests/**/*.test.js\"",
+    "admin:crear": "node scripts/crear-admin.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^13.0.3",
+    "better-sqlite3-session-store": "^0.1.0",
+    "csrf-sync": "^4.2.1",
     "ejs": "^7.0.2",
     "express": "^4.22.3",
-    "helmet": "^8.3.0"
+    "express-rate-limit": "^8.7.2",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.5.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "supertest": "^7.3.1"

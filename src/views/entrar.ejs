@@ -1,0 +1,21 @@
+<%- include('parciales/cabecera') %>
+<section class="tarjeta form-entrar">
+  <h1>Entrar para editar</h1>
+  <p class="subtitulo">Consultar es libre. Para registrar o cambiar piezas necesitas una cuenta de editor.</p>
+  <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
+  <form action="/entrar" method="post" class="formulario">
+    <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+    <input type="hidden" name="siguiente" value="<%= siguiente %>">
+    <div class="campo">
+      <label for="usuario">Usuario</label>
+      <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none"
+             required maxlength="30" value="<%= usuarioEscrito %>" autofocus>
+    </div>
+    <div class="campo">
+      <label for="contrasena">Contraseña</label>
+      <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required maxlength="200">
+    </div>
+    <button class="boton boton-grande" type="submit">Entrar</button>
+  </form>
+</section>
+<%- include('parciales/pie') %>
