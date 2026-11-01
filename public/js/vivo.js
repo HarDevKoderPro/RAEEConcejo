@@ -89,6 +89,7 @@ export function textoEvento(ev) {
   if (ev.tipo === 'registro') return `Ingresó al inventario${ev.categoria ? ` (${ev.categoria})` : ''}`;
   if (ev.tipo === 'borrado_seguro') return ev.valor_nuevo === 'Sí' ? 'Borrado seguro realizado' : 'Borrado seguro pendiente';
   if (ev.tipo === 'edicion') return 'Datos actualizados';
+  if (ev.tipo === 'reinicio' || ev.tipo === 'eliminacion') return ev.valor_nuevo ?? '';
   if (ev.tipo === 'destino' && /^Reutilizada en la sala → /.test(ev.valor_nuevo ?? '')) return ev.valor_nuevo.replace('Reutilizada en la sala → ', '');
   return ev.valor_nuevo ?? '';
 }

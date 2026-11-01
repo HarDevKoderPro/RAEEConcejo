@@ -41,37 +41,54 @@ Todos entran con **usuario y contraseña**.
 
 > Al empezar, el inventario está vacío y las cifras están en **0**.
 
-## 4. Crear el primer administrador (una sola vez, en el servidor)
+## 4. Primer paso: crear el administrador (configuración inicial)
 
-Esto lo hace la persona responsable del servidor, solo para el primer usuario. Los demás usuarios
-se crean desde la página **⚙️ Admin** (ver más adelante).
+Cuando el sitio no tiene ningún usuario (recién instalado o después de reiniciarlo), el primer
+paso es crear el **administrador**. Se hace desde la página, sin entrar al servidor.
 
-1. Abre una terminal y entra al servidor:
-   ```
-   ssh deploy@169.58.221.224
-   ```
-   Sabrás que estás dentro cuando el inicio de la línea diga `deploy@vmi3527475`.
-2. Escribe este comando y presiona ENTER:
-   ```
-   docker exec -it raee-app-1 npm run admin:crear
-   ```
-3. Responde las preguntas:
+1. En la página de inicio, toca **Entrar**, arriba a la derecha.
+2. Como no hay usuarios, aparece **"Configuración inicial · Crea el administrador"**.
+3. Llena el formulario:
 
-   | Pregunta | Qué escribir |
+   | Campo | Qué escribir |
    |---|---|
    | Nombre completo | el nombre de la persona |
    | Documento de identidad | el número, sin puntos |
-   | Usuario para entrar | por ejemplo `Admin` (da igual si es en mayúsculas o minúsculas) |
-   | Rol | ENTER (queda como administrador) |
-   | Contraseña y repetirla | mínimo 8 caracteres. No se ve mientras la escribes: es normal |
+   | Usuario para entrar | por ejemplo `admin` (da igual si es en mayúsculas o minúsculas) |
+   | Contraseña y repetirla | mínimo 8 caracteres |
 
-4. Debe salir: `✔ Usuario "admin" creado como administrador.`
-   Los mensajes `npm notice` que salen después se pueden ignorar.
-5. Escribe `exit` para salir del servidor.
+4. Toca **Crear administrador y entrar**.
+5. Quedas dentro como administrador, en la página **⚙️ Admin**, con el mensaje *"Listo, [nombre]: eres el administrador…"*.
+6. Desde ese momento la configuración inicial **se desactiva**: nadie más puede usarla.
 
-> ⚠️ **Error común:** si ya estás dentro del servidor (`deploy@vmi3527475`), no vuelvas a escribir
-> `ssh …`. Si te pregunta *"Are you sure you want to continue connecting?"*, escribe `no` y ENTER,
-> y luego solo el comando del paso 2.
+> El documento de identidad es un dato personal: solo lo ve el administrador en ⚙️ Admin. En el
+> historial de las piezas aparece el nombre, nunca el documento.
+
+### Volver a empezar: reiniciar el sitio
+
+Para mostrar de nuevo el primer paso en una demostración:
+
+1. Entra como administrador → **⚙️ Admin** → sección **🔄 Reiniciar el sitio**, al final de la página.
+2. Si quieres empezar también con el inventario vacío, marca **"También vaciar el inventario"**.
+   Las etiquetas impresas se conservan.
+3. Escribe `REINICIAR` y toca **Reiniciar el sitio**.
+4. Se borran todos los usuarios (también el tuyo) y aparece otra vez **"Crea el administrador"**.
+
+> Antes de borrar, el sitio guarda una copia automática de la base en el servidor, por si fue un error.
+
+### Plan B: crear un administrador desde el servidor
+
+Solo si se pierde la contraseña del único administrador. Lo hace la persona responsable del
+servidor, desde una terminal:
+
+```
+ssh deploy@169.58.221.224
+docker exec -it raee-app-1 npm run admin:crear
+```
+
+> ⚠️ **Error común:** si la línea ya empieza con `deploy@vmi3527475`, ya estás dentro del servidor:
+> no vuelvas a escribir `ssh …`. Si pregunta *"Are you sure you want to continue connecting?"*,
+> escribe `no` y luego solo el comando `docker exec …`. Los mensajes `npm notice` se pueden ignorar.
 
 ## 5. Entrar al sitio
 

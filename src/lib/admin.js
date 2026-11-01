@@ -88,6 +88,31 @@ export function listarEliminadas(db, limite = 20) {
     .all(limite);
 }
 
+// --- Reiniciar el sitio --------------------------------------------------------------------------
+// Vuelve a la configuración inicial: borra todos los usuarios y sesiones (y, si se pide, el
+// inventario). Antes guarda una copia de la base en <carpeta de datos>/respaldos/.
+export async function reiniciarSitio(db, { vaciarInventario = false, dirDatos, fotosDir } = {}) {
+  const carpeta = path.join(dirDatos, 'respaldos');
+  fs.mkdirSync(carpeta, { recursive: true });
+  const marca = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const copia = path.join(carpeta, `antes-de-reiniciar-${marca}.db`);
+  await db.backup(copia);
+  const fotos = vaciarInventario ? db.prepare('SELECT foto FROM piezas WHERE foto IS NOT NULL').all().map((f) => f.foto) : [];
+  const resultado = db.transaction(() => {
+    const usuarios = db.prepare('DELETE FROM usuarios').run().changes;
+    const tablaSesiones = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sessions'").get();
+    if (tablaSesiones) db.prepare('DELETE FROM sessions').run();
+    let piezas = 0;
+    if (vaciarInventario) {
+      piezas = db.prepare('DELETE FROM piezas').run().changes; // el historial se borra en cascada
+      db.prepare('DELETE FROM piezas_eliminadas').run();
+    }
+    return { usuarios, piezas };
+  })();
+  if (fotosDir) for (const f of fotos) borrarFoto(f, fotosDir);
+  return { ...resultado, copia };
+}
+
 // --- Respaldo ------------------------------------------------------------------------------------
 // Copia en caliente de la base (API de respaldo de SQLite) a un archivo temporal.
 export async function crearRespaldo(db) {

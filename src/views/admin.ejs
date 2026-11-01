@@ -4,7 +4,7 @@
   <p class="subtitulo">Usuarios, meta del semestre, respaldo y limpieza de los datos de demostración.</p>
 
   <nav class="indice-admin" aria-label="Secciones">
-    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a>
+    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a> · <a href="#reiniciar">Reiniciar el sitio</a>
   </nav>
 
   <section class="tarjeta" id="usuarios" aria-labelledby="t-usuarios">
@@ -153,6 +153,23 @@
     <% } else { %>
     <p class="vacio">No quedan datos de demostración: todo el inventario es real.</p>
     <% } %>
+  </section>
+  <section class="tarjeta zona-peligro" id="reiniciar" aria-labelledby="t-reiniciar">
+    <h2 id="t-reiniciar">🔄 Reiniciar el sitio</h2>
+    <p>Borra <strong>todos los usuarios</strong> (también el tuyo) y cierra todas las sesiones. El sitio vuelve a la
+      <strong>configuración inicial</strong>: al tocar Entrar se pide crear el administrador. Sirve para mostrar ese primer paso en una demostración.</p>
+    <p class="ayuda">Antes de borrar se guarda una copia automática de la base en el servidor (carpeta <span class="mono">respaldos</span>).</p>
+    <form action="/admin/reiniciar" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <label class="opcion"><input type="checkbox" name="vaciar_inventario" value="1"> También vaciar el inventario (piezas, historial y eliminadas). Las etiquetas impresas se conservan.</label>
+      <div class="campo">
+        <label for="confirmar_reinicio">Para confirmar, escribe <strong class="mono"><%= fraseReiniciar %></strong></label>
+        <input id="confirmar_reinicio" name="confirmar_reinicio" type="text" autocomplete="off" spellcheck="false" maxlength="30"
+          <%- errores.reiniciar ? 'aria-invalid="true" aria-describedby="e-reiniciar"' : '' %>>
+        <% if (errores.reiniciar) { %><p class="campo-error" id="e-reiniciar"><%= errores.reiniciar %></p><% } %>
+      </div>
+      <button class="boton boton-peligro" type="submit">Reiniciar el sitio</button>
+    </form>
   </section>
 </div>
 <%- include('parciales/pie') %>
