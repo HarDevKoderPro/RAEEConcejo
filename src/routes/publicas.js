@@ -13,14 +13,8 @@ export function rutasPublicas({ db, ajustes = {} }) {
   const r = Router();
 
   r.get('/', (req, res) => {
-    const ejemplos = db
-      .prepare(
-        `SELECT id, icono, categoria, ubicacion_nombre FROM v_piezas
-          WHERE id IN ('RAEE-0001','RAEE-0010','RAEE-0005','RAEE-0014') ORDER BY id`,
-      )
-      .all();
     const cifras = cifrasPanel(db);
-    res.render('portada', { titulo: 'Inicio', ejemplos, cifras, kgTexto: kg(cifras.kg_inventariados) });
+    res.render('portada', { titulo: 'Inicio', cifras, kgTexto: kg(cifras.kg_inventariados) });
   });
 
   r.get('/proyecto', (req, res) => {

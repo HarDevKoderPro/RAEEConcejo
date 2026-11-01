@@ -35,21 +35,5 @@
 
 <%- include('parciales/buscar-id') %>
 
-<% if (ejemplos.length) { %>
-<section aria-labelledby="t-ejemplos">
-  <h2 id="t-ejemplos">Fichas de ejemplo</h2>
-  <ul class="rejilla-ejemplos">
-    <% for (const p of ejemplos) { %>
-    <li>
-      <a class="tarjeta tarjeta-enlace" href="/p/<%= p.id %>">
-        <span class="ejemplo-icono" aria-hidden="true"><%= p.icono %></span>
-        <span><strong class="mono"><%= p.id %></strong><br><%= p.categoria %><br>
-          <small><%= p.ubicacion_nombre || 'Sin ubicación' %></small></span>
-      </a>
-    </li>
-    <% } %>
-  </ul>
-</section>
-<% } %>
 <% scripts.push('/js/portada.js') %>
 <%- include('parciales/pie') %>

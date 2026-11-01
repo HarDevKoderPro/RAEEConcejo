@@ -649,3 +649,7 @@ input[type="number"]:focus { border-color: var(--verde); }
 .barra nav { gap: .1rem; }
 .barra nav a { padding: .4rem .55rem; font-size: .95rem; }
 @media (min-width: 1100px) { .barra-interior { flex-wrap: nowrap; } .barra-interior { max-width: 84rem; } }
+
+/* Portada en escritorio: los cuatro botones en una sola fila */
+.portada, .portada-cifras, .portada-cifras ~ .form-ir { max-width: 58rem; }
+@media (min-width: 900px) { .portada .acciones { flex-wrap: nowrap; } }
