@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { verificarCredenciales, destinoSeguro } from '../lib/auth.js';
+import { verificarCredenciales, destinoSeguro, crearUsuario } from '../lib/auth.js';
 import { avisar } from '../lib/sesiones.js';
 
 export function rutasAuth({ db }) {
@@ -22,7 +22,46 @@ export function rutasAuth({ db }) {
       }),
   });
 
+  const sinUsuarios = () => db.prepare('SELECT COUNT(*) AS n FROM usuarios').get().n === 0;
+
+  // Configuración inicial: solo existe mientras el sitio no tiene ningún usuario. Crea el primer
+  // administrador desde la página (sin entrar al servidor) y luego se desactiva para siempre.
+  function verPrimerUso(res, { error = null, valores = {}, estado = 200 } = {}) {
+    res.status(estado).render('primer-uso', { titulo: 'Configuración inicial', error, valores });
+  }
+
+  r.get('/primer-uso', (req, res) => {
+    if (!sinUsuarios()) return res.redirect(303, '/entrar');
+    verPrimerUso(res);
+  });
+
+  r.post('/primer-uso', limite, (req, res, next) => {
+    const { nombre, documento, usuario, contrasena, repetir } = req.body;
+    const valores = { nombre, documento, usuario };
+    if (String(contrasena ?? '') !== String(repetir ?? '')) return verPrimerUso(res, { error: 'Las contraseñas no coinciden.', valores, estado: 422 });
+    let creado;
+    try {
+      if (!String(documento ?? '').trim()) throw new Error('Escribe el documento de identidad.');
+      // Dentro de una transacción: si dos personas envían a la vez, solo una queda como administrador.
+      creado = db.transaction(() => {
+        if (!sinUsuarios()) return null;
+        crearUsuario(db, { nombre, documento, usuario, contrasena, rol: 'admin' });
+        return db.prepare('SELECT id, usuario, nombre, rol FROM usuarios WHERE usuario = ?').get(String(usuario).trim().toLowerCase());
+      }).immediate();
+    } catch (err) {
+      return verPrimerUso(res, { error: err.message, valores, estado: 422 });
+    }
+    if (!creado) return res.redirect(303, '/entrar');
+    req.session.regenerate((err) => {
+      if (err) return next(err);
+      req.session.usuario = creado;
+      avisar(req, 'ok', `Listo, ${creado.nombre}: eres el administrador. Ahora crea los usuarios de los registradores.`);
+      req.session.save((err2) => (err2 ? next(err2) : res.redirect(303, '/admin#usuarios')));
+    });
+  });
+
   r.get('/entrar', (req, res) => {
+    if (sinUsuarios()) return res.redirect(303, '/primer-uso');
     const siguiente = destinoSeguro(req.query.siguiente);
     if (req.session.usuario) return res.redirect(303, siguiente);
     res.render('entrar', { titulo: 'Entrar', siguiente, usuarioEscrito: '', error: null });

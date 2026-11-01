@@ -1,7 +1,7 @@
 <%- include('parciales/cabecera') %>
 <section class="tarjeta form-entrar">
-  <h1>Entrar para editar</h1>
-  <p class="subtitulo">Consultar es libre. Para registrar o cambiar piezas necesitas una cuenta de editor.</p>
+  <h1>Entrar</h1>
+  <p class="subtitulo">Consultar es libre. Para registrar o mover piezas necesitas un usuario. Pídeselo al administrador.</p>
   <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
   <form action="/entrar" method="post" class="formulario">
     <input type="hidden" name="_csrf" value="<%= csrfToken() %>">

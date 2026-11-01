@@ -1,0 +1,33 @@
+<%- include('parciales/cabecera') %>
+<section class="tarjeta form-entrar form-primer-uso">
+  <p class="portada-sobretitulo">Configuración inicial</p>
+  <h1>Crea el administrador</h1>
+  <p class="subtitulo">El sitio todavía no tiene usuarios. Este primer usuario será el <strong>administrador</strong>:
+    después, desde <strong>⚙️ Admin</strong>, creará a los registradores. Esta página se desactiva apenas se cree.</p>
+  <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
+  <form action="/primer-uso" method="post" class="formulario" autocomplete="off">
+    <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+    <div class="campo">
+      <label for="nombre">Nombre completo</label>
+      <input id="nombre" name="nombre" type="text" maxlength="80" required autofocus value="<%= valores.nombre || '' %>">
+    </div>
+    <div class="campo">
+      <label for="documento">Documento de identidad</label>
+      <input id="documento" name="documento" type="text" maxlength="20" required inputmode="numeric" placeholder="sin puntos" value="<%= valores.documento || '' %>">
+    </div>
+    <div class="campo">
+      <label for="usuario">Usuario para entrar</label>
+      <input id="usuario" name="usuario" type="text" maxlength="30" required autocapitalize="none" spellcheck="false" placeholder="ej.: admin" value="<%= valores.usuario || '' %>">
+    </div>
+    <div class="campo">
+      <label for="contrasena">Contraseña <span class="recomendado">mín. 8</span></label>
+      <input id="contrasena" name="contrasena" type="password" minlength="8" required autocomplete="new-password">
+    </div>
+    <div class="campo">
+      <label for="repetir">Repite la contraseña</label>
+      <input id="repetir" name="repetir" type="password" minlength="8" required autocomplete="new-password">
+    </div>
+    <button class="boton boton-grande" type="submit">Crear administrador y entrar</button>
+  </form>
+</section>
+<%- include('parciales/pie') %>
