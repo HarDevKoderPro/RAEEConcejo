@@ -13,7 +13,9 @@
   <% if (usuario) { %>
   <nav class="acciones-editor" aria-label="Acciones del editor">
     <a class="boton" href="/movimiento?id=<%= pieza.id %>">⚡ Movimiento rápido</a>
+    <% if (usuario.rol === 'admin') { %>
     <a class="boton boton-secundario" href="/p/<%= pieza.id %>/editar">✏️ Editar todo</a>
+    <% } %>
     <a class="boton boton-secundario" href="/etiquetas/hoja?ids=<%= pieza.id %>">🏷️ Imprimir etiqueta</a>
   </nav>
   <% if (etiqueta && etiqueta.formato === 'ID') { %>
@@ -91,7 +93,7 @@
             <% } else if (m.valor_anterior) { %><%= m.valor_anterior %> <span aria-label="cambió a">→</span> <strong><%= m.valor_nuevo %></strong>
             <% } else { %><%= m.valor_nuevo %><% } %>
           </p>
-          <time class="hito-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time><% if (m.usuario) { %><span class="hito-usuario"> · 👤 <%= m.usuario %></span><% } %>
+          <time class="hito-fecha" datetime="<%= m.fecha.replace(' ', 'T') %>"><%= m.fecha_texto %></time><% if (m.usuario) { %><span class="hito-usuario"> · 👤 <%= m.usuario_nombre %></span><% } %>
           <% if (m.nota) { %><p class="hito-nota"><%= m.nota %></p><% } %>
         </div>
       </li>
@@ -101,6 +103,9 @@
   </section>
 
   <p class="ficha-pie">Última actualización: <%= pieza.actualizado_texto %></p>
+  <% if (usuario && usuario.rol === 'admin') { %>
+  <p class="ficha-pie"><a class="enlace-peligro" href="/p/<%= pieza.id %>/eliminar">🗑️ Eliminar esta pieza</a></p>
+  <% } %>
 </article>
 <% scripts.push('/js/ficha.js') %>
 <%- include('parciales/pie') %>

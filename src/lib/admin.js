@@ -54,25 +54,38 @@ export function guardarConfig(db, datos) {
 
 // --- Usuarios ----------------------------------------------------------------------------------
 export function listarUsuarios(db) {
-  return db.prepare('SELECT id, usuario, nombre, rol, creado_en FROM usuarios ORDER BY rol, usuario').all();
+  return db.prepare('SELECT id, usuario, nombre, documento, rol, activo, creado_en FROM usuarios ORDER BY activo DESC, rol, nombre').all();
 }
 
-// Borra un usuario y cierra sus sesiones abiertas. No permite quedarse sin administradores.
-export function borrarUsuario(db, id, quienBorra) {
-  const u = db.prepare('SELECT id, usuario, rol FROM usuarios WHERE id = ?').get(Number(id));
+// Desactivar en vez de borrar: el usuario ya no entra, pero su nombre sigue en el historial.
+// Al desactivar se cierran sus sesiones abiertas. No permite quedarse sin administradores activos.
+export function cambiarActivo(db, id, activo, quien) {
+  const u = db.prepare('SELECT id, usuario, nombre, rol, activo FROM usuarios WHERE id = ?').get(Number(id));
   if (!u) throw new Error('Ese usuario no existe.');
-  if (u.usuario === quienBorra) throw new Error('No puedes borrar tu propio usuario.');
-  if (u.rol === 'admin' && db.prepare("SELECT COUNT(*) AS n FROM usuarios WHERE rol = 'admin'").get().n <= 1) {
-    throw new Error('Debe quedar al menos un administrador.');
+  if (!activo) {
+    if (u.usuario === quien) throw new Error('No puedes desactivar tu propio usuario.');
+    if (u.rol === 'admin' && db.prepare("SELECT COUNT(*) AS n FROM usuarios WHERE rol = 'admin' AND activo = 1").get().n <= 1) {
+      throw new Error('Debe quedar al menos un administrador activo.');
+    }
   }
   db.transaction(() => {
-    db.prepare('DELETE FROM usuarios WHERE id = ?').run(u.id);
+    db.prepare('UPDATE usuarios SET activo = ? WHERE id = ?').run(activo ? 1 : 0, u.id);
     const sesiones = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sessions'").get();
-    if (sesiones) {
+    if (!activo && sesiones) {
       db.prepare("DELETE FROM sessions WHERE json_extract(sess, '$.usuario.usuario') = ?").run(u.usuario);
     }
   })();
-  return u.usuario;
+  return u;
+}
+
+export function listarEliminadas(db, limite = 20) {
+  return db
+    .prepare(
+      `SELECT e.id, e.pieza_id, e.categoria, e.motivo, e.fecha, e.usuario, COALESCE(u.nombre, e.usuario) AS nombre
+         FROM piezas_eliminadas e LEFT JOIN usuarios u ON u.usuario = e.usuario
+        ORDER BY e.fecha DESC, e.id DESC LIMIT ?`,
+    )
+    .all(limite);
 }
 
 // --- Respaldo ------------------------------------------------------------------------------------

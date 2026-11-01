@@ -517,8 +517,15 @@ posible:
 descarga `main`, reconstruye y espera a que `/salud` responda). El comando `/desplegar` hace
 todo esto.
 
-**Usuarios (fase 4):** `docker exec -it raee-app-1 npm run admin:crear`. La persona escribe la
-contraseña; Claude no la ve ni la guarda.
+**Usuarios:** el primer administrador se crea con `docker exec -it raee-app-1 npm run admin:crear`
+(pide nombre completo, documento, usuario, rol y contraseña). La persona escribe la contraseña;
+Claude no la ve ni la guarda. Los demás se crean en `/admin`.
+
+**Roles (pedido de la persona, 2026-11-01):** *Administrador* puede todo: editar todos los datos,
+eliminar piezas (con motivo; queda el rastro en `piezas_eliminadas`) y manejar usuarios.
+*Registrador* (rol `editor` en la base) ve, registra, mueve piezas e imprime etiquetas. Los
+usuarios no se borran: se desactivan, para que su nombre siga en el historial. El documento de
+identidad es un dato personal (Ley 1581 de 2012): solo se muestra en `/admin`.
 
 > **Importante:** los QR llevan `BASE_URL`. Si cambia el dominio, las etiquetas con formato URL
 > impresas antes dejan de apuntar bien. El dominio definitivo es `raee.smarteksoft.com`.

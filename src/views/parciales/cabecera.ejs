@@ -39,7 +39,7 @@
       </nav>
       <div class="sesion">
         <% if (usuario) { %>
-        <span class="sesion-nombre" title="<%= usuario.usuario %> · <%= usuario.rol %>">👤 <%= usuario.nombre %></span>
+        <span class="sesion-nombre" title="<%= usuario.usuario %> · <%= usuario.rol === 'admin' ? 'Administrador' : 'Registrador' %>">👤 <%= usuario.nombre %></span>
         <form action="/salir" method="post" class="form-salir">
           <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
           <button type="submit" class="boton-salir">Salir</button>

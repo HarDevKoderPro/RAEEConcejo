@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { config } from './config.js';
-import { abrirDb } from './db.js';
+import { abrirDb, aplicarEsquema } from './db.js';
 import { crearApp } from './app.js';
 
 if (!fs.existsSync(config.dbPath)) {
@@ -9,6 +9,7 @@ if (!fs.existsSync(config.dbPath)) {
 }
 
 const db = abrirDb(config.dbPath);
+aplicarEsquema(db); // idempotente: crea tablas nuevas y agrega columnas tras una actualización
 const app = crearApp({ db });
 
 const servidor = app.listen(config.puerto, () => {

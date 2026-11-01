@@ -1,0 +1,25 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <section class="tarjeta zona-peligro">
+    <h1>🗑️ Eliminar <span class="mono"><%= pieza.id %></span></h1>
+    <p><strong><%= pieza.icono %> <%= pieza.categoria %></strong><% if (pieza.marca || pieza.descripcion) { %> · <%= [pieza.marca, pieza.descripcion].filter(Boolean).join(' · ') %><% } %></p>
+    <p>La pieza y su historial salen del inventario y de las cifras del panel. Queda un registro en
+      <strong>Administración</strong> con lo que se eliminó, quién lo hizo, cuándo y por qué.
+      La etiqueta se conserva: si fue un error, se puede volver a registrar escaneándola.</p>
+    <form action="/p/<%= pieza.id %>/eliminar" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <div class="campo">
+        <label for="motivo">Motivo <span class="obligatorio">obligatorio</span></label>
+        <input id="motivo" name="motivo" type="text" maxlength="300" required autofocus value="<%= motivo %>"
+               placeholder="Ej.: registrada por error, pieza duplicada"
+               <%- error ? 'aria-invalid="true" aria-describedby="e-motivo"' : '' %>>
+        <% if (error) { %><p class="campo-error" id="e-motivo"><%= error %></p><% } %>
+      </div>
+      <div class="acciones-form">
+        <button class="boton boton-peligro" type="submit">Eliminar <%= pieza.id %></button>
+        <a class="boton boton-secundario" href="/p/<%= pieza.id %>">Cancelar</a>
+      </div>
+    </form>
+  </section>
+</div>
+<%- include('parciales/pie') %>

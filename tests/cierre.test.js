@@ -203,7 +203,7 @@ describe('administración', () => {
     await agente
       .post('/admin/usuarios')
       .type('form')
-      .send({ _csrf: tokenDe(pagina.text), usuario: 'aprendiz.prueba', nombre: 'Aprendiz', rol: 'editor', contrasena: 'otra-clave-123', repetir: 'otra-clave-123' })
+      .send({ _csrf: tokenDe(pagina.text), usuario: 'aprendiz.prueba', nombre: 'Aprendiz de Prueba', documento: '1.023.456.789', rol: 'editor', contrasena: 'otra-clave-123', repetir: 'otra-clave-123' })
       .expect(303);
     await entrar({ usuario: 'aprendiz.prueba', contrasena: 'otra-clave-123' });
     const mal = await agente
@@ -214,17 +214,25 @@ describe('administración', () => {
     assert.match(mal.text, /no coinciden/);
   });
 
-  test('el admin no puede borrarse a sí mismo; borrar a otro cierra sus sesiones', async () => {
+  test('el admin no puede desactivarse a sí mismo; desactivar a otro cierra sus sesiones y le impide entrar', async () => {
     const admin = await entrar(ADMIN);
     const victima = await entrar({ usuario: 'aprendiz.prueba', contrasena: 'otra-clave-123' });
     await victima.get('/registrar').expect(200);
     const pagina = await admin.get('/admin').expect(200);
+    assert.match(pagina.text, /1023456789/); // el documento se ve solo en /admin
     const yo = prueba.db.prepare('SELECT id FROM usuarios WHERE usuario = ?').get(ADMIN.usuario).id;
     const otro = prueba.db.prepare('SELECT id FROM usuarios WHERE usuario = ?').get('aprendiz.prueba').id;
-    const propio = await admin.post(`/admin/usuarios/${yo}/borrar`).type('form').send({ _csrf: tokenDe(pagina.text) }).expect(422);
-    assert.match(propio.text, /No puedes borrar tu propio usuario/);
-    await admin.post(`/admin/usuarios/${otro}/borrar`).type('form').send({ _csrf: tokenDe(pagina.text) }).expect(303);
+    const propio = await admin.post(`/admin/usuarios/${yo}/desactivar`).type('form').send({ _csrf: tokenDe(pagina.text) }).expect(422);
+    assert.match(propio.text, /No puedes desactivar tu propio usuario/);
+    await admin.post(`/admin/usuarios/${otro}/desactivar`).type('form').send({ _csrf: tokenDe(pagina.text) }).expect(303);
     await victima.get('/registrar').expect(303).expect('Location', /^\/entrar/);
+    const nuevo = request.agent(app);
+    const form = await nuevo.get('/entrar');
+    await nuevo.post('/entrar').type('form')
+      .send({ _csrf: tokenDe(form.text), usuario: 'aprendiz.prueba', contrasena: 'otra-clave-123' }).expect(401);
+    assert.ok(prueba.db.prepare('SELECT 1 FROM usuarios WHERE id = ?').get(otro), 'el usuario no se borra, se desactiva');
+    await admin.post(`/admin/usuarios/${otro}/activar`).type('form').send({ _csrf: tokenDe(pagina.text) }).expect(303);
+    await entrar({ usuario: 'aprendiz.prueba', contrasena: 'otra-clave-123' });
   });
 
   test('la meta del semestre cambia el panel', async () => {

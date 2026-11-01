@@ -656,3 +656,7 @@ input[type="number"]:focus { border-color: var(--verde); }
 
 /* Tarjetas de cifras centradas (portada, panel y demo) */
 .cifra { align-items: center; text-align: center; }
+.enlace-peligro { color: var(--rojo); font-weight: 600; }
+.usuario-inactivo td { color: var(--texto-suave); }
+.insignia-rol { display: inline-block; padding: .1rem .5rem; border-radius: 999px; font-size: .8rem; font-weight: 700; background: var(--menta); color: var(--petroleo); }
+.insignia-rol-admin { background: #12403c; color: #fff; }

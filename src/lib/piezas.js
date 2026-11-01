@@ -70,8 +70,9 @@ function prepararPieza(fila) {
 function historial(db, id, privado) {
   return db
     .prepare(
-      `SELECT id, fecha, tipo, valor_anterior, valor_nuevo${privado ? ', usuario, nota' : ''}
-         FROM movimientos WHERE pieza_id = ? ORDER BY fecha DESC, id DESC`,
+      `SELECT m.id, m.fecha, m.tipo, m.valor_anterior, m.valor_nuevo${privado ? ', m.usuario, m.nota, COALESCE(u.nombre, m.usuario) AS usuario_nombre' : ''}
+         FROM movimientos m ${privado ? 'LEFT JOIN usuarios u ON u.usuario = m.usuario' : ''}
+        WHERE m.pieza_id = ? ORDER BY m.fecha DESC, m.id DESC`,
     )
     .all(id)
     .map((m) => ({

@@ -1,4 +1,4 @@
-// Crea un usuario para editar. La contraseña se escribe en la consola y no se muestra.
+// Crea un usuario (administrador o registrador). La contraseña se escribe en la consola y no se muestra.
 //   npm run admin:crear
 //   En el VPS:  docker exec -it raee-app-1 npm run admin:crear
 import readline from 'node:readline';
@@ -35,14 +35,16 @@ const db = abrirDb(config.dbPath);
 aplicarEsquema(db);
 try {
   console.log('Nuevo usuario del Inventario RAEE\n');
-  const usuario = await preguntar('Usuario (ej.: instructor): ');
-  const nombre = await preguntar('Nombre para mostrar (ej.: Instructor Juan): ');
-  const rol = (await preguntar('Rol [editor/admin] (editor): ')) || 'editor';
+  const nombre = await preguntar('Nombre completo: ');
+  const documento = await preguntar('Documento de identidad (sin puntos): ');
+  const usuario = await preguntar('Usuario para entrar (ej.: admin o instructor): ');
+  const respuestaRol = (await preguntar('Rol [admin/registrador] (admin): ')).toLowerCase();
+  const rol = respuestaRol.startsWith('r') || respuestaRol === 'editor' ? 'editor' : 'admin';
   const contrasena = await preguntarOculto('Contraseña (mín. 8 caracteres): ');
   const repetida = await preguntarOculto('Repite la contraseña: ');
   if (contrasena !== repetida) throw new Error('Las contraseñas no coinciden.');
-  const creado = crearUsuario(db, { usuario, nombre, contrasena, rol });
-  console.log(`\n✔ Usuario "${creado}" creado con rol ${rol}. Ya puede entrar en /entrar.`);
+  const creado = crearUsuario(db, { usuario, nombre, documento, contrasena, rol });
+  console.log(`\n✔ Usuario "${creado}" creado como ${rol === "admin" ? "administrador" : "registrador"}. Ya puede entrar en /entrar.`);
 } catch (err) {
   const msg = /UNIQUE/.test(err.message) ? 'Ese usuario ya existe.' : err.message;
   console.error(`\n✖ ${msg}`);

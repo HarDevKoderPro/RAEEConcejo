@@ -142,3 +142,21 @@ export function cambioRapido(db, id, campo, valor, { equipo_destino = null } = {
   if (campo === 'destino') nuevos.equipo_destino = valor === 'Reutilizada en la sala' ? equipo_destino : null;
   editarPieza(db, id, nuevos, usuario);
 }
+
+// Eliminar una pieza (solo admin). Antes de borrarla se guarda una copia con su historial en
+// 'piezas_eliminadas', con el motivo y quién lo hizo. La etiqueta se conserva: se puede volver a
+// registrar escaneándola. Devuelve la foto que hay que borrar del disco (o null).
+export function eliminarPieza(db, id, motivo, usuario) {
+  const texto = String(motivo ?? '').trim().slice(0, 300);
+  if (texto.length < 3) throw new Error('Escribe el motivo (por ejemplo, "registrada por error").');
+  const pieza = db.prepare('SELECT * FROM v_piezas WHERE id = ?').get(id);
+  if (!pieza) throw new Error('PIEZA_INEXISTENTE');
+  const historial = db.prepare('SELECT fecha, tipo, valor_anterior, valor_nuevo, usuario, nota FROM movimientos WHERE pieza_id = ? ORDER BY id').all(id);
+  db.transaction(() => {
+    db.prepare('INSERT INTO piezas_eliminadas (pieza_id, categoria, motivo, usuario, datos) VALUES (?, ?, ?, ?, ?)').run(
+      id, pieza.categoria, texto, usuario, JSON.stringify({ pieza, historial }),
+    );
+    db.prepare('DELETE FROM piezas WHERE id = ?').run(id);
+  })();
+  return { foto: pieza.foto ?? null, categoria: pieza.categoria };
+}

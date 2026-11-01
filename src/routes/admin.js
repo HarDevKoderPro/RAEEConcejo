@@ -1,11 +1,11 @@
 // /admin (solo rol admin): usuarios, meta y datos del proyecto, exportar, respaldo y limpiar demo.
 import path from 'node:path';
 import { Router } from 'express';
-import { requiereAdmin, crearUsuario } from '../lib/auth.js';
+import { requiereAdmin, crearUsuario, NOMBRES_ROL } from '../lib/auth.js';
 import { avisar } from '../lib/sesiones.js';
 import { hoyLocal } from '../lib/validacion.js';
 import {
-  resumenDemo, limpiarDemo, leerConfig, guardarConfig, listarUsuarios, borrarUsuario, crearRespaldo,
+  resumenDemo, limpiarDemo, leerConfig, guardarConfig, listarUsuarios, cambiarActivo, listarEliminadas, crearRespaldo,
 } from '../lib/admin.js';
 
 export const FRASE_LIMPIAR = 'BORRAR DEMO';
@@ -18,6 +18,8 @@ export function rutasAdmin({ db, ajustes }) {
     res.status(estado).render('admin', {
       titulo: 'Administración',
       usuarios: listarUsuarios(db),
+      eliminadas: listarEliminadas(db),
+      nombresRol: NOMBRES_ROL,
       config: { ...leerConfig(db), ...valores.config },
       nuevo: valores.nuevo ?? {},
       demo: resumenDemo(db),
@@ -36,13 +38,14 @@ export function rutasAdmin({ db, ajustes }) {
   });
 
   r.post('/admin/usuarios', (req, res) => {
-    const { usuario, nombre, rol, contrasena, repetir } = req.body;
-    const nuevo = { usuario, nombre, rol };
+    const { usuario, nombre, documento, rol, contrasena, repetir } = req.body;
+    const nuevo = { usuario, nombre, documento, rol };
     if (String(contrasena ?? '') !== String(repetir ?? '')) {
       return ver(res, { errores: { usuario: 'Las contraseñas no coinciden.' }, valores: { nuevo }, estado: 422 });
     }
     try {
-      const creado = crearUsuario(db, { usuario, nombre, contrasena, rol: rol === 'admin' ? 'admin' : 'editor' });
+      if (!String(documento ?? '').trim()) throw new Error('Escribe el documento de identidad.');
+      const creado = crearUsuario(db, { usuario, nombre, documento, contrasena, rol: rol === 'admin' ? 'admin' : 'editor' });
       avisar(req, 'ok', `Usuario «${creado}» creado. Ya puede entrar.`);
       res.redirect(303, '/admin');
     } catch (err) {
@@ -51,10 +54,11 @@ export function rutasAdmin({ db, ajustes }) {
     }
   });
 
-  r.post('/admin/usuarios/:id/borrar', (req, res) => {
+  r.post('/admin/usuarios/:id/:accion(desactivar|activar)', (req, res) => {
+    const activar = req.params.accion === 'activar';
     try {
-      const borrado = borrarUsuario(db, req.params.id, req.session.usuario.usuario);
-      avisar(req, 'ok', `Usuario «${borrado}» borrado y sus sesiones cerradas.`);
+      const u = cambiarActivo(db, req.params.id, activar, req.session.usuario.usuario);
+      avisar(req, 'ok', activar ? `${u.nombre} puede volver a entrar.` : `${u.nombre} quedó desactivado: ya no puede entrar y sus sesiones se cerraron. Su nombre sigue en el historial.`);
       res.redirect(303, '/admin');
     } catch (err) {
       ver(res, { errores: { usuarios: err.message }, estado: 422 });

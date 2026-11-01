@@ -3,14 +3,25 @@ import bcrypt from 'bcryptjs';
 
 export const COSTO_BCRYPT = 12;
 
-export function crearUsuario(db, { usuario, nombre, contrasena, rol = 'editor' }, costo = COSTO_BCRYPT) {
+// Roles: 'admin' puede todo; 'editor' se muestra como "Registrador": ve, registra, mueve
+// piezas e imprime etiquetas, pero no edita todos los datos ni elimina.
+export const NOMBRES_ROL = { admin: 'Administrador', editor: 'Registrador' };
+
+export function normalizarDocumento(texto) {
+  return String(texto ?? '').replace(/[\s.]/g, '').toUpperCase();
+}
+
+export function crearUsuario(db, { usuario, nombre, contrasena, rol = 'editor', documento = null }, costo = COSTO_BCRYPT) {
   const u = String(usuario ?? '').trim().toLowerCase();
   if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('El usuario debe tener de 3 a 30 letras, números, punto, guion o guion bajo.');
-  if (!String(nombre ?? '').trim()) throw new Error('Escribe el nombre de la persona.');
+  if (String(nombre ?? '').trim().length < 3) throw new Error('Escribe el nombre completo de la persona.');
+  const doc = documento == null || documento === '' ? null : normalizarDocumento(documento);
+  if (doc !== null && !/^[0-9A-Z-]{5,15}$/.test(doc)) throw new Error('El documento debe tener de 5 a 15 números o letras, sin puntos.');
   if (String(contrasena ?? '').length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres.');
-  if (!['admin', 'editor'].includes(rol)) throw new Error('El rol debe ser admin o editor.');
+  if (!['admin', 'editor'].includes(rol)) throw new Error('El rol debe ser administrador o registrador.');
+  if (doc && db.prepare('SELECT 1 FROM usuarios WHERE documento = ?').get(doc)) throw new Error('Ya hay un usuario con ese documento.');
   const hash = bcrypt.hashSync(String(contrasena), costo);
-  db.prepare('INSERT INTO usuarios (usuario, nombre, hash, rol) VALUES (?, ?, ?, ?)').run(u, String(nombre).trim(), hash, rol);
+  db.prepare('INSERT INTO usuarios (usuario, nombre, hash, rol, documento) VALUES (?, ?, ?, ?, ?)').run(u, String(nombre).trim(), hash, rol, doc);
   return u;
 }
 
@@ -19,11 +30,11 @@ export function crearUsuario(db, { usuario, nombre, contrasena, rol = 'editor' }
 const HASH_FALSO = bcrypt.hashSync('contrasena-que-no-existe', COSTO_BCRYPT);
 export async function verificarCredenciales(db, usuario, contrasena) {
   const fila = db
-    .prepare('SELECT id, usuario, nombre, rol, hash FROM usuarios WHERE usuario = ?')
+    .prepare('SELECT id, usuario, nombre, rol, hash, activo FROM usuarios WHERE usuario = ?')
     .get(String(usuario ?? '').trim().toLowerCase());
   const ok = await bcrypt.compare(String(contrasena ?? ''), fila?.hash ?? HASH_FALSO);
-  if (!fila || !ok) return null;
-  const { hash, ...publico } = fila;
+  if (!fila || !ok || fila.activo !== 1) return null; // un usuario desactivado ya no entra
+  const { hash, activo, ...publico } = fila;
   return publico;
 }
 

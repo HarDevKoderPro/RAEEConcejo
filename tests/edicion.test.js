@@ -10,7 +10,8 @@ import { crearUsuario } from '../src/lib/auth.js';
 import { crearDbPrueba } from './ayuda.js';
 
 // Credenciales de prueba: solo existen en la base temporal de estas pruebas.
-const USUARIO = { usuario: 'editor.prueba', nombre: 'Editor de Prueba', contrasena: 'clave-de-prueba-123' };
+const USUARIO = { usuario: 'editor.prueba', nombre: 'Editor de Prueba', contrasena: 'clave-de-prueba-123' }; // registrador
+const ADMIN = { usuario: 'admin.prueba', nombre: 'Admin de Prueba', contrasena: 'clave-de-prueba-321', rol: 'admin' };
 
 let prueba;
 let app;
@@ -22,6 +23,7 @@ before(() => {
   prueba = crearDbPrueba();
   dirFotos = fs.mkdtempSync(path.join(os.tmpdir(), 'raee-fotos-'));
   crearUsuario(prueba.db, USUARIO, 4); // costo bajo solo para que las pruebas sean rápidas
+  crearUsuario(prueba.db, ADMIN, 4);
   app = crearApp({ db: prueba.db, opciones: { sessionSecret: 'secreto-de-pruebas', fotosDir: dirFotos } });
 });
 after(() => {
@@ -32,13 +34,13 @@ after(() => {
 const tokenDe = (html) => html.match(/name="_csrf" value="([^"]+)"/)?.[1];
 const metaToken = (html) => html.match(/name="csrf-token" content="([^"]+)"/)?.[1];
 
-async function entrar(aplicacion = app) {
+async function entrar(aplicacion = app, quien = USUARIO) {
   const agente = request.agent(aplicacion);
   const form = await agente.get('/entrar').expect(200);
   await agente
     .post('/entrar')
     .type('form')
-    .send({ _csrf: tokenDe(form.text), usuario: USUARIO.usuario, contrasena: USUARIO.contrasena, siguiente: '/' })
+    .send({ _csrf: tokenDe(form.text), usuario: quien.usuario, contrasena: quien.contrasena, siguiente: '/' })
     .expect(303);
   return agente;
 }
@@ -134,7 +136,8 @@ describe('registro', () => {
 
     const ficha = await agente.get('/p/RAEE-0037').expect(200);
     assert.match(ficha.text, /Pieza RAEE-0037 registrada/);
-    assert.match(ficha.text, /Editar todo/);
+    assert.match(ficha.text, /Movimiento rápido/);
+    assert.doesNotMatch(ficha.text, /Editar todo/); // el registrador no edita todo
   });
 
   test('el ID escaneado como enlace o en minúsculas también sirve', async () => {
@@ -298,7 +301,7 @@ describe('editar', () => {
   };
 
   test('editar campos genera movimientos por tipo de cambio', async () => {
-    const agente = await entrar();
+    const agente = await entrar(app, ADMIN);
     const _csrf = await formEditar(agente, 'RAEE-0030');
     const datos = { ...datosDe('RAEE-0030'), marca: 'Marca Corregida', estado: 'Dañado' };
     await agente.post('/p/RAEE-0030/editar').field({ ...datos, _csrf }).expect(303).expect('Location', '/p/RAEE-0030');
@@ -308,7 +311,7 @@ describe('editar', () => {
   });
 
   test('subir una foto la convierte a WebP y la muestra en la ficha', async () => {
-    const agente = await entrar();
+    const agente = await entrar(app, ADMIN);
     const _csrf = await formEditar(agente, 'RAEE-0031');
     const png = await sharp({ create: { width: 2400, height: 1600, channels: 3, background: '#1f7a6b' } }).png().toBuffer();
     await agente.post('/p/RAEE-0031/editar').field({ ...datosDe('RAEE-0031'), _csrf, foto_enviada: '1' })
@@ -325,7 +328,7 @@ describe('editar', () => {
   });
 
   test('un archivo que no es imagen se rechaza', async () => {
-    const agente = await entrar();
+    const agente = await entrar(app, ADMIN);
     const _csrf = await formEditar(agente, 'RAEE-0032');
     const res = await agente.post('/p/RAEE-0032/editar').field({ ...datosDe('RAEE-0032'), _csrf, foto_enviada: '1' })
       .attach('foto', Buffer.from('esto no es una imagen'), { filename: 'falsa.png', contentType: 'image/png' })
@@ -334,12 +337,12 @@ describe('editar', () => {
   });
 
   test('el formulario con foto también exige el token CSRF', async () => {
-    const agente = await entrar();
+    const agente = await entrar(app, ADMIN);
     await agente.post('/p/RAEE-0032/editar').field({ ...datosDe('RAEE-0032') }).expect(403);
   });
 
   test('editar un disco a donación sin borrado se bloquea con el aviso', async () => {
-    const agente = await entrar();
+    const agente = await entrar(app, ADMIN);
     const _csrf = await formEditar(agente, 'RAEE-0017');
     const res = await agente.post('/p/RAEE-0017/editar').field({ ...datosDe('RAEE-0017'), _csrf, destino: 'Donación' }).expect(422);
     assert.match(res.text, /Este disco puede contener información de la institución/);

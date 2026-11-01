@@ -1,13 +1,15 @@
-// Rutas de edición (solo editores con sesión): /registrar, /p/:id/editar, /movimiento.
+// Rutas de edición: /registrar y /movimiento (registrador y admin); /p/:id/editar y
+// /p/:id/eliminar (solo admin).
 import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
-import { requiereEditor } from '../lib/auth.js';
+import { requiereEditor, requiereAdmin } from '../lib/auth.js';
+import { emitir } from '../lib/eventos.js';
 import { avisar, csrf } from '../lib/sesiones.js';
 import { extraerId } from '../lib/escaneo.js';
 import { siguienteId } from '../lib/ids.js';
 import { catalogosFormulario, leerFormularioPieza, traducirErrorSqlite, hoyLocal } from '../lib/validacion.js';
-import { resolverIdRegistro, registrarPieza, editarPieza } from '../lib/movimientos.js';
+import { resolverIdRegistro, registrarPieza, editarPieza, eliminarPieza } from '../lib/movimientos.js';
 import { subidaFoto, guardarFoto, borrarFoto } from '../lib/fotos.js';
 
 export function rutasPiezas({ db, ajustes }) {
@@ -82,7 +84,7 @@ export function rutasPiezas({ db, ajustes }) {
     });
   }
 
-  r.get('/p/:id/editar', requiereEditor, (req, res, next) => {
+  r.get('/p/:id/editar', requiereAdmin, (req, res, next) => {
     const { id } = extraerId(req.params.id);
     const pieza = id && cargarPieza(id);
     if (!pieza) return next();
@@ -104,7 +106,7 @@ export function rutasPiezas({ db, ajustes }) {
   // Validación CSRF explícita: la protección global omite los formularios multipart.
   const validarCsrf = (req, res, next) => (csrf.isRequestValid(req) ? next() : next(csrf.invalidCsrfTokenError));
 
-  r.post('/p/:id/editar', requiereEditor, leerMultipart, validarCsrf, async (req, res, next) => {
+  r.post('/p/:id/editar', requiereAdmin, leerMultipart, validarCsrf, async (req, res, next) => {
     try {
       const { id } = extraerId(req.params.id);
       const pieza = id && cargarPieza(id);
@@ -144,6 +146,31 @@ export function rutasPiezas({ db, ajustes }) {
     } catch (err) {
       next(err);
     }
+  });
+
+  // ---------- Eliminar (solo admin, con motivo y rastro) ----------
+  r.get('/p/:id/eliminar', requiereAdmin, (req, res, next) => {
+    const { id } = extraerId(req.params.id);
+    const pieza = id && cargarPieza(id);
+    if (!pieza) return next();
+    res.render('eliminar', { titulo: `Eliminar ${pieza.id}`, pieza, motivo: '', error: null });
+  });
+
+  r.post('/p/:id/eliminar', requiereAdmin, (req, res, next) => {
+    const { id } = extraerId(req.params.id);
+    const pieza = id && cargarPieza(id);
+    if (!pieza) return next();
+    let resultado;
+    try {
+      resultado = eliminarPieza(db, id, req.body.motivo, req.session.usuario.usuario);
+    } catch (err) {
+      if (err.message === 'PIEZA_INEXISTENTE') return next();
+      return res.status(422).render('eliminar', { titulo: `Eliminar ${pieza.id}`, pieza, motivo: String(req.body.motivo ?? '').slice(0, 300), error: err.message });
+    }
+    if (resultado.foto) borrarFoto(resultado.foto, dirFotos);
+    emitir('movimiento', { pieza_id: id, tipo: 'eliminacion', valor_nuevo: 'Eliminada del inventario', icono: '🗑️', categoria: resultado.categoria, icono_categoria: pieza.icono });
+    avisar(req, 'ok', `${id} se eliminó del inventario. El motivo quedó registrado en Administración.`);
+    res.redirect(303, '/buscar');
   });
 
   // ---------- Actualización rápida por escaneo ----------

@@ -4,29 +4,33 @@
   <p class="subtitulo">Usuarios, meta del semestre, respaldo y limpieza de los datos de demostración.</p>
 
   <nav class="indice-admin" aria-label="Secciones">
-    <a href="#usuarios">Usuarios</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a>
+    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a>
   </nav>
 
   <section class="tarjeta" id="usuarios" aria-labelledby="t-usuarios">
     <h2 id="t-usuarios">👤 Usuarios</h2>
     <% if (errores.usuarios) { %><p class="campo-error-general" role="alert"><%= errores.usuarios %></p><% } %>
+    <p class="ayuda">El <strong>registrador</strong> ve, registra, mueve piezas e imprime etiquetas. El <strong>administrador</strong>, además, edita todos los datos, elimina piezas y maneja esta página.
+      El documento solo se ve aquí; en el historial aparece el nombre.</p>
     <div class="tabla-envoltura">
     <table class="tabla">
-      <thead><tr><th scope="col">Usuario</th><th scope="col">Nombre</th><th scope="col">Rol</th><th scope="col">Creado</th><th scope="col"><span class="sr">Acción</span></th></tr></thead>
+      <thead><tr><th scope="col">Nombre completo</th><th scope="col">Documento</th><th scope="col">Usuario</th><th scope="col">Rol</th><th scope="col">Estado</th><th scope="col"><span class="sr">Acción</span></th></tr></thead>
       <tbody>
         <% for (const u of usuarios) { %>
-        <tr>
-          <td class="mono"><%= u.usuario %></td>
+        <tr class="<%= u.activo ? '' : 'usuario-inactivo' %>">
           <td><%= u.nombre %></td>
-          <td><%= u.rol === 'admin' ? 'Administrador' : 'Editor' %></td>
-          <td><%= u.creado_en.slice(0, 10) %></td>
+          <td class="mono"><%= u.documento || '—' %></td>
+          <td class="mono"><%= u.usuario %></td>
+          <td><span class="insignia-rol insignia-rol-<%= u.rol %>"><%= nombresRol[u.rol] %></span></td>
+          <td><%= u.activo ? 'Activo' : 'Desactivado' %></td>
           <td>
-            <% if (u.usuario !== usuario.usuario) { %>
-            <form action="/admin/usuarios/<%= u.id %>/borrar" method="post" class="form-en-linea">
+            <% if (u.usuario === usuario.usuario) { %><span class="rotulo">tú</span>
+            <% } else { %>
+            <form action="/admin/usuarios/<%= u.id %>/<%= u.activo ? 'desactivar' : 'activar' %>" method="post" class="form-en-linea">
               <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
-              <button type="submit" class="boton-texto boton-peligro">Borrar</button>
+              <button type="submit" class="boton-texto <%= u.activo ? 'boton-peligro' : '' %>"><%= u.activo ? 'Desactivar' : 'Reactivar' %></button>
             </form>
-            <% } else { %><span class="rotulo">tú</span><% } %>
+            <% } %>
           </td>
         </tr>
         <% } %>
@@ -40,18 +44,22 @@
       <% if (errores.usuario) { %><p class="campo-error-general" role="alert"><%= errores.usuario %></p><% } %>
       <div class="rejilla-campos">
         <div class="campo">
-          <label for="n-usuario">Usuario</label>
-          <input id="n-usuario" name="usuario" type="text" maxlength="30" required value="<%= nuevo.usuario || '' %>" placeholder="ej.: aprendiz.ana" autocapitalize="none" spellcheck="false">
+          <label for="n-nombre">Nombre completo</label>
+          <input id="n-nombre" name="nombre" type="text" maxlength="80" required value="<%= nuevo.nombre || '' %>" placeholder="ej.: Ana María Gómez Ruiz">
         </div>
         <div class="campo">
-          <label for="n-nombre">Nombre para mostrar</label>
-          <input id="n-nombre" name="nombre" type="text" maxlength="60" required value="<%= nuevo.nombre || '' %>" placeholder="ej.: Ana Gómez">
+          <label for="n-documento">Documento de identidad</label>
+          <input id="n-documento" name="documento" type="text" maxlength="20" required inputmode="numeric" value="<%= nuevo.documento || '' %>" placeholder="sin puntos" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="n-usuario">Usuario para entrar</label>
+          <input id="n-usuario" name="usuario" type="text" maxlength="30" required value="<%= nuevo.usuario || '' %>" placeholder="ej.: aprendiz.ana" autocapitalize="none" spellcheck="false">
         </div>
         <div class="campo">
           <label for="n-rol">Rol</label>
           <select id="n-rol" name="rol">
-            <option value="editor" <%= nuevo.rol !== 'admin' ? 'selected' : '' %>>Editor (registra y mueve piezas)</option>
-            <option value="admin" <%= nuevo.rol === 'admin' ? 'selected' : '' %>>Administrador (además, esta página)</option>
+            <option value="editor" <%= nuevo.rol !== 'admin' ? 'selected' : '' %>>Registrador (ve, registra, mueve, etiquetas)</option>
+            <option value="admin" <%= nuevo.rol === 'admin' ? 'selected' : '' %>>Administrador (además edita, elimina y maneja usuarios)</option>
           </select>
         </div>
         <div class="campo">
@@ -65,6 +73,24 @@
       </div>
       <button class="boton" type="submit">Crear usuario</button>
     </form>
+  </section>
+
+  <section class="tarjeta" id="eliminadas" aria-labelledby="t-eliminadas">
+    <h2 id="t-eliminadas">🗑️ Piezas eliminadas</h2>
+    <% if (!eliminadas.length) { %>
+    <p class="vacio">No se ha eliminado ninguna pieza.</p>
+    <% } else { %>
+    <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead><tr><th scope="col">Pieza</th><th scope="col">Motivo</th><th scope="col">Quién</th><th scope="col">Cuándo</th></tr></thead>
+      <tbody>
+        <% for (const e of eliminadas) { %>
+        <tr><td class="mono"><%= e.pieza_id %><br><small><%= e.categoria %></small></td><td><%= e.motivo %></td><td><%= e.nombre %></td><td><%= e.fecha %></td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+    <% } %>
   </section>
 
   <section class="tarjeta" id="config" aria-labelledby="t-config">

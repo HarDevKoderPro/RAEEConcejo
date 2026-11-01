@@ -134,8 +134,25 @@ CREATE TABLE IF NOT EXISTS usuarios (
   usuario   TEXT NOT NULL UNIQUE,
   nombre    TEXT NOT NULL,
   hash      TEXT NOT NULL,                      -- bcrypt
-  rol       TEXT NOT NULL DEFAULT 'editor' CHECK (rol IN ('admin','editor')),
-  creado_en TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  rol       TEXT NOT NULL DEFAULT 'editor' CHECK (rol IN ('admin','editor')), -- editor = "Registrador" en pantalla
+  creado_en TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+  documento TEXT,                               -- documento de identidad: dato personal, solo lo ve el admin
+  activo    INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0,1)) -- 0 = desactivado: no entra, pero sigue en el historial
+);
+-- (en bases creadas antes, src/db.js agrega 'documento' y 'activo' con ALTER TABLE)
+
+-- ---------------------------------------------------------------------
+--  Piezas eliminadas por un admin: queda el rastro de qué se borró,
+--  quién, cuándo y por qué (el historial de la pieza se guarda en 'datos').
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS piezas_eliminadas (
+  id        INTEGER PRIMARY KEY,
+  pieza_id  TEXT NOT NULL,
+  categoria TEXT,
+  motivo    TEXT NOT NULL,
+  usuario   TEXT NOT NULL,
+  fecha     TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+  datos     TEXT NOT NULL                       -- JSON: la pieza y sus movimientos al momento de eliminarla
 );
 
 CREATE TABLE IF NOT EXISTS config (
