@@ -33,6 +33,11 @@ Comprobación rápida: <http://localhost:3100/salud> debe responder `{"ok":true,
 
 Comandos de Claude Code: `/verificar`, `/ensayo-demo`, `/desplegar`.
 
+## En producción
+
+Publicado en **https://raee.smarteksoft.com** (Docker + Caddy en el VPS). Ver
+[`deploy/DESPLIEGUE.md`](deploy/DESPLIEGUE.md).
+
 ## Pantallas disponibles
 
 | Ruta | Qué muestra |

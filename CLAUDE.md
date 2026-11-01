@@ -45,9 +45,10 @@ mostrar ante un jurado, cargada con los datos de demostración de `db/seed.sql`.
    - haz un commit `fase N: …`;
    - **espera su visto bueno** antes de pasar a la siguiente fase.
 3. **Antes de tocar el VPS** (fase 2 y siguientes), pide a la persona: IP o dominio, usuario SSH, cómo entra
-   (llave o contraseña) y si el servidor ya aloja otros sitios. **Nunca** sobrescribas una
-   configuración de Nginx existente: crea un `server` block nuevo. **Nunca** ejecutes
-   `ufw enable` sin confirmar que el puerto 22 (o el puerto SSH real) queda permitido.
+   (llave o contraseña) y si el servidor ya aloja otros sitios. **Nunca** modifiques los bloques
+   de otros sitios en `/opt/caddy/Caddyfile`: copia el archivo con fecha, agrega solo el bloque
+   de RAEE, valida (`caddy validate`) y recarga. **Nunca** cambies el firewall sin confirmar que
+   el puerto SSH queda permitido.
 4. **Datos:**
    - `RAEE-0001` es un registro **real**; no lo borres ni lo modifiques en pruebas.
    - Los demás registros sembrados son de demostración (`demo = 1`, seriales `D-…`).
@@ -79,7 +80,7 @@ mostrar ante un jurado, cargada con los datos de demostración de `db/seed.sql`.
 | Fotos | `multer` + `sharp` (redimensionar a 1200 px, WebP) | Fotos livianas en la ficha |
 | Excel | `exceljs` | Importar el Excel actual y exportar el inventario |
 | Pruebas | `node:test` + `supertest`; `@playwright/test` para el flujo e2e | Sin frameworks extra |
-| Producción | **PM2** + **Nginx** (proxy inverso) + **Certbot** (HTTPS) en Ubuntu | Estándar y documentable |
+| Producción | **Docker Compose** + **Caddy** (proxy inverso con HTTPS automático) en Ubuntu 24.04 | Es como ya funciona el VPS de la persona: cada app en `/opt/apps/<app>`, red `proxy` |
 
 Puerto interno por defecto: **3100** (evita choques con otros servicios del VPS).
 
@@ -114,8 +115,7 @@ raee-web/
 │   ├── demo-limpiar.js       ← borra filas demo=1 (pide confirmación)
 │   └── respaldo.sh           ← copia en caliente de la base (sqlite .backup)
 ├── deploy/
-│   ├── nginx-raee.conf       ← plantilla de server block
-│   ├── ecosystem.config.cjs  ← PM2
+│   ├── Caddyfile.raee        ← bloque que se agrega a /opt/caddy/Caddyfile
 │   └── DESPLIEGUE.md         ← pasos manuales equivalentes (para el informe)
 ├── docs/
 │   ├── GUION_EXPOSICION.md   ← §13
@@ -271,8 +271,9 @@ celular del jurado y en el panel.
   icono, categoria}` (nunca `notas` ni datos de usuarios).
 - La ficha `/p/:id`, `/panel` y `/demo` escuchan el canal: la ficha se refresca si el evento es
   de su pieza; el panel vuelve a pedir `v_panel` y anima las cifras.
-- Latido cada 25 s (comentario `:`) para que Nginx y los celulares no corten la conexión. En
-  Nginx: `proxy_buffering off` y `proxy_read_timeout 1h` para `/eventos`.
+- Latido cada 25 s (comentario `:`) para que el proxy y los celulares no corten la conexión.
+  Caddy no usa búfer con `text/event-stream`; `deploy/Caddyfile.raee` excluye `/eventos` de la
+  compresión.
 - Reconexión automática del `EventSource` del navegador; si no hay soporte, se recarga cada 30 s.
 
 ## 7. Pantallas y rutas
@@ -493,52 +494,39 @@ posible:
 
 ## 14. Despliegue en el VPS (fase 2, y actualizaciones al cerrar cada fase)
 
-Supuesto: **Ubuntu 22.04/24.04**. Confirma el sistema con `lsb_release -a` y pide los datos de la
-regla 2.3 antes de empezar. Pasos (documentarlos también en `deploy/DESPLIEGUE.md`):
+**Hecho el 2026-11-01.** Publicado en **https://raee.smarteksoft.com**. El paso a paso está en
+`deploy/DESPLIEGUE.md`.
 
-1. Usuario sin privilegios `raee` y carpeta `/opt/raee-web`. Node LTS (NodeSource o `nvm`),
-   `pm2` global, `sqlite3` (CLI, para respaldos), `nginx` y `certbot`.
-2. Subir el código: `git clone` si hay repositorio o `rsync -avz --exclude node_modules
-   --exclude data ./ usuario@vps:/opt/raee-web/`.
-3. Instalar y preparar:
-   - `npm ci --omit=dev`;
-   - crear `.env` en el servidor, con `BASE_URL` = dominio o IP pública, `SESSION_SECRET`
-     generado con `openssl rand -hex 32` y `TZ=America/Bogota`;
-   - `npm run db:seed`;
-   - `npm run admin:crear` cuando exista (fase 4) (la persona escribe la contraseña; Claude no
-     la ve ni la guarda).
-4. Arrancar con PM2: `pm2 start deploy/ecosystem.config.cjs && pm2 save && pm2 startup`.
-5. Nginx:
-   - copiar `deploy/nginx-raee.conf` a `sites-available` con el dominio correcto (proxy a
-     `127.0.0.1:3100`, `client_max_body_size 10m`, y para `/eventos`: `proxy_buffering off`,
-     `proxy_read_timeout 1h`);
-   - enlazarlo y ejecutar `nginx -t` **antes** de `systemctl reload nginx`.
-6. HTTPS: `certbot --nginx -d dominio`. **Sin dominio:** desplegar por `http://IP` solo como
-   prueba, y advertir que la cámara del celular abrirá el enlace igual, pero sin candado.
-   Recomendar un subdominio.
-7. Firewall: `ufw allow OpenSSH && ufw allow 'Nginx Full'` y luego `ufw enable` (con
-   confirmación).
-8. Cron de respaldo (§10.2).
-9. Verificar:
-   - `curl -s https://dominio/salud`;
-   - abrir `/p/RAEE-0001` desde un celular con datos móviles;
-   - imprimir 3 etiquetas con el `BASE_URL` final y probarlas.
+| Dato | Valor |
+|---|---|
+| Servidor | Contabo, Ubuntu 24.04, IP `169.58.221.224`, zona horaria del sistema Europe/Berlin |
+| Acceso | `ssh deploy@169.58.221.224` con la llave `~/.ssh/contabo_deploy` (tiene frase de paso: la persona la carga en el agente `~/.ssh/claude-agent.sock`). `sudo` pide contraseña: Claude no lo usa |
+| DNS | Cloudflare, registro A `raee` → IP, **DNS only** (nube gris: con proxy se cortaría el SSE) |
+| Otros sitios | `smarteksoft.com` (pia), `sql.smarteksoft.com` (tutorialbd), `vps.girabienes.com` (tucultura). No tocarlos |
+| App | `/opt/apps/raee` (git clone del repo público), `compose.yml`, contenedor `raee-app-1` en la red `proxy` |
+| Datos | volumen Docker `raee_raee_data` → `/app/data` (base y fotos). La base se siembra sola la primera vez |
+| Secretos | `/opt/apps/raee/.env` (permisos 600): `BASE_URL`, `SESSION_SECRET` generado en el servidor |
+| HTTPS | Caddy (`/opt/caddy`) con Let's Encrypt, renovación automática |
+| Respaldo | `scripts/respaldo.sh` → `~/backups/raee/raee-AAAA-MM-DD.db`, 14 días; cron `0 8 * * *` (08:00 Berlín = 02:00 Colombia) |
+
+**Actualizar:** `git push` y luego, en el VPS, `/opt/apps/raee/scripts/desplegar.sh` (respalda,
+descarga `main`, reconstruye y espera a que `/salud` responda). El comando `/desplegar` hace
+todo esto.
+
+**Usuarios (fase 4):** `docker exec -it raee-app-1 npm run admin:crear`. La persona escribe la
+contraseña; Claude no la ve ni la guarda.
 
 > **Importante:** los QR llevan `BASE_URL`. Si cambia el dominio, las etiquetas con formato URL
-> impresas antes dejan de apuntar bien. Define el dominio definitivo **antes** de imprimir el
-> lote real.
-
-Actualizaciones posteriores: `/desplegar` (comando) hace respaldo, rsync, `npm ci`,
-`pm2 reload raee` y verifica `/salud`.
+> impresas antes dejan de apuntar bien. El dominio definitivo es `raee.smarteksoft.com`.
 
 ## 15. Pendientes que dependen de la persona (no inventar)
 
 - [ ] Fecha de la exposición (define qué entra de la fase 8).
-- [ ] Datos del VPS: IP o dominio, usuario SSH, si hay otros sitios en Nginx.
+- [x] Datos del VPS (§14).
 - [ ] Excel original `Inventario_RAEE_Sala_Sistemas.xlsx` (columnas de la exportación e
       importación).
 - [ ] Ejemplo real del texto de un QR antiguo (prueba de `QR_ANTIGUO`, §6.2).
-- [ ] Dominio o subdominio definitivo para los QR.
+- [x] Dominio definitivo para los QR: `raee.smarteksoft.com`.
 - [ ] Nombres de los aprendices del equipo y del instructor para `/proyecto`.
 - [ ] Fotos reales de "antes" para la portada y la exposición.
 - [ ] Confirmar la vigencia del marco legal (§10.3).
