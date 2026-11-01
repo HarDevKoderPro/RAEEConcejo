@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { extraerId, MENSAJES_ESCANEO } from '../lib/escaneo.js';
 import { buscarPorId } from '../lib/piezas.js';
+import { catalogos, leerFiltros, buscarPiezas } from '../lib/busqueda.js';
 
 const MENSAJES_RESULTADO = {
   sin_registrar: 'Etiqueta sin registrar: el ID existe, pero la pieza aún no se ha registrado.',
@@ -39,6 +40,13 @@ export function rutasApi({ db }) {
     const { id, error } = extraerId(texto);
     if (error) return responderError(res, error);
     responder(res, db, id);
+  });
+
+  // Misma búsqueda que /buscar, en JSON (sin notas ni datos de usuarios).
+  r.get('/buscar', (req, res) => {
+    const filtros = leerFiltros(req.query, catalogos(db));
+    const { piezas, recortado } = buscarPiezas(db, filtros);
+    res.json({ filtros, total: piezas.length, recortado, piezas });
   });
 
   r.use((req, res) => res.status(404).json({ resultado: 'error', mensaje: 'Ruta de la API inexistente.' }));

@@ -1,0 +1,26 @@
+<%- include('parciales/cabecera') %>
+<p class="migas"><a href="/ubicaciones">← Mapa de ubicaciones</a></p>
+
+<header class="tarjeta ubicacion-destacada">
+  <span class="ubicacion-icono" aria-hidden="true"><%= lugar.icono %></span>
+  <div>
+    <p class="rotulo"><%= lugar.tipo_nombre %> · <span class="mono"><%= lugar.codigo %></span></p>
+    <h1 class="ubicacion-nombre"><%= lugar.nombre %></h1>
+    <% if (lugar.descripcion) { %><p class="ubicacion-codigo"><%= lugar.descripcion %></p><% } %>
+  </div>
+</header>
+
+<p class="resumen-busqueda"><strong><%= lugar.piezas %></strong> <%= lugar.piezas === 1 ? 'pieza' : 'piezas' %> · <%= lugar.kg_texto %>
+  <% if (lugar.piezas) { %> · <a href="/buscar?ubicacion=<%= encodeURIComponent(lugar.codigo) %>">Filtrar en el buscador</a><% } %>
+</p>
+
+<% if (piezas.length === 0) { %>
+  <div class="tarjeta resultado resultado-neutro">
+    <p class="resultado-icono" aria-hidden="true">📭</p>
+    <h2>Este lugar está vacío</h2>
+    <p>Todavía no hay piezas registradas aquí.</p>
+  </div>
+<% } else { %>
+  <%- include('parciales/lista-piezas', { piezas }) %>
+<% } %>
+<%- include('parciales/pie') %>

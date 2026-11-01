@@ -45,7 +45,11 @@ Publicado en **https://raee.smarteksoft.com** (Docker + Caddy en el VPS). Ver
 | `/` | Portada con acceso a la consulta y fichas de ejemplo |
 | `/p/RAEE-0010` | Ficha de la pieza: ubicación, estado, destino, datos e historial |
 | `/consulta` | Modo kiosco para Barcode to PC: escanear y ver la ficha sin recargar |
+| `/buscar` | Búsqueda por texto y filtros (categoría, estado, destino, ubicación); la URL se puede compartir |
+| `/ubicaciones` | Mapa de la sala: cada caja o estante con su contenido; `?resaltar=RAEE-0010` ilumina dónde está |
+| `/ubicaciones/S1-C2` | Piezas de un lugar |
 | `/api/piezas/:id` | Datos de la pieza en JSON (sin notas internas) |
+| `/api/buscar?q=…` | La misma búsqueda en JSON |
 | `/api/escaneo?texto=…` | Interpreta el texto crudo del escáner (lo usa `/consulta`) |
 | `/salud` | Estado del servicio |
 

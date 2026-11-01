@@ -157,6 +157,7 @@ function mostrarFicha(p, historial) {
           el('p', { class: 'rotulo' }, 'Dónde está'),
           el('p', { class: 'ubicacion-nombre' }, p.ubicacion_nombre || 'Sin ubicación asignada'),
           p.ubicacion ? el('p', { class: 'ubicacion-codigo' }, `Código ${p.ubicacion}`) : null,
+          p.ubicacion ? el('a', { class: 'enlace-mapa', href: `/ubicaciones?resaltar=${p.id}`, target: '_blank', rel: 'noopener' }, 'Ver en el mapa →') : null,
         ),
       ),
       el('div', { class: 'insignias' },

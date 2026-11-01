@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { extraerId } from '../lib/escaneo.js';
 import { buscarPorId } from '../lib/piezas.js';
+import { catalogos, leerFiltros, hayFiltros, buscarPiezas, urlBusqueda } from '../lib/busqueda.js';
+import { mapaUbicaciones, obtenerUbicacion, ubicacionDePieza } from '../lib/ubicaciones.js';
 
 export function rutasPublicas({ db }) {
   const r = Router();
@@ -48,6 +50,48 @@ export function rutasPublicas({ db }) {
       idBuscado: id,
       ...datos,
     });
+  });
+
+  // Búsqueda por componente. Los filtros viajan en la URL para poder compartirla.
+  r.get('/buscar', (req, res) => {
+    const cat = catalogos(db);
+    const filtros = leerFiltros(req.query, cat);
+    const { piezas, recortado } = buscarPiezas(db, filtros);
+    res.render('buscar', {
+      titulo: filtros.q ? `Buscar «${filtros.q}»` : 'Buscar',
+      cat,
+      filtros,
+      piezas,
+      recortado,
+      conFiltros: hayFiltros(filtros),
+      urlBusqueda: (cambios) => urlBusqueda(filtros, cambios),
+    });
+  });
+
+  // Mapa de la sala. ?resaltar=RAEE-0010 ilumina el lugar donde está esa pieza.
+  r.get('/ubicaciones', (req, res) => {
+    const { id } = extraerId(typeof req.query.resaltar === 'string' ? req.query.resaltar : '');
+    const resaltada = id ? ubicacionDePieza(db, id) : null;
+    res.render('ubicaciones', {
+      titulo: 'Mapa de ubicaciones',
+      ...mapaUbicaciones(db),
+      resaltada,
+      idResaltado: id ?? null,
+    });
+  });
+
+  r.get('/ubicaciones/:codigo', (req, res) => {
+    const lugar = obtenerUbicacion(db, req.params.codigo.toUpperCase());
+    if (!lugar) {
+      return res.status(404).render('error', {
+        titulo: 'Ubicación no encontrada',
+        icono: '📍',
+        mensaje: 'Esa ubicación no existe en la sala.',
+      });
+    }
+    if (lugar.codigo !== req.params.codigo) return res.redirect(301, `/ubicaciones/${lugar.codigo}`);
+    const { piezas } = buscarPiezas(db, { ubicacion: lugar.codigo });
+    res.render('ubicacion', { titulo: lugar.nombre, lugar, piezas });
   });
 
   return r;

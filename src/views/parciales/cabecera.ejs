@@ -22,6 +22,8 @@
       <nav aria-label="Principal">
         <a href="/" <%- rutaActual === '/' ? 'aria-current="page"' : '' %>>Inicio</a>
         <a href="/consulta" <%- rutaActual === '/consulta' ? 'aria-current="page"' : '' %>>Consultar</a>
+        <a href="/buscar" <%- rutaActual === '/buscar' ? 'aria-current="page"' : '' %>>Buscar</a>
+        <a href="/ubicaciones" <%- rutaActual.startsWith('/ubicaciones') ? 'aria-current="page"' : '' %>>Mapa</a>
       </nav>
     </div>
   </header>

@@ -16,6 +16,7 @@
       <% if (pieza.ubicacion) { %>
         <p class="ubicacion-nombre"><%= pieza.ubicacion_nombre %></p>
         <p class="ubicacion-codigo">Código <%= pieza.ubicacion %></p>
+        <a class="enlace-mapa" href="/ubicaciones?resaltar=<%= pieza.id %>">Ver en el mapa →</a>
       <% } else { %>
         <p class="ubicacion-nombre">Sin ubicación asignada</p>
       <% } %>

@@ -1,0 +1,18 @@
+<ul class="lista-piezas">
+  <% for (const p of piezas) { %>
+  <li>
+    <a class="tarjeta pieza-fila" href="/p/<%= p.id %>">
+      <span class="pieza-icono" aria-hidden="true"><%= p.icono %></span>
+      <span class="pieza-cuerpo">
+        <span class="pieza-titulo"><strong class="mono"><%= p.id %></strong> · <%= p.categoria %></span>
+        <span class="pieza-detalle"><%= [p.marca, p.modelo_pn].filter(Boolean).join(' ') || 'Sin marca ni modelo' %><% if (p.descripcion) { %> — <%= p.descripcion %><% } %></span>
+        <span class="pieza-meta">
+          <span class="pieza-lugar"><span aria-hidden="true">📍</span> <%= p.ubicacion_nombre || 'Sin ubicación' %></span>
+          <span class="insignia insignia-chica estado-<%= p.clase_estado %>"><%= p.estado %></span>
+          <span class="insignia insignia-chica destino-<%= p.clase_destino %>"><%= p.destino %><% if (p.equipo_destino) { %> · <%= p.equipo_destino %><% } %></span>
+        </span>
+      </span>
+    </a>
+  </li>
+  <% } %>
+</ul>

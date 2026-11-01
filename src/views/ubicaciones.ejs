@@ -1,0 +1,50 @@
+<%- include('parciales/cabecera') %>
+<h1>Mapa de ubicaciones</h1>
+<p class="subtitulo">Cada caja o estante de la sala, con lo que tiene adentro. Toca un lugar para ver sus piezas.</p>
+
+<% if (idResaltado) { %>
+  <% if (resaltada && resaltada.ubicacion) { %>
+  <p class="aviso-resaltado" role="status"><span aria-hidden="true"><%= resaltada.icono %></span> <a href="/p/<%= resaltada.id %>" class="mono"><%= resaltada.id %></a> está en el lugar resaltado.</p>
+  <% } else if (resaltada) { %>
+  <p class="aviso-resaltado aviso-ambar" role="status"><a href="/p/<%= resaltada.id %>" class="mono"><%= resaltada.id %></a> todavía no tiene ubicación asignada.</p>
+  <% } else { %>
+  <p class="aviso-resaltado aviso-ambar" role="status"><span class="mono"><%= idResaltado %></span> no está en el inventario.</p>
+  <% } %>
+<% } %>
+
+<% for (const sala of salas) { %>
+<section class="sala" aria-labelledby="sala-<%= sala.clave %>">
+  <h2 id="sala-<%= sala.clave %>"><%= sala.nombre %></h2>
+  <ul class="rejilla-lugares">
+    <% for (const l of sala.lugares) { const esta = resaltada && resaltada.ubicacion === l.codigo; %>
+    <li>
+      <a class="tarjeta lugar lugar-<%= l.tipo %> <%= esta ? 'lugar-resaltado' : '' %> <%= l.piezas === 0 ? 'lugar-vacio' : '' %>"
+         href="/ubicaciones/<%= l.codigo %>" <%- esta ? 'id="lugar-resaltado" aria-current="location"' : '' %>>
+        <span class="lugar-cabecera">
+          <span class="lugar-icono" aria-hidden="true"><%= l.icono %></span>
+          <span>
+            <span class="lugar-nombre"><%= l.nombre_corto %></span>
+            <span class="lugar-codigo mono"><%= l.codigo %></span>
+          </span>
+        </span>
+        <% if (esta) { %><span class="lugar-aqui">Aquí está <%= resaltada.id %></span><% } %>
+        <span class="lugar-conteo"><strong><%= l.piezas %></strong> <%= l.piezas === 1 ? 'pieza' : 'piezas' %> · <%= l.kg_texto %></span>
+        <% if (l.contenido.length) { %>
+        <span class="lugar-contenido">
+          <% for (const c of l.contenido) { %><span class="lugar-item" title="<%= c.categoria %>"><span aria-hidden="true"><%= c.icono %></span><span class="sr"><%= c.categoria %>:</span> <%= c.n %></span><% } %>
+        </span>
+        <% } else { %>
+        <span class="lugar-contenido vacio">Vacío</span>
+        <% } %>
+      </a>
+    </li>
+    <% } %>
+  </ul>
+</section>
+<% } %>
+
+<% if (sinUbicacion > 0) { %>
+<p class="tarjeta aviso-ambar"><strong><%= sinUbicacion %></strong> <%= sinUbicacion === 1 ? 'pieza no tiene' : 'piezas no tienen' %> ubicación asignada.</p>
+<% } %>
+<% if (resaltada && resaltada.ubicacion) scripts.push('/js/ubicaciones.js') %>
+<%- include('parciales/pie') %>

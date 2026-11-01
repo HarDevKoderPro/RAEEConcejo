@@ -1,0 +1,89 @@
+<%- include('parciales/cabecera') %>
+<h1>Buscar en el inventario</h1>
+
+<form class="tarjeta form-buscar" action="/buscar" method="get" role="search" id="form-buscar">
+  <label for="q">Qué buscas</label>
+  <div class="fila-campo">
+    <input id="q" name="q" type="search" value="<%= filtros.q %>" maxlength="100" autocomplete="off"
+           placeholder="ID, marca, modelo, serial o descripción (ej.: DDR3)">
+    <button class="boton" type="submit">Buscar</button>
+  </div>
+
+  <div class="filtros">
+    <div class="filtro">
+      <label for="f-categoria">Categoría</label>
+      <select id="f-categoria" name="categoria">
+        <option value="">Todas</option>
+        <% for (const c of cat.categorias) { %>
+        <option value="<%= c.id %>" <%= filtros.categoria === c.id ? 'selected' : '' %>><%= c.icono %> <%= c.nombre %></option>
+        <% } %>
+      </select>
+    </div>
+    <div class="filtro">
+      <label for="f-estado">Estado</label>
+      <select id="f-estado" name="estado">
+        <option value="">Todos</option>
+        <% for (const e of cat.estados) { %>
+        <option <%= filtros.estado === e ? 'selected' : '' %>><%= e %></option>
+        <% } %>
+      </select>
+    </div>
+    <div class="filtro">
+      <label for="f-destino">Destino</label>
+      <select id="f-destino" name="destino">
+        <option value="">Todos</option>
+        <% for (const d of cat.destinos) { %>
+        <option <%= filtros.destino === d ? 'selected' : '' %>><%= d %></option>
+        <% } %>
+      </select>
+    </div>
+    <div class="filtro">
+      <label for="f-ubicacion">Ubicación</label>
+      <select id="f-ubicacion" name="ubicacion">
+        <option value="">Todas</option>
+        <% for (const u of cat.ubicaciones) { %>
+        <option value="<%= u.codigo %>" <%= filtros.ubicacion === u.codigo ? 'selected' : '' %>><%= u.nombre %></option>
+        <% } %>
+      </select>
+    </div>
+  </div>
+</form>
+
+<div class="resumen-busqueda" aria-live="polite">
+  <p>
+    <strong><%= piezas.length %></strong> <%= piezas.length === 1 ? 'pieza' : 'piezas' %><%= conFiltros ? '' : ' en total' %>
+    <% if (recortado) { %>(se muestran las primeras <%= piezas.length %>; afina la búsqueda)<% } %>
+  </p>
+  <% if (!conFiltros) { %>
+  <p class="chips"><span class="rotulo-ejemplos">Prueba:</span>
+    <a class="chip" href="/buscar?q=RAM+DDR3&amp;estado=Funcional">RAM DDR3 funcional</a>
+    <a class="chip" href="/buscar?q=SSD">SSD</a>
+    <a class="chip" href="/buscar?q=Seagate">Seagate</a>
+    <a class="chip" href="/buscar?ubicacion=S1-C2">📍 Sala 1 · Caja 2</a>
+    <a class="chip" href="/buscar?destino=Pendiente">Sin destino aún</a>
+  </p>
+  <% } %>
+  <% if (conFiltros) { %>
+  <p class="chips">
+    <% if (filtros.q) { %><a class="chip" href="<%= urlBusqueda({ q: '' }) %>" aria-label="Quitar texto <%= filtros.q %>">«<%= filtros.q %>» ✕</a><% } %>
+    <% if (filtros.categoria) { const c = cat.categorias.find((x) => x.id === filtros.categoria); %><a class="chip" href="<%= urlBusqueda({ categoria: null }) %>" aria-label="Quitar categoría"><%= c.icono %> <%= c.nombre %> ✕</a><% } %>
+    <% if (filtros.estado) { %><a class="chip" href="<%= urlBusqueda({ estado: '' }) %>" aria-label="Quitar estado"><%= filtros.estado %> ✕</a><% } %>
+    <% if (filtros.destino) { %><a class="chip" href="<%= urlBusqueda({ destino: '' }) %>" aria-label="Quitar destino"><%= filtros.destino %> ✕</a><% } %>
+    <% if (filtros.ubicacion) { const u = cat.ubicaciones.find((x) => x.codigo === filtros.ubicacion); %><a class="chip" href="<%= urlBusqueda({ ubicacion: '' }) %>" aria-label="Quitar ubicación">📍 <%= u.nombre %> ✕</a><% } %>
+    <a class="chip chip-limpiar" href="/buscar">Limpiar todo</a>
+  </p>
+  <% } %>
+</div>
+
+<% if (piezas.length === 0) { %>
+  <div class="tarjeta resultado resultado-neutro">
+    <p class="resultado-icono" aria-hidden="true">🔍</p>
+    <h2>No encontramos piezas con esos datos</h2>
+    <p>Prueba con menos palabras, revisa la ortografía o quita algún filtro.</p>
+    <p><a class="boton boton-secundario" href="/buscar">Ver todo el inventario</a></p>
+  </div>
+<% } else { %>
+  <%- include('parciales/lista-piezas', { piezas }) %>
+<% } %>
+<% scripts.push('/js/buscar.js') %>
+<%- include('parciales/pie') %>
