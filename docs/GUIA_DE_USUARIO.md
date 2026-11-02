@@ -129,8 +129,17 @@ docker exec -it raee-app-1 npm run admin:crear
 
    *(Nombres y documentos ficticios, usados en las pruebas.)*
 
-> Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
-> que tocó. Un usuario desactivado no puede entrar; con **Activar** vuelve a tener acceso.
+### Desactivar y reactivar un usuario
+
+Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
+que tocó.
+
+1. En **⚙️ Admin** → **👤 Usuarios**, toca **Desactivar** en su fila.
+2. Verás *"[Nombre] quedó desactivado: ya no puede entrar y sus sesiones se cerraron."*. En la
+   tabla aparece **Inactivo**.
+3. Si tenía el sitio abierto (por ejemplo en su celular), al tocar cualquier opción lo manda a
+   **Entrar**. Ya no puede entrar: ve el mismo mensaje que con una contraseña equivocada.
+4. Para devolverle el acceso, toca **Activar**: *"[Nombre] puede volver a entrar."*
 
 ## 7. Etiquetas QR
 
