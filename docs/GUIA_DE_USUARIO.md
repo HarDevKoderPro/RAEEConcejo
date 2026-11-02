@@ -110,7 +110,7 @@ docker exec -it raee-app-1 npm run admin:crear
    | Campo | Qué escribir | Ejemplo |
    |---|---|---|
    | Nombre completo | el nombre del aprendiz (es el que queda en el historial) | `Juan Perez` |
-   | Documento de identidad | el número, sin puntos (no se puede repetir) | su número |
+   | Documento de identidad | el número, sin puntos (no se puede repetir) | `6464646` |
    | Usuario para entrar | corto y fácil de recordar | `juanpe` |
    | Rol | **Registrador** (ya viene elegido) o **Administrador** | Registrador |
    | Contraseña y repetirla | mínimo 8 caracteres | la que elija |
@@ -119,10 +119,12 @@ docker exec -it raee-app-1 npm run admin:crear
 4. Verás *"✔ Usuario «juanpe» creado. Ya puede entrar."*
 5. La tabla de usuarios queda así (el documento se ve solo en esta página):
 
-   | Nombre completo | Usuario | Rol | Estado | |
-   |---|---|---|---|---|
-   | Maria Barrios | `admin` | **Administrador** | Activo | tú |
-   | Juan Perez | `juanpe` | Registrador | Activo | Desactivar |
+   | Nombre completo | Documento | Usuario | Rol | Estado | |
+   |---|---|---|---|---|---|
+   | Maria Barrios | 23456543 | `admin` | **Administrador** | Activo | tú |
+   | Juan Perez | 6464646 | `juanpe` | Registrador | Activo | Desactivar |
+
+   *(Nombres y documentos ficticios, usados en las pruebas.)*
 
 > Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
 > que tocó. Un usuario desactivado no puede entrar; con **Activar** vuelve a tener acceso.
