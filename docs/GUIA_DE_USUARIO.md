@@ -244,6 +244,28 @@ foto y toca **Guardar cambios**. Cada cambio queda en la línea de tiempo con su
 >
 > Desde el celular con sesión, la ficha tiene el botón **⚡ Movimiento rápido** para hacer lo mismo.
 
+## 10. El celular como lector (sin Barcode to PC)
+
+La cámara normal del celular puede hacer de lector para el PC. No hace falta la misma red wifi:
+el celular puede estar con datos móviles.
+
+1. En el **PC**, entra con tu usuario y abre **⚡ Movimiento**, **🔍 Consultar** o **🎬 Demo**.
+   Debajo del campo verde aparece *"📱 Celular como lector"* con un **punto verde**: el PC está
+   escuchando.
+2. En el **celular**, entra con **el mismo usuario**, en el navegador que abre la cámara
+   (Chrome en Android, Safari en iPhone).
+3. Lee el QR de una pieza con la cámara.
+4. En uno o dos segundos el PC muestra esa pieza, como si la hubiera leído un lector. El celular
+   abre su ficha.
+
+> Si el PC no recibe nada: revisa que el punto esté verde, que los dos tengan **el mismo usuario**
+> y que el celular tenga la sesión abierta en el navegador que abre la cámara.
+
+**Siempre en vivo:** si la pieza que está en pantalla cambia desde otro dispositivo (por ejemplo,
+con **⚡ Movimiento rápido** en el celular), el PC se actualiza solo y avisa
+*"🔄 Se actualizó desde otro dispositivo"*. Y al revés: lo que cambias en el PC aparece en la
+ficha abierta en el celular.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
