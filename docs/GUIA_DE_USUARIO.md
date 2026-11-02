@@ -192,6 +192,42 @@ Para empezar de cero, sobre todo después de las pruebas.
 > ⚠️ Si quedan etiquetas impresas en papel, sepáralas o destrúyelas: las nuevas repetirán sus números.
 > Las etiquetas de piezas registradas se conservan siempre.
 
+## 8. Registrar piezas
+
+Cada pieza se registra **una sola vez**, con su etiqueta ya pegada. El QR guarda el código de la
+etiqueta, no los datos de la pieza: esos se eligen en el formulario.
+
+### Desde el PC
+
+1. Entra con tu usuario y toca **＋ Registrar**. El cursor queda en el campo verde *Etiqueta*.
+2. Escanea la etiqueta con **Barcode to PC** o con una pistola lectora, o escribe el código
+   (`RAEE-0001`) y presiona **Enter**. Si lo dejas vacío, el sitio asigna el siguiente código libre.
+3. Llena los obligatorios: **Categoría**, **Estado**, **Destino** y **Ubicación**. Al elegir la
+   categoría aparece una ayuda de qué escribir en la descripción y el peso estimado.
+4. Si puedes, llena **marca, modelo, serial y descripción**. El modelo y el serial se escriben a
+   mano: los códigos de barras de los fabricantes no se leen bien.
+5. Toca **Registrar pieza**.
+6. Se abre la ficha con *"Pieza RAEE-0001 registrada."*. En la línea de tiempo aparece
+   **Registro** con tu nombre, y las cifras de la portada y del panel suben solas.
+
+### Desde el celular, con la cámara
+
+1. En el celular abre **https://raee.smarteksoft.com** y entra con tu usuario.
+2. Lee el QR de una etiqueta **sin registrar** con la cámara.
+3. Se abre **Registrar pieza** con el código ya escrito. Llena los datos y toca **Registrar pieza**.
+
+> Sin sesión, la cámara solo muestra la ficha (o *"Etiqueta sin registrar"*). Con sesión, la
+> misma etiqueta abre el registro.
+>
+> **¿Por qué al leer con la cámara no aparece nada en el PC?** La cámara abre el enlace en el
+> mismo celular. Para que el código llegue al PC se usa Barcode to PC (ver
+> `docs/BARCODE_TO_PC.md`) o una pistola lectora USB.
+
+### Corregir datos (solo administrador)
+
+En la ficha de la pieza, el administrador ve **✏️ Editar todo**: cambia cualquier dato, sube una
+foto y toca **Guardar cambios**. Cada cambio queda en la línea de tiempo con su nombre.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
