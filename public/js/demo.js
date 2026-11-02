@@ -18,7 +18,7 @@ function mostrarFicha(d) {
   idActual = d.pieza.id;
 }
 
-iniciarMovimiento({ alMostrar: mostrarFicha });
+const mov = iniciarMovimiento({ alMostrar: mostrarFicha });
 
 let pendiente = null;
 function refrescarPanel() {
@@ -39,5 +39,6 @@ escucharEventos({
   alMovimiento(ev) {
     mostrarAviso(document.getElementById('avisos-vivo'), ev);
     refrescarPanel();
+    mov.refrescarSiEs(ev.pieza_id);
   },
 });

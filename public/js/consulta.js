@@ -3,7 +3,8 @@
 // llega como varios ENTER seguidos: se juntan los que llegan en menos de 200 ms y se envían
 // como un solo texto, para que el servidor lo reconozca como QR antiguo.
 
-import { el, construirFicha } from './ficha-compacta.js';
+import { el, construirFicha, resaltarCambios } from './ficha-compacta.js';
+import { escucharEventos } from './vivo.js';
 
 const campo = document.getElementById('escaneo');
 const form = document.getElementById('form-escaneo');
@@ -17,6 +18,7 @@ const MAX_RECIENTES = 6;
 let lineas = [];
 let temporizador = null;
 let peticion = null;
+let idEnPantalla = null;
 
 // --- Foco permanente: si se pierde, se recupera solo cada 1 s ---------------------------
 setInterval(() => {
@@ -95,6 +97,7 @@ function reemplazar(nodo) {
 }
 
 function mostrarAviso(tipo, icono, titulo, texto, id) {
+  idEnPantalla = null;
   reemplazar(
     el('div', { class: `tarjeta resultado resultado-${tipo}`, role: 'alert' },
       el('p', { class: 'resultado-icono', 'aria-hidden': 'true' }, icono),
@@ -107,7 +110,30 @@ function mostrarAviso(tipo, icono, titulo, texto, id) {
 
 function mostrarFicha(p, historial) {
   reemplazar(construirFicha(p, historial));
+  idEnPantalla = p.id;
 }
+
+// En vivo: si la pieza en pantalla cambia (desde otro PC o el celular), se refresca sola.
+let refresco = null;
+escucharEventos({
+  alMovimiento(ev) {
+    if (ev.pieza_id !== idEnPantalla) return;
+    clearTimeout(refresco);
+    refresco = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/escaneo?texto=${encodeURIComponent(ev.pieza_id)}`, { headers: { Accept: 'application/json' } });
+        const d = await res.json();
+        if (d.resultado !== 'registrada' || d.pieza.id !== idEnPantalla) return;
+        const anterior = resultado.firstElementChild;
+        const nueva = construirFicha(d.pieza, d.historial);
+        resaltarCambios(anterior, nueva);
+        resultado.replaceChildren(nueva);
+      } catch (err) {
+        console.error('[consulta]', err);
+      }
+    }, 150);
+  },
+});
 
 function agregarReciente(id, texto, tipo) {
   seccionRecientes.hidden = false;

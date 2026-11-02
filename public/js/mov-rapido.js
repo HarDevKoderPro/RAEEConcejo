@@ -14,6 +14,7 @@ const CAT = JSON.parse(document.getElementById('catalogos').textContent);
 let pieza = null;
 let lineas = [];
 let temporizador = null;
+let ultimoPropio = 0; // hora del último cambio hecho desde esta pantalla
 
 // Foco: vuelve al campo de escaneo solo si no hay otro campo en uso (p. ej. el del equipo).
 setInterval(() => {
@@ -182,6 +183,7 @@ async function cambiar(campoCambio, valor, equipo) {
     return pintar(el('p', { class: `mov-mensaje ${clase}`, role: 'alert' }, `${d.codigo === 'BORRADO_SEGURO' ? '🔒 ' : '✖ '}${d.mensaje}`));
   }
   pieza = d.pieza;
+  ultimoPropio = Date.now();
   alMostrar(d);
   const texto = campoCambio === 'ubicacion'
     ? `Ubicación → ${pieza.ubicacion_nombre}`
@@ -204,4 +206,29 @@ if (campo.value.trim()) {
   campo.value = '';
   consultar(inicial);
 }
+
+// En vivo: si otra persona u otro dispositivo (p. ej. el celular) cambia la pieza que está en
+// pantalla, se vuelve a pedir y se repintan sus botones. Se ignoran los cambios propios.
+let refresco = null;
+async function refrescarSiEs(idCambiado) {
+  if (!pieza || idCambiado !== pieza.id) return;
+  if (Date.now() - ultimoPropio < 2000) return;
+  if (document.activeElement?.id === 'mov-equipo') return; // no interrumpir mientras se escribe
+  clearTimeout(refresco);
+  refresco = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/escaneo?texto=${encodeURIComponent(idCambiado)}`, { headers: { Accept: 'application/json' } });
+      const d = await res.json();
+      if (!pieza || pieza.id !== idCambiado) return;
+      if (d.resultado !== 'registrada') return consultar(idCambiado);
+      pieza = d.pieza;
+      alMostrar(d);
+      pintar(el('p', { class: 'mov-mensaje mov-info', role: 'status' }, `🔄 Se actualizó desde otro dispositivo · ${hora()}`));
+    } catch (err) {
+      console.error('[movimiento]', err);
+    }
+  }, 150);
+}
+
+return { refrescarSiEs };
 }
