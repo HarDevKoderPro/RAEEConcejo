@@ -107,17 +107,22 @@ docker exec -it raee-app-1 npm run admin:crear
 1. Entra como administrador → **⚙️ Admin** → sección **👤 Usuarios** → **Nuevo usuario**.
 2. Llena el formulario:
 
-   | Campo | Qué escribir |
-   |---|---|
-   | Nombre completo | el nombre del aprendiz (es el que queda en el historial) |
-   | Documento de identidad | el número, sin puntos (no se puede repetir) |
-   | Usuario para entrar | por ejemplo `aprendiz1` |
-   | Rol | **Registrador** (ya viene elegido) o **Administrador** |
-   | Contraseña y repetirla | mínimo 8 caracteres |
+   | Campo | Qué escribir | Ejemplo |
+   |---|---|---|
+   | Nombre completo | el nombre del aprendiz (es el que queda en el historial) | `Juan Perez` |
+   | Documento de identidad | el número, sin puntos (no se puede repetir) | su número |
+   | Usuario para entrar | corto y fácil de recordar | `juanpe` |
+   | Rol | **Registrador** (ya viene elegido) o **Administrador** | Registrador |
+   | Contraseña y repetirla | mínimo 8 caracteres | la que elija |
 
 3. Toca **Crear usuario**.
-4. Verás *"✔ Usuario «aprendiz1» creado. Ya puede entrar."* y el usuario aparece en la tabla
-   con su rol, el estado **Activo** y el botón **Desactivar**.
+4. Verás *"✔ Usuario «juanpe» creado. Ya puede entrar."*
+5. La tabla de usuarios queda así (el documento se ve solo en esta página):
+
+   | Nombre completo | Usuario | Rol | Estado | |
+   |---|---|---|---|---|
+   | Maria Barrios | `admin` | **Administrador** | Activo | tú |
+   | Juan Perez | `juanpe` | Registrador | Activo | Desactivar |
 
 > Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
 > que tocó. Un usuario desactivado no puede entrar; con **Activar** vuelve a tener acceso.
