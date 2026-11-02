@@ -313,6 +313,8 @@ select:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
 .campo-escaneo::placeholder { color: #6b8a83; font-weight: 400; letter-spacing: 0; }
 .campo-escaneo:focus { border-color: #8be0cb !important; box-shadow: 0 0 0 4px rgb(139 224 203 / 35%); }
 .estado-escaneo { margin: .5rem 0 0; font-weight: 600; color: #d7efe8; min-height: 1.5em; }
+.ayuda-escaneo { margin: .3rem 0 0; font-size: .9rem; color: #d7efe8; opacity: .9; }
+.ayuda-escaneo strong { color: #fff; }
 
 .aparece { animation: aparecer .25s ease-out; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

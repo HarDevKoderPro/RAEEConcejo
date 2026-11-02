@@ -5,9 +5,10 @@
   <form id="form-escaneo" class="form-escaneo" autocomplete="off">
     <label for="escaneo">Escanea la etiqueta de la pieza y toca el cambio que quieres hacer</label>
     <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus spellcheck="false"
-           autocapitalize="characters" maxlength="2000" placeholder="Escanea aquí…"
+           autocapitalize="characters" maxlength="2000" placeholder="Escanea o escribe el código…"
            aria-describedby="estado-escaneo" value="<%= idInicial %>">
     <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+    <p class="ayuda-escaneo">Con <strong>Barcode to PC</strong> o un lector USB, el código se escribe solo. Sin lector, escríbelo (ej.: <span class="mono">RAEE-0001</span>) y presiona Enter.</p>
   </form>
 </section>
 

@@ -2,11 +2,12 @@
 <section class="kiosco-escaner">
   <h1>Consulta por escaneo</h1>
   <form id="form-escaneo" class="form-escaneo" autocomplete="off">
-    <label for="escaneo">Haz clic aquí y escanea la etiqueta (o escribe el ID y presiona ENTER)</label>
+    <label for="escaneo">Haz clic aquí y escanea la etiqueta</label>
     <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus
            spellcheck="false" autocapitalize="characters" maxlength="2000"
-           placeholder="Escanea aquí…" aria-describedby="estado-escaneo">
+           placeholder="Escanea o escribe el código…" aria-describedby="estado-escaneo">
     <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+    <p class="ayuda-escaneo">Con <strong>Barcode to PC</strong> o un lector USB, el código se escribe solo. Sin lector, escríbelo (ej.: <span class="mono">RAEE-0001</span>) y presiona Enter.</p>
   </form>
   <noscript><p class="resultado resultado-error">Esta pantalla necesita JavaScript. Usa el formulario “Ver ficha” de la portada.</p></noscript>
 </section>

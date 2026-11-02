@@ -7,16 +7,17 @@
       <form id="form-escaneo" class="form-escaneo" autocomplete="off">
         <label for="escaneo">Escanea la etiqueta y toca el cambio</label>
         <input id="escaneo" name="texto" type="text" class="campo-escaneo" autofocus spellcheck="false"
-               autocapitalize="characters" maxlength="2000" placeholder="Escanea aquí…"
+               autocapitalize="characters" maxlength="2000" placeholder="Escanea o escribe el código…"
                aria-describedby="estado-escaneo" value="<%= idInicial %>">
         <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
+    <p class="ayuda-escaneo">Con <strong>Barcode to PC</strong> o un lector USB, el código se escribe solo. Sin lector, escríbelo (ej.: <span class="mono">RAEE-0001</span>) y presiona Enter.</p>
       </form>
     </div>
     <div id="resultado" class="mov-resultado" aria-live="polite">
       <div class="tarjeta resultado resultado-neutro">
         <p class="resultado-icono" aria-hidden="true">📷</p>
         <p>Escanea una pieza para ver sus botones de cambio.</p>
-        <p class="demo-sugerencia">Prueba con <strong class="mono">RAEE-0022</strong> (tarjeta madre pendiente) o <strong class="mono">RAEE-0014</strong> (disco sin borrado).</p>
+        <p class="demo-sugerencia">Escanea la etiqueta de una pieza ya registrada.</p>
       </div>
     </div>
     <section class="kiosco-recientes" aria-labelledby="t-cambios" hidden>
