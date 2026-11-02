@@ -129,6 +129,54 @@ docker exec -it raee-app-1 npm run admin:crear
 > Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
 > que tocó. Un usuario desactivado no puede entrar; con **Activar** vuelve a tener acceso.
 
+## 7. Etiquetas QR
+
+Las etiquetas se generan **antes** de registrar las piezas: se imprimen, se pegan y luego, al
+escanearlas, se registra cada pieza. Las genera cualquier registrador o el administrador.
+
+### Generar etiquetas nuevas
+
+1. Entra con tu usuario → **🏷️ Etiquetas** → tarjeta **① Etiquetas nuevas**.
+2. Llena:
+   - **Cuántas:** por ejemplo `5`. El campo viene vacío a propósito, para no generar etiquetas por accidente. 24 llenan una hoja.
+   - **Nombre del lote:** por ejemplo `Prueba 1`. Si lo dejas vacío, se llama *"Lote del [fecha]"*.
+   - **Tamaño:** *Normal* (6,4 × 3,4 cm) o *Pequeña* (2 × 1 cm, para RAM y procesadores).
+   - **Papel:** *Carta* (viene elegido) o *A4*.
+3. Toca **Reservar y ver la hoja**.
+4. Verás *"Se reservaron 5 IDs nuevos (RAEE-0049 a RAEE-0053) en el lote «Prueba 1»"* y la hoja
+   lista para imprimir. Cada etiqueta lleva el QR, "SALA DE SISTEMAS", el código en grande y
+   "No retirar esta etiqueta".
+
+> Los números siguen después del más alto que ya exista: nunca se repite un código.
+> Al leer uno de estos QR con la cámara del celular se abre la ficha; si aún no hay pieza,
+> dice **"Etiqueta sin registrar"**.
+
+### Imprimir
+
+1. En la hoja toca **🖨️ Imprimir**.
+2. En la impresora elige el **mismo papel** (carta o A4), escala **100 %** («Predeterminada») y
+   márgenes **Ninguno**. No uses "Ajustar a página": el QR saldría más pequeño.
+3. Prueba un QR con la cámara del celular a 10–20 cm antes de pegarlas.
+4. Cuando las hayas pegado, toca **✔ Ya las imprimí y pegué**. Es opcional: solo anota la fecha
+   de impresión. Las etiquetas sirven igual aunque no lo marques.
+
+> Para volver a abrir la hoja de un lote, toca **Imprimir** en su fila de la tabla
+> **Lotes de etiquetas**. Para imprimir solo una parte, usa **② Por rango** o **③ IDs sueltos**:
+> esas opciones no crean lotes ni gastan números.
+
+### Eliminar un lote (solo administrador)
+
+Sirve para corregir un lote generado por error o con la cantidad equivocada.
+
+1. En **Lotes de etiquetas**, toca **Eliminar** (en rojo) en la fila del lote.
+2. La página de confirmación muestra los códigos y cuántas etiquetas se borran. Toca
+   **Eliminar N etiquetas**.
+3. Verás *"Se eliminaron N etiquetas del lote «…»"* y el lote sale de la tabla. Si era el último,
+   sus números quedan libres para el próximo lote.
+
+> Las etiquetas de piezas ya registradas **nunca se borran**: están pegadas en la pieza.
+> Para cambiar la cantidad de un lote, elimínalo y resérvalo otra vez con la cantidad correcta.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
