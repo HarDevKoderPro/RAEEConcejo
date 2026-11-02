@@ -116,7 +116,7 @@ describe('etiquetas QR', () => {
       .type('form')
       .send({ _csrf: tokenDe(form.text), cantidad: '2', lote: 'Lote formulario', tam: 'normal' })
       .expect(303);
-    assert.match(res.headers.location, /^\/etiquetas\/hoja\?lote=Lote\+formulario&tam=normal&papel=a4/);
+    assert.match(res.headers.location, /^\/etiquetas\/hoja\?lote=Lote\+formulario&tam=normal&papel=carta/);
     const hoja = await agente.get(res.headers.location).expect(200);
     assert.equal((hoja.text.match(/class="etiqueta"/g) ?? []).length, 2);
   });
@@ -146,7 +146,7 @@ describe('etiquetas QR', () => {
     assert.equal((carta.text.match(/class="hoja"/g) ?? []).length, 1);
     const pequenas = await agente.get('/etiquetas/hoja?desde=1&hasta=208&papel=carta&tam=pequena').expect(200);
     assert.equal((pequenas.text.match(/class="hoja"/g) ?? []).length, 2);
-    const a4 = await agente.get('/etiquetas/hoja?desde=1&hasta=24').expect(200);
+    const a4 = await agente.get('/etiquetas/hoja?desde=1&hasta=24&papel=a4').expect(200);
     assert.doesNotMatch(a4.text, /etiquetas-carta\.css/);
   });
 

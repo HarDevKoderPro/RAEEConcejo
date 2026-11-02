@@ -12,7 +12,7 @@ import {
 const POR_HOJA = { a4: { normal: 24, pequena: 225 }, carta: { normal: 24, pequena: 207 } };
 const PAPELES = { a4: 'A4', carta: 'carta' };
 const FRASE_BORRAR_TODAS = 'BORRAR ETIQUETAS';
-const leerPapel = (v) => (v === 'carta' ? 'carta' : 'a4');
+const leerPapel = (v) => (v === 'a4' ? 'a4' : 'carta'); // carta por defecto (Colombia)
 const leerTam = (v) => (v === 'pequena' ? 'pequena' : 'normal');
 
 export function rutasEtiquetas({ db, ajustes }) {
