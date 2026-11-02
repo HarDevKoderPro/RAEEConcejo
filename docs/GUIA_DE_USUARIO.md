@@ -228,6 +228,22 @@ etiqueta, no los datos de la pieza: esos se eligen en el formulario.
 En la ficha de la pieza, el administrador ve **✏️ Editar todo**: cambia cualquier dato, sube una
 foto y toca **Guardar cambios**. Cada cambio queda en la línea de tiempo con su nombre.
 
+## 9. Mover piezas (estado, destino, ubicación)
+
+1. Entra con tu usuario y toca **⚡ Movimiento**.
+2. Escanea la etiqueta (Barcode to PC o lector USB) o escribe el código y presiona **Enter**.
+3. Aparecen botones grandes de **Estado**, **Destino** y **Ubicación**. Toca el cambio.
+4. Si eliges **Reutilizada en la sala**, escribe el equipo donde se instaló (por ejemplo `PC-15`)
+   y toca **Confirmar**.
+5. Cada cambio queda en la línea de tiempo de la pieza con tu nombre.
+
+> **En vivo:** si alguien tiene abierta la ficha de esa pieza en su celular, ve el cambio en uno o
+> dos segundos sin recargar, con el mensaje 🌱 *"Volvió a la vida en el equipo PC-15"*. El panel
+> de impacto también se actualiza solo. Es el momento de la exposición en que el jurado ve el
+> cambio en su propia mano.
+>
+> Desde el celular con sesión, la ficha tiene el botón **⚡ Movimiento rápido** para hacer lo mismo.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
