@@ -92,7 +92,13 @@ export function rutasApi({ db }) {
     const destinoFinal = campo === 'destino' ? valor : pieza.destino;
     const borradoFinal = campo === 'borrado_seguro' ? valor : pieza.borrado_seguro;
     const entrega = cat.destinos.find((d) => d.nombre === destinoFinal)?.entrega_a_terceros;
-    if (pieza.requiere_borrado && entrega && borradoFinal !== 'Sí') return fallo(MENSAJE_BORRADO_SEGURO, 'BORRADO_SEGURO');
+    if (pieza.requiere_borrado && entrega && borradoFinal !== 'Sí') {
+      // Al revés (disco ya donado o reutilizado que se quiere marcar pendiente): se explica qué hacer.
+      const mensaje = campo === 'borrado_seguro'
+        ? `Este disco tiene destino «${pieza.destino}»: no puede quedar con el borrado pendiente. Cambia primero el destino a Pendiente o Banco de repuestos.`
+        : MENSAJE_BORRADO_SEGURO;
+      return fallo(mensaje, 'BORRADO_SEGURO');
+    }
 
     try {
       cambioRapido(db, id, campo, valor, { equipo_destino: equipo }, req.session.usuario.usuario);

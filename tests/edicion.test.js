@@ -240,6 +240,19 @@ describe('movimiento rápido', () => {
     assert.deepEqual(tipos, [['borrado_seguro', 'Sí', USUARIO.usuario], ['destino', 'Donación', USUARIO.usuario]]);
   });
 
+  test('un disco ya donado no vuelve a "borrado pendiente": explica que primero se cambie el destino', async () => {
+    const agente = await entrar();
+    let res = await api(agente, 'RAEE-0014', { campo: 'borrado_seguro', valor: 'No' });
+    assert.equal(res.status, 422);
+    assert.equal(res.body.codigo, 'BORRADO_SEGURO');
+    assert.match(res.body.mensaje, /destino «Donación».*Cambia primero el destino a Pendiente/);
+    res = await api(agente, 'RAEE-0014', { campo: 'destino', valor: 'Pendiente' });
+    assert.equal(res.status, 200);
+    res = await api(agente, 'RAEE-0014', { campo: 'borrado_seguro', valor: 'No' });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.pieza.borrado_seguro, 'No');
+  });
+
   test('reutilizar RAEE-0022 en PC-15: pide el equipo y luego registra el destino', async () => {
     const agente = await entrar();
     let res = await api(agente, 'RAEE-0022', { campo: 'destino', valor: 'Reutilizada en la sala' });
