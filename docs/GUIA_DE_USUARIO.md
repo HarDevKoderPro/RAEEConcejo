@@ -102,6 +102,26 @@ docker exec -it raee-app-1 npm run admin:crear
 
 > Si escribes mal la contraseña 5 veces, el sitio bloquea los intentos durante 15 minutos.
 
+## 6. Crear usuarios registradores (solo administrador)
+
+1. Entra como administrador → **⚙️ Admin** → sección **👤 Usuarios** → **Nuevo usuario**.
+2. Llena el formulario:
+
+   | Campo | Qué escribir |
+   |---|---|
+   | Nombre completo | el nombre del aprendiz (es el que queda en el historial) |
+   | Documento de identidad | el número, sin puntos (no se puede repetir) |
+   | Usuario para entrar | por ejemplo `aprendiz1` |
+   | Rol | **Registrador** (ya viene elegido) o **Administrador** |
+   | Contraseña y repetirla | mínimo 8 caracteres |
+
+3. Toca **Crear usuario**.
+4. Verás *"✔ Usuario «aprendiz1» creado. Ya puede entrar."* y el usuario aparece en la tabla
+   con su rol, el estado **Activo** y el botón **Desactivar**.
+
+> Los usuarios no se borran: se **desactivan**. Así su nombre sigue en el historial de las piezas
+> que tocó. Un usuario desactivado no puede entrar; con **Activar** vuelve a tener acceso.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
