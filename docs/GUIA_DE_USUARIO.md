@@ -370,6 +370,25 @@ El archivo (`inventario-raee-AAAA-MM-DD.xlsx`) trae:
 
 > El archivo público no trae nombres de usuarios ni notas internas.
 
+## 15. Eliminar una pieza registrada por error (solo administrador)
+
+Para piezas registradas por error o duplicadas. **No** se usa cuando una pieza sale de la sala:
+para eso se cambia su **destino** (Donación, Gestor RAEE…) y así queda la prueba de qué pasó.
+
+1. Abre la ficha de la pieza. Abajo, el administrador ve **🗑️ Eliminar esta pieza**. Los
+   registradores no ven ese botón.
+2. Escribe el **motivo** (obligatorio), por ejemplo *"Registrada con la categoría equivocada"*.
+3. Toca **Eliminar RAEE-…**.
+4. Verás *"RAEE-… se eliminó del inventario. El motivo quedó registrado en Administración."* y las
+   cifras del panel bajan.
+
+**El rastro queda:** en **⚙️ Admin** → enlace **Piezas eliminadas** (segundo recuadro, debajo de
+Usuarios) aparece la pieza, el motivo, quién la eliminó y cuándo. Se guarda también una copia de
+sus datos y de su historial.
+
+**La etiqueta sigue sirviendo:** al leerla con sesión se abre **Registrar** con su código, para
+registrarla de nuevo con los datos correctos.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
