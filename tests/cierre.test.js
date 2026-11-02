@@ -116,7 +116,7 @@ describe('etiquetas QR', () => {
       .type('form')
       .send({ _csrf: tokenDe(form.text), cantidad: '2', lote: 'Lote formulario', tam: 'normal' })
       .expect(303);
-    assert.match(res.headers.location, /^\/etiquetas\/hoja\?lote=Lote%20formulario/);
+    assert.match(res.headers.location, /^\/etiquetas\/hoja\?lote=Lote\+formulario&tam=normal&papel=a4/);
     const hoja = await agente.get(res.headers.location).expect(200);
     assert.equal((hoja.text.match(/class="etiqueta"/g) ?? []).length, 2);
   });
@@ -128,6 +128,58 @@ describe('etiquetas QR', () => {
     const fila = prueba.db.prepare("SELECT formato, lote FROM etiquetas WHERE id = 'RAEE-0002'").get();
     assert.equal(fila.formato, 'URL');
     assert.match(fila.lote, /^Impresas el /);
+  });
+
+  test('los campos del formulario vienen vacíos (solo ejemplos), para no generar por accidente', async () => {
+    const agente = await entrar(EDITOR);
+    const res = await agente.get('/etiquetas').expect(200);
+    assert.match(res.text, /id="cantidad"[^>]*value=""[^>]*placeholder="Ej.: 24"/);
+    assert.match(res.text, /id="desde"[^>]*value=""/);
+    assert.match(res.text, /id="hasta"[^>]*value=""/);
+  });
+
+  test('papel carta: 24 normales y 207 pequeñas por hoja, con su hoja de estilos', async () => {
+    const agente = await entrar(EDITOR);
+    const carta = await agente.get('/etiquetas/hoja?desde=1&hasta=24&papel=carta').expect(200);
+    assert.match(carta.text, /etiquetas-carta\.css/);
+    assert.match(carta.text, /Hoja carta/);
+    assert.equal((carta.text.match(/class="hoja"/g) ?? []).length, 1);
+    const pequenas = await agente.get('/etiquetas/hoja?desde=1&hasta=208&papel=carta&tam=pequena').expect(200);
+    assert.equal((pequenas.text.match(/class="hoja"/g) ?? []).length, 2);
+    const a4 = await agente.get('/etiquetas/hoja?desde=1&hasta=24').expect(200);
+    assert.doesNotMatch(a4.text, /etiquetas-carta\.css/);
+  });
+
+  test('el registrador no puede eliminar etiquetas', async () => {
+    const agente = await entrar(EDITOR);
+    const pagina = await agente.get('/etiquetas').expect(200);
+    assert.doesNotMatch(pagina.text, /Borrar todas las etiquetas|\/etiquetas\/eliminar/);
+    await agente.get('/etiquetas/eliminar?lote=Lote%20de%20prueba').expect(403);
+    await agente.post('/etiquetas/eliminar').type('form').send({ _csrf: tokenDe(pagina.text), lote: 'Lote de prueba' }).expect(403);
+  });
+
+  test('el admin elimina un lote; las etiquetas con pieza se conservan', async () => {
+    const agente = await entrar(ADMIN);
+    reservarIds(prueba.db, 2, 'Lote para borrar');
+    prueba.db.prepare("UPDATE etiquetas SET lote = 'Lote para borrar' WHERE id = 'RAEE-0010'").run(); // tiene pieza
+    const confirmar = await agente.get('/etiquetas/eliminar?lote=Lote%20para%20borrar').expect(200);
+    assert.match(confirmar.text, /Eliminar 2 etiquetas/);
+    await agente.post('/etiquetas/eliminar').type('form').send({ _csrf: tokenDe(confirmar.text), lote: 'Lote para borrar' }).expect(303);
+    const quedan = prueba.db.prepare("SELECT id FROM etiquetas WHERE lote = 'Lote para borrar'").all().map((f) => f.id);
+    assert.deepEqual(quedan, ['RAEE-0010']);
+  });
+
+  test('borrar todas exige la frase y conserva las de piezas registradas', async () => {
+    const agente = await entrar(ADMIN);
+    const pagina = await agente.get('/etiquetas').expect(200);
+    assert.match(pagina.text, /Borrar todas las etiquetas/);
+    const mal = await agente.post('/etiquetas/eliminar-todas').type('form').send({ _csrf: tokenDe(pagina.text), confirmar: 'si' }).expect(422);
+    assert.match(mal.text, /BORRAR ETIQUETAS/);
+    await agente.post('/etiquetas/eliminar-todas').type('form').send({ _csrf: tokenDe(pagina.text), confirmar: 'borrar etiquetas' }).expect(303);
+    const huerfanas = prueba.db.prepare('SELECT COUNT(*) AS n FROM etiquetas e WHERE NOT EXISTS (SELECT 1 FROM piezas p WHERE p.id = e.id)').get().n;
+    assert.equal(huerfanas, 0);
+    const conPieza = prueba.db.prepare('SELECT COUNT(*) AS n FROM etiquetas e JOIN piezas p ON p.id = e.id').get().n;
+    assert.ok(conPieza > 0);
   });
 
   test('marcar impresas sin token CSRF responde 403', async () => {

@@ -1,0 +1,11 @@
+/* Papel carta (21,59 × 27,94 cm), el más común en Colombia. Se carga después de etiquetas.css.
+   Normales: 3 × 8 = 24 de 63,5 × 31,5 mm (un poco más bajas que en A4 para dejar margen).
+   Pequeñas: 9 × 23 = 207 de 20 × 10 mm. */
+@page { size: letter portrait; margin: 0; }
+
+.hoja {
+  width: 215.9mm; height: 279.4mm;
+  padding: 13.7mm 10.2mm 0;
+  grid-auto-rows: 31.5mm;
+}
+.tam-pequena .hoja { padding: 13.7mm 11.95mm 0; }

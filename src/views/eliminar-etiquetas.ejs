@@ -1,0 +1,29 @@
+<%- include('parciales/cabecera') %>
+<div class="pagina-form">
+  <section class="tarjeta zona-peligro">
+    <h1>🗑️ Eliminar el lote «<%= lote %>»</h1>
+    <p class="mono"><%= resumen.desde %><%= resumen.total > 1 ? ` – ${resumen.hasta}` : '' %> · <%= resumen.total %> etiqueta<%= resumen.total === 1 ? '' : 's' %></p>
+    <% if (resumen.borrables) { %>
+    <p>Se borran <strong><%= resumen.borrables %></strong> etiqueta<%= resumen.borrables === 1 ? '' : 's' %> que todavía no tienen pieza.
+      Si el lote era el último, sus números quedan libres para el próximo lote.</p>
+    <% } %>
+    <% if (resumen.conPieza) { %>
+    <p class="aviso aviso-info">ℹ <strong><%= resumen.conPieza %></strong> etiqueta<%= resumen.conPieza === 1 ? '' : 's' %> de este lote ya tiene<%= resumen.conPieza === 1 ? '' : 'n' %> una pieza registrada: se conserva<%= resumen.conPieza === 1 ? '' : 'n' %>.</p>
+    <% } %>
+    <% if (resumen.antiguas) { %>
+    <p class="aviso aviso-ambar">⚠️ Este lote ya está impreso (QR antiguo). Si esas etiquetas están pegadas en piezas, los IDs nuevos podrían repetir sus números.</p>
+    <% } %>
+    <% if (resumen.borrables) { %>
+    <form action="/etiquetas/eliminar" method="post" class="acciones-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <input type="hidden" name="lote" value="<%= lote %>">
+      <button class="boton boton-peligro" type="submit">Eliminar <%= resumen.borrables %> etiqueta<%= resumen.borrables === 1 ? '' : 's' %></button>
+      <a class="boton boton-secundario" href="/etiquetas">Cancelar</a>
+    </form>
+    <% } else { %>
+    <p>No hay nada que borrar: todas las etiquetas de este lote tienen pieza.</p>
+    <a class="boton boton-secundario" href="/etiquetas">← Volver a etiquetas</a>
+    <% } %>
+  </section>
+</div>
+<%- include('parciales/pie') %>

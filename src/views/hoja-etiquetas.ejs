@@ -6,21 +6,23 @@
   <title><%= titulo %> · Inventario RAEE</title>
   <link rel="icon" href="/img/icono.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/etiquetas.css">
+  <% if (papel === 'carta') { %><link rel="stylesheet" href="/css/etiquetas-carta.css"><% } %>
 </head>
-<body class="tam-<%= tam %>">
+<body class="tam-<%= tam %> papel-<%= papel %>">
   <header class="barra-impresion">
     <div class="barra-impresion-interior">
       <div>
         <h1>🏷️ <%= tituloHoja %></h1>
-        <p><strong><%= total %></strong> etiqueta<%= total === 1 ? '' : 's' %> <%= tam === 'pequena' ? 'pequeñas (2 × 1 cm)' : 'normales' %> · <%= hojas.length %> hoja<%= hojas.length === 1 ? '' : 's' %> A4</p>
+        <p><strong><%= total %></strong> etiqueta<%= total === 1 ? '' : 's' %> <%= tam === 'pequena' ? 'pequeñas (2 × 1 cm)' : 'normales' %> · <%= hojas.length %> hoja<%= hojas.length === 1 ? '' : 's' %> <%= nombrePapel %></p>
       </div>
       <div class="barra-acciones">
-        <a class="boton boton-claro" href="/etiquetas/hoja?<%= new URLSearchParams({ ...query, tam: tam === 'pequena' ? 'normal' : 'pequena' }).toString() %>"><%= tam === 'pequena' ? 'Ver tamaño normal' : 'Ver tamaño pequeño' %></a>
+        <a class="boton boton-claro" href="/etiquetas/hoja?<%= new URLSearchParams({ ...query, papel, tam: tam === 'pequena' ? 'normal' : 'pequena' }).toString() %>"><%= tam === 'pequena' ? 'Ver tamaño normal' : 'Ver tamaño pequeño' %></a>
+        <a class="boton boton-claro" href="/etiquetas/hoja?<%= new URLSearchParams({ ...query, tam, papel: papel === 'carta' ? 'a4' : 'carta' }).toString() %>"><%= papel === 'carta' ? 'Cambiar a A4' : 'Cambiar a carta' %></a>
         <button class="boton" type="button" id="imprimir">🖨️ Imprimir</button>
       </div>
     </div>
     <ol class="instrucciones">
-      <li><strong>Imprimir al 100 %, sin ajustar a página</strong> (escala «Predeterminada» o 100 %, márgenes «Ninguno»), en papel A4.</li>
+      <li><strong>Imprimir al 100 %, sin ajustar a página</strong> (escala «Predeterminada» o 100 %, márgenes «Ninguno»), en papel <strong><%= nombrePapel %></strong> (el mismo que elijas en la impresora).</li>
       <li>Prueba primero con la cámara del celular: el QR debe abrir la ficha a 10–20 cm.</li>
       <li>Cuando las hayas pegado, márcalas como impresas:</li>
     </ol>
@@ -37,7 +39,7 @@
 
   <main>
     <% for (const hoja of hojas) { %>
-    <section class="hoja" aria-label="Hoja A4">
+    <section class="hoja" aria-label="Hoja <%= nombrePapel %>">
       <% for (const e of hoja) { %>
       <% if (tam === 'pequena') { %>
       <div class="etiqueta-pequena">

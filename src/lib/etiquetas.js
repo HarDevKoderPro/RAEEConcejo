@@ -112,3 +112,31 @@ export function enHojas(lista, porHoja) {
   for (let i = 0; i < lista.length; i += porHoja) hojas.push(lista.slice(i, i + porHoja));
   return hojas;
 }
+
+// --- Eliminar etiquetas (solo administrador) -------------------------------------------
+// Las etiquetas de piezas ya registradas nunca se borran: están pegadas en la pieza.
+// Con lote = null se trata de todas.
+const filtroLote = (lote) => (lote == null ? { donde: '', args: [] } : { donde: 'WHERE e.lote = ?', args: [lote] });
+
+export function resumenEliminar(db, lote = null) {
+  const { donde, args } = filtroLote(lote);
+  const f = db
+    .prepare(
+      `SELECT COUNT(*) AS total, COUNT(p.id) AS con_pieza, MIN(e.id) AS desde, MAX(e.id) AS hasta,
+              SUM(e.formato = 'ID') AS antiguas
+         FROM etiquetas e LEFT JOIN piezas p ON p.id = e.id ${donde}`,
+    )
+    .get(...args);
+  return { total: f.total, conPieza: f.con_pieza, borrables: f.total - f.con_pieza, desde: f.desde, hasta: f.hasta, antiguas: f.antiguas ?? 0 };
+}
+
+export function eliminarEtiquetas(db, lote = null) {
+  const { donde, args } = filtroLote(lote);
+  const condicion = `${donde ? `${donde} AND` : 'WHERE'} NOT EXISTS (SELECT 1 FROM piezas p WHERE p.id = e.id)`;
+  return db.transaction(() => {
+    const ids = db.prepare(`SELECT e.id FROM etiquetas e ${condicion}`).all(...args).map((f) => f.id);
+    const borrar = db.prepare('DELETE FROM etiquetas WHERE id = ?');
+    for (const id of ids) borrar.run(id);
+    return ids.length;
+  })();
+}

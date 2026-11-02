@@ -1,7 +1,7 @@
 <%- include('parciales/cabecera') %>
 <div class="pagina-form">
   <h1>🏷️ Etiquetas QR</h1>
-  <p class="subtitulo">Hojas A4 listas para imprimir. Cada QR lleva el enlace a la ficha
+  <p class="subtitulo">Hojas carta o A4 listas para imprimir. Cada QR lleva el enlace a la ficha
     (<span class="mono"><%= baseUrl %>/p/RAEE-…</span>): sirve con Barcode to PC y con la cámara de cualquier celular.</p>
 
   <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
@@ -16,7 +16,7 @@
       <p class="ayuda">Reserva IDs libres desde <strong class="mono"><%= proximoId %></strong> para pegarlos antes de registrar las piezas.</p>
       <div class="campo">
         <label for="cantidad">Cuántas</label>
-        <input id="cantidad" name="cantidad" type="number" min="1" max="<%= maximo %>" value="<%= valores.cantidad || 24 %>" required>
+        <input id="cantidad" name="cantidad" type="number" min="1" max="<%= maximo %>" value="<%= valores.cantidad || '' %>" placeholder="Ej.: 24" required>
         <p class="ayuda">24 llenan una hoja.</p>
       </div>
       <div class="campo">
@@ -33,11 +33,11 @@
       <div class="rejilla-campos rejilla-dos">
         <div class="campo">
           <label for="desde">Desde</label>
-          <input id="desde" name="desde" type="number" min="1" max="9999" value="<%= valores.desde || 1 %>" required>
+          <input id="desde" name="desde" type="number" min="1" max="9999" value="<%= valores.desde || '' %>" placeholder="Ej.: 1" required>
         </div>
         <div class="campo">
           <label for="hasta">Hasta</label>
-          <input id="hasta" name="hasta" type="number" min="1" max="9999" value="<%= valores.hasta || 24 %>" required>
+          <input id="hasta" name="hasta" type="number" min="1" max="9999" value="<%= valores.hasta || '' %>" placeholder="Ej.: 24" required>
         </div>
       </div>
       <%- include('parciales/tam-etiqueta', { nombre: 'tam', id: 'tam-rango' }) %>
@@ -67,7 +67,7 @@
     <% } else { %>
     <div class="tabla-envoltura">
     <table class="tabla">
-      <thead><tr><th scope="col">Lote</th><th scope="col">IDs</th><th scope="col">Cantidad</th><th scope="col">QR</th><th scope="col"><span class="sr">Acción</span></th></tr></thead>
+      <thead><tr><th scope="col">Lote</th><th scope="col">IDs</th><th scope="col">Cantidad</th><th scope="col">QR</th><th scope="col"><span class="sr">Acción</span></th><% if (esAdmin) { %><th scope="col"><span class="sr">Eliminar</span></th><% } %></tr></thead>
       <tbody>
         <% for (const l of lotes) { %>
         <tr>
@@ -76,6 +76,7 @@
           <td><%= l.n %></td>
           <td><%= l.formato === 'ID' ? 'Solo texto (antiguo)' : 'Con enlace' %></td>
           <td><a href="/etiquetas/hoja?lote=<%= encodeURIComponent(l.lote) %>"><%= l.formato === 'ID' ? 'Reimprimir con enlace' : 'Imprimir' %></a></td>
+          <% if (esAdmin) { %><td><a class="enlace-peligro" href="/etiquetas/eliminar?lote=<%= encodeURIComponent(l.lote) %>">Eliminar</a></td><% } %>
         </tr>
         <% } %>
       </tbody>
@@ -83,5 +84,23 @@
     </div>
     <% } %>
   </section>
+
+  <% if (esAdmin && totalBorrar.total) { %>
+  <section class="tarjeta zona-peligro" id="borrar-todas" aria-labelledby="t-borrar">
+    <h2 id="t-borrar">🗑️ Borrar todas las etiquetas</h2>
+    <p>Para empezar de cero, sobre todo después de las pruebas. Se borran <strong><%= totalBorrar.borrables %></strong>
+      etiqueta<%= totalBorrar.borrables === 1 ? '' : 's' %><% if (totalBorrar.conPieza) { %>; se conservan las <strong><%= totalBorrar.conPieza %></strong> que ya tienen una pieza registrada<% } %>.
+      Después, los IDs nuevos siguen desde el número más alto que quede en uso (si no queda ninguno, desde RAEE-0001).</p>
+    <p class="aviso aviso-ambar">⚠️ Si ya hay etiquetas impresas o pegadas, los IDs nuevos podrían repetir esos números. Bórralas solo si nadie las va a usar.</p>
+    <form action="/etiquetas/eliminar-todas" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
+      <div class="campo">
+        <label for="confirmar">Para confirmar, escribe <strong class="mono"><%= fraseBorrar %></strong></label>
+        <input id="confirmar" name="confirmar" type="text" autocomplete="off" spellcheck="false" maxlength="30">
+      </div>
+      <button class="boton boton-peligro" type="submit">Borrar las etiquetas</button>
+    </form>
+  </section>
+  <% } %>
 </div>
 <%- include('parciales/pie') %>
