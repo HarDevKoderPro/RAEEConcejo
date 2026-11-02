@@ -101,6 +101,9 @@ docker exec -it raee-app-1 npm run admin:crear
 5. Para terminar, toca **Salir**.
 
 > Si escribes mal la contraseña 5 veces, el sitio bloquea los intentos durante 15 minutos.
+>
+> El sitio no sugiere usuarios anteriores. Si el navegador ofrece **guardar la contraseña**, toca
+> **Nunca** en los computadores de la sala: los usa más de una persona.
 
 ## 6. Crear usuarios registradores (solo administrador)
 
@@ -176,6 +179,18 @@ Sirve para corregir un lote generado por error o con la cantidad equivocada.
 
 > Las etiquetas de piezas ya registradas **nunca se borran**: están pegadas en la pieza.
 > Para cambiar la cantidad de un lote, elimínalo y resérvalo otra vez con la cantidad correcta.
+
+### Borrar todas las etiquetas (solo administrador)
+
+Para empezar de cero, sobre todo después de las pruebas.
+
+1. En **🏷️ Etiquetas**, baja hasta el recuadro rojo **🗑️ Borrar todas las etiquetas**.
+2. Escribe `BORRAR ETIQUETAS` y toca **Borrar las etiquetas**. Sin la frase no se borra nada.
+3. Verás *"Se eliminaron N etiquetas."*, la tabla dice *"Todavía no hay etiquetas"* y el
+   próximo lote empieza en **RAEE-0001**.
+
+> ⚠️ Si quedan etiquetas impresas en papel, sepáralas o destrúyelas: las nuevas repetirán sus números.
+> Las etiquetas de piezas registradas se conservan siempre.
 
 ---
 
