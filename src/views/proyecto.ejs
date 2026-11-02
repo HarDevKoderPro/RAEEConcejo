@@ -74,16 +74,5 @@
       Todo se sirve desde el mismo servidor: la demostración funciona aunque falle el internet externo.</p>
   </section>
 
-  <% if (equipo.length || config.instructor) { %>
-  <section class="tarjeta" aria-labelledby="t-equipo">
-    <h2 id="t-equipo">Equipo</h2>
-    <% if (equipo.length) { %>
-    <ul class="lista-equipo">
-      <% for (const persona of equipo) { %><li>👤 <%= persona %></li><% } %>
-    </ul>
-    <% } %>
-    <% if (config.instructor) { %><p><strong>Instructor:</strong> <%= config.instructor %></p><% } %>
-  </section>
-  <% } %>
 </article>
 <%- include('parciales/pie') %>

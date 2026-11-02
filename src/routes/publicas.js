@@ -19,9 +19,7 @@ export function rutasPublicas({ db, ajustes = {} }) {
   });
 
   r.get('/proyecto', (req, res) => {
-    const config = leerConfig(db);
-    const equipo = String(config.equipo ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-    res.render('proyecto', { titulo: 'Sobre el proyecto', config, equipo });
+    res.render('proyecto', { titulo: 'Sobre el proyecto', config: leerConfig(db) });
   });
 
   r.get('/consulta', (req, res) => {

@@ -1,10 +1,10 @@
 <%- include('parciales/cabecera') %>
 <div class="pagina-form">
   <h1>⚙️ Administración</h1>
-  <p class="subtitulo">Usuarios, meta del semestre, respaldo y limpieza de los datos de demostración.</p>
+  <p class="subtitulo">Usuarios, piezas eliminadas, respaldo y limpieza de los datos de demostración.</p>
 
   <nav class="indice-admin" aria-label="Secciones">
-    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#config">Proyecto y meta</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a> · <a href="#reiniciar">Reiniciar el sitio</a>
+    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a> · <a href="#reiniciar">Reiniciar el sitio</a>
   </nav>
 
   <section class="tarjeta" id="usuarios" aria-labelledby="t-usuarios">
@@ -91,37 +91,6 @@
     </table>
     </div>
     <% } %>
-  </section>
-
-  <section class="tarjeta" id="config" aria-labelledby="t-config">
-    <h2 id="t-config">🎯 Proyecto y meta</h2>
-    <form action="/admin/config" method="post" class="formulario">
-      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
-      <div class="rejilla-campos">
-        <div class="campo">
-          <label for="c-meta">Meta del semestre (piezas)</label>
-          <input id="c-meta" name="meta_semestre" type="number" min="1" max="100000" required value="<%= config.meta_semestre || '' %>"
-            <%- errores.meta_semestre ? 'aria-invalid="true" aria-describedby="e-meta"' : '' %>>
-          <% if (errores.meta_semestre) { %><p class="campo-error" id="e-meta"><%= errores.meta_semestre %></p><% } %>
-        </div>
-        <div class="campo">
-          <label for="c-sala">Nombre de la sala</label>
-          <input id="c-sala" name="nombre_sala" type="text" maxlength="80" required value="<%= config.nombre_sala || '' %>"
-            <%- errores.nombre_sala ? 'aria-invalid="true" aria-describedby="e-sala"' : '' %>>
-          <% if (errores.nombre_sala) { %><p class="campo-error" id="e-sala"><%= errores.nombre_sala %></p><% } %>
-        </div>
-        <div class="campo">
-          <label for="c-instructor">Instructor <span class="recomendado">opcional</span></label>
-          <input id="c-instructor" name="instructor" type="text" maxlength="80" value="<%= config.instructor || '' %>">
-        </div>
-      </div>
-      <div class="campo">
-        <label for="c-equipo">Aprendices del equipo <span class="recomendado">uno por línea</span></label>
-        <textarea id="c-equipo" name="equipo" rows="4" maxlength="2000"><%= config.equipo || '' %></textarea>
-        <p class="ayuda">Aparecen en la página <a href="/proyecto">Sobre el proyecto</a>. Si queda vacío, esa sección no se muestra.</p>
-      </div>
-      <button class="boton" type="submit">Guardar</button>
-    </form>
   </section>
 
   <section class="tarjeta" id="datos" aria-labelledby="t-datos">

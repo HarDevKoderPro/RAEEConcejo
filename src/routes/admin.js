@@ -1,4 +1,4 @@
-// /admin (solo rol admin): usuarios, meta y datos del proyecto, exportar, respaldo y limpiar demo.
+// /admin (solo rol admin): usuarios, piezas eliminadas, exportar, respaldo y limpiar demo.
 import path from 'node:path';
 import { Router } from 'express';
 import { requiereAdmin, crearUsuario, NOMBRES_ROL } from '../lib/auth.js';
@@ -6,7 +6,7 @@ import { avisar } from '../lib/sesiones.js';
 import { emitir } from '../lib/eventos.js';
 import { hoyLocal } from '../lib/validacion.js';
 import {
-  resumenDemo, limpiarDemo, leerConfig, guardarConfig, listarUsuarios, cambiarActivo, listarEliminadas, crearRespaldo, reiniciarSitio,
+  resumenDemo, limpiarDemo, listarUsuarios, cambiarActivo, listarEliminadas, crearRespaldo, reiniciarSitio,
 } from '../lib/admin.js';
 
 export const FRASE_LIMPIAR = 'BORRAR DEMO';
@@ -22,7 +22,6 @@ export function rutasAdmin({ db, ajustes }) {
       usuarios: listarUsuarios(db),
       eliminadas: listarEliminadas(db),
       nombresRol: NOMBRES_ROL,
-      config: { ...leerConfig(db), ...valores.config },
       nuevo: valores.nuevo ?? {},
       demo: resumenDemo(db),
       frase: FRASE_LIMPIAR,
@@ -32,13 +31,6 @@ export function rutasAdmin({ db, ajustes }) {
   }
 
   r.get('/admin', (req, res) => ver(res));
-
-  r.post('/admin/config', (req, res) => {
-    const { errores } = guardarConfig(db, req.body);
-    if (errores) return ver(res, { errores, valores: { config: req.body }, estado: 422 });
-    avisar(req, 'ok', 'Configuración guardada.');
-    res.redirect(303, '/admin');
-  });
 
   r.post('/admin/usuarios', (req, res) => {
     const { usuario, nombre, documento, rol, contrasena, repetir } = req.body;

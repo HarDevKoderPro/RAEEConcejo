@@ -19,8 +19,6 @@ export function actualizarCifras(cifras) {
     const formato = formatos[el.dataset.formato];
     animarNumero(el, valor, formato ? (n) => formato(el.dataset.formato === 'pct' ? Math.round(n * 10) / 10 : n) : undefined);
   }
-  const barra = document.querySelector('[data-meta]');
-  if (barra) barra.value = cifras.pct_meta;
 }
 
 export function pintarUltimos(lista, movimientos) {

@@ -86,7 +86,6 @@ export async function libroInventario(db, filtros, { privado = false, baseUrl = 
     ['% que no va a la basura', c.pct_no_va_a_basura, 'Piezas con destino final que evita el relleno ÷ total'],
     ['Discos con borrado seguro', `${c.discos_borrados} de ${c.discos_total}`, 'Seguridad de la información'],
     ['Pesos medidos', `${c.piezas_pesadas} de ${c.piezas_registradas}`, 'Cuántos pesos son medidos y no estimados'],
-    ['Meta del semestre', c.meta_semestre ?? '', 'Piezas que se espera registrar'],
   ].forEach(([k, v, d]) => panel.addRow({ k, v, d }));
   encabezado(panel);
   panel.getColumn('k').font = { bold: true };

@@ -20,36 +20,10 @@ export function limpiarDemo(db, fotosDir) {
 }
 
 // --- Configuración ---------------------------------------------------------------------------
-export const CLAVES_CONFIG = ['meta_semestre', 'nombre_sala', 'equipo', 'instructor'];
 
 export function leerConfig(db) {
   const filas = db.prepare('SELECT clave, valor FROM config').all();
   return Object.fromEntries(filas.map((f) => [f.clave, f.valor]));
-}
-
-export function guardarConfig(db, datos) {
-  const errores = {};
-  const meta = Number(String(datos.meta_semestre ?? '').trim());
-  if (!Number.isInteger(meta) || meta < 1 || meta > 100000) errores.meta_semestre = 'Escribe un número entero de piezas (por ejemplo, 100).';
-  const nombreSala = String(datos.nombre_sala ?? '').trim().slice(0, 80);
-  if (!nombreSala) errores.nombre_sala = 'Escribe el nombre de la sala.';
-  if (Object.keys(errores).length) return { errores };
-  const equipo = String(datos.equipo ?? '')
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .slice(0, 20)
-    .map((l) => l.slice(0, 80))
-    .join('\n');
-  const instructor = String(datos.instructor ?? '').trim().slice(0, 80);
-  const poner = db.prepare('INSERT INTO config (clave, valor) VALUES (?, ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor');
-  db.transaction(() => {
-    poner.run('meta_semestre', String(meta));
-    poner.run('nombre_sala', nombreSala);
-    poner.run('equipo', equipo);
-    poner.run('instructor', instructor);
-  })();
-  return { errores: null };
 }
 
 // --- Usuarios ----------------------------------------------------------------------------------

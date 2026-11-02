@@ -256,7 +256,7 @@ Usa `v_panel`. Los rótulos deben ser **honestos**: el jurado puede preguntar po
 | % que no va a la basura | Piezas con destino final que desvía del relleno ÷ total |
 | Discos con borrado seguro | `discos_borrados / discos_total` (indicador de seguridad de la información) |
 | Pesos medidos | `piezas_pesadas` de N: indica cuántas cifras son medidas y no estimadas |
-| Meta del semestre | Barra de avance contra `config.meta_semestre` |
+| ~~Meta del semestre~~ | *Quitada del MVP por pedido de la persona (2026-11-02): ni barra en el panel ni recuadro en `/admin`. `config.meta_semestre` sigue en la base por si se retoma.* |
 
 Gráficos: piezas por categoría (barras horizontales), por destino (dona) y por estado (barras).
 Además, una línea de "últimos movimientos". Agrega `?tv=1` para la versión de proyector: letra
@@ -292,7 +292,7 @@ celular del jurado y en el panel.
 | `/panel` | público | Panel de impacto (§6.5), en vivo (§6.6) |
 | `/demo` | editor | **Escenario del proyector:** en una sola pantalla, el campo de escaneo con acciones rápidas (como `/movimiento`), la ficha de la pieza escaneada y el panel en vivo con el aviso de movimientos. Evita cambiar de ventana frente al jurado. A 1920 px se ve en tres columnas; en pantallas pequeñas se apila |
 | `/eventos` | público | Canal SSE (§6.6) |
-| `/proyecto` | público | Problema, solución, diagrama del flujo, marco legal (§10.3), equipo de aprendices |
+| `/proyecto` | público | Problema, solución, diagrama del flujo y marco legal (§10.3). *La sección del equipo se quitó del MVP (2026-11-02)* |
 | `/entrar`, `/salir` | — | Inicio de sesión (límite de 5 intentos cada 15 min por IP) |
 | `/registrar` | editor | Alta. Su primer campo con foco recibe el escaneo del ID (flujo a) o queda vacío para ID automático (flujo b) |
 | `/p/:id/editar` | editor | Editar todo + subir foto |
@@ -414,6 +414,15 @@ probar con celulares reales desde el principio.
 
 Cada fase posterior a la 2 termina también con `/desplegar`, para que el VPS tenga siempre la
 última versión aprobada.
+
+**Estado (2026-11-02): MVP cerrado.** La persona probó en producción, paso a paso, todo lo de
+`docs/GUIA_DE_USUARIO.md` (capítulos 1–15) y dio por terminadas las pruebas. Además de las fases,
+el MVP incluye: configuración inicial desde la web (`/primer-uso`) y reinicio del sitio; roles
+administrador y registrador; etiquetas en papel carta (por defecto) o A4, eliminar lotes y borrar
+todas; **celular como lector** (la cámara del celular con sesión envía el escaneo al PC del mismo
+usuario por `/eventos?mios=1`), y actualización en vivo de Movimiento, Demo y Consultar.
+Quedan fuera del MVP: e2e con Playwright, Lighthouse, importar Excel, pulido móvil y la prueba con
+Barcode to PC real.
 
 ## 12. Pruebas
 
@@ -538,7 +547,7 @@ identidad es un dato personal (Ley 1581 de 2012): solo se muestra en `/admin`.
       importación).
 - [ ] Ejemplo real del texto de un QR antiguo (prueba de `QR_ANTIGUO`, §6.2).
 - [x] Dominio definitivo para los QR: `raee.smarteksoft.com`.
-- [ ] Nombres de los aprendices del equipo y del instructor para `/proyecto`.
+- [x] ~~Nombres de los aprendices del equipo y del instructor para `/proyecto`~~: fuera del MVP (2026-11-02).
 - [ ] Fotos reales de "antes" para la portada y la exposición.
 - [ ] Confirmar la vigencia del marco legal (§10.3).
 - [ ] Gestor RAEE certificado con el que se entregaría (si existe).

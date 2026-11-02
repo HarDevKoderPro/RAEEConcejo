@@ -287,21 +287,16 @@ describe('administración', () => {
     await entrar({ usuario: 'aprendiz.prueba', contrasena: 'otra-clave-123' });
   });
 
-  test('la meta del semestre cambia el panel', async () => {
+  test('Admin ya no tiene el recuadro de meta; el panel no muestra la barra de meta', async () => {
     const agente = await entrar(ADMIN);
     const pagina = await agente.get('/admin').expect(200);
-    await agente
-      .post('/admin/config')
-      .type('form')
-      .send({ _csrf: tokenDe(pagina.text), meta_semestre: '72', nombre_sala: 'Sala de Sistemas', equipo: 'Ana Gómez\nLuis Pérez', instructor: 'Instructor Prueba' })
-      .expect(303);
-    const panel = await request(app).get('/api/panel').expect(200);
-    assert.equal(panel.body.cifras.meta_semestre, 72);
+    assert.doesNotMatch(pagina.text, /Proyecto y meta|admin\/config/);
+    const csrf = tokenDe(pagina.text);
+    await agente.post('/admin/config').type('form').send({ _csrf: csrf, meta_semestre: '72' }).expect(404);
+    const panel = await request(app).get('/panel').expect(200);
+    assert.doesNotMatch(panel.text, /Meta del semestre/);
     const proyecto = await request(app).get('/proyecto').expect(200);
-    assert.match(proyecto.text, /Ana Gómez/);
-    assert.match(proyecto.text, /Instructor Prueba/);
-    const mala = await agente.post('/admin/config').type('form').send({ _csrf: tokenDe(pagina.text), meta_semestre: 'cien', nombre_sala: 'x' }).expect(422);
-    assert.match(mala.text, /número entero/);
+    assert.doesNotMatch(proyecto.text, /id="t-equipo"/);
   });
 
   test('el respaldo descarga una base SQLite válida', async () => {

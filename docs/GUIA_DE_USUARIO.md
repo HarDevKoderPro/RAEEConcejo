@@ -1,7 +1,7 @@
 # Guía de usuario · Inventario RAEE de la Sala de Sistemas
 
 > Guía paso a paso, escrita a medida que se prueba el sitio con la persona responsable.
-> *Borrador en construcción: se completa en cada prueba.*
+> Versión MVP. Cada paso de esta guía se probó en el sitio publicado entre el 1 y el 2 de noviembre de 2026.
 
 **Dirección del sitio:** https://raee.smarteksoft.com
 
@@ -338,7 +338,6 @@ Cualquier persona puede buscar, sin entrar.
 | No va a la basura | Porcentaje de piezas con un destino que evita el relleno sanitario |
 | 🔒 Discos con borrado seguro | Discos borrados de cuántos hay |
 | ⚖️ Pesos medidos | Cuántas piezas tienen peso real y no estimado |
-| Meta del semestre | Avance contra la meta (se cambia en ⚙️ Admin) |
 
 Debajo hay tres gráficos (por categoría, por destino y por estado) y los últimos movimientos.
 Las cifras se actualizan solas cuando alguien registra o mueve una pieza.
@@ -391,4 +390,14 @@ registrarla de nuevo con los datos correctos.
 
 ---
 
-*(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
+## 16. Antes de una exposición
+
+- [ ] Reinicia el sitio si quieres mostrar el primer paso (capítulo 4), o deja cargadas las piezas de la demo.
+- [ ] Imprime y pega las etiquetas de las piezas que vas a mostrar.
+- [ ] Crea un usuario registrador para quien va a escanear y prueba que entre.
+- [ ] Abre en el PC **🎬 Demo** o **⚡ Movimiento** con el punto verde de *"Celular como lector"*.
+- [ ] Abre en otra pantalla **/panel?tv=1** con F11.
+- [ ] Lleva un Excel exportado (capítulo 14) como plan B.
+- [ ] Ten el celular con datos móviles: el sitio no depende del wifi del lugar.
+
+> El guion de la exposición está en `docs/GUION_EXPOSICION.md`.

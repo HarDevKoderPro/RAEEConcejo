@@ -10,11 +10,9 @@ const TITULOS = {
 
 export function cifrasPanel(db) {
   const v = db.prepare('SELECT * FROM v_panel').get();
-  const meta = v.meta_semestre || 0;
   return {
     ...v,
     pct_no_va_a_basura: v.pct_no_va_a_basura ?? 0,
-    pct_meta: meta ? Math.min(100, Math.round((100 * v.piezas_registradas) / meta)) : 0,
   };
 }
 

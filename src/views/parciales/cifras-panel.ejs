@@ -45,14 +45,3 @@
   </li>
   <% } %>
 </ul>
-<% if (!locals.compacto && c.meta_semestre) { %>
-<div class="meta tarjeta">
-  <div class="meta-texto">
-    <span class="rotulo">Meta del semestre</span>
-    <span><strong data-cifra="piezas_registradas" data-valor="<%= c.piezas_registradas %>"><%= c.piezas_registradas %></strong> de <%= c.meta_semestre %> piezas · <span data-cifra="pct_meta" data-formato="pct" data-valor="<%= c.pct_meta %>"><%= c.pct_meta %> %</span></span>
-  </div>
-  <progress class="meta-barra" max="100" value="<%= c.pct_meta %>" data-meta>
-    <%= c.pct_meta %> %
-  </progress>
-</div>
-<% } %>
