@@ -291,6 +291,30 @@ Registra siempre el serial.
 > En el panel de impacto, **Discos con borrado seguro** muestra cuántos discos están borrados de
 > cuántos hay.
 
+## 12. Buscar piezas y el mapa de la sala
+
+Cualquier persona puede buscar, sin entrar.
+
+### Buscar
+
+1. En la página de inicio toca **Buscar piezas**.
+2. Escribe una palabra (por ejemplo `disco`, `DDR3`, una marca o un serial) y presiona Enter.
+3. Afina con los filtros **Categoría**, **Estado**, **Destino** y **Ubicación**.
+4. Cada resultado muestra su ícono, su ubicación y su estado. Tócalo para abrir la ficha.
+
+> Los filtros quedan en la dirección de la página (por ejemplo `?ubicacion=S1-C2`): copia el
+> enlace y compártelo con la búsqueda ya hecha. Con **⬇ Exportar a Excel** se descarga lo que
+> se está viendo.
+
+### El mapa de la sala
+
+- **Mapa de la sala** muestra cada caja o estante como una tarjeta, con cuántas piezas tiene y
+  los íconos de lo que contiene. Responde "¿qué hay en esta caja?".
+- Desde la ficha de una pieza, **Ver en el mapa** abre el mapa con **su caja iluminada**.
+
+> Sin sesión, la línea de tiempo de la ficha muestra los movimientos sin el nombre de quien los
+> hizo. Los nombres solo los ven los usuarios del sitio.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
