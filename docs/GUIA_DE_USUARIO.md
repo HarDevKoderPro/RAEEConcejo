@@ -343,6 +343,24 @@ Las cifras se actualizan solas cuando alguien registra o mueve una pieza.
 
 > Si se cae la conexión en vivo, la página se recarga sola cada 30 segundos.
 
+## 14. Exportar a Excel
+
+Sirve de respaldo y de plan B en una exposición.
+
+- **Cualquier persona:** en **Buscar piezas**, toca **⬇ Exportar a Excel**. Se descarga lo que
+  se está viendo (con los filtros puestos, solo esas piezas).
+- **Administrador:** **⚙️ Admin** → **💾 Exportar y respaldar** → **⬇ Exportar inventario a Excel**.
+
+El archivo (`inventario-raee-AAAA-MM-DD.xlsx`) trae:
+
+| Hoja | Contenido |
+|---|---|
+| Inventario | Una fila por pieza, con filtro en cada columna y el enlace a su ficha |
+| Panel | Las cifras del panel y cómo se calcula cada una |
+| Movimientos | El historial con quién hizo cada cambio. **Solo** en el archivo del administrador |
+
+> El archivo público no trae nombres de usuarios ni notas internas.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
