@@ -315,6 +315,34 @@ Cualquier persona puede buscar, sin entrar.
 > Sin sesión, la línea de tiempo de la ficha muestra los movimientos sin el nombre de quien los
 > hizo. Los nombres solo los ven los usuarios del sitio.
 
+## 13. Panel de impacto
+
+**Panel de impacto** muestra lo que va logrando el proyecto. Lo ve cualquier persona.
+
+| Cifra | Qué significa |
+|---|---|
+| Piezas registradas | Cuántas piezas hay en el inventario |
+| Kg inventariados | Peso de todas las piezas (dice si es **estimado** o **medido**) |
+| Kg con destino final | Peso de las piezas que ya no están en *Pendiente* |
+| 🌱 Reutilizadas en la sala | Piezas instaladas en un equipo de la sala |
+| Equipos reparados | Equipos distintos (PC-xx) que recibieron piezas |
+| No va a la basura | Porcentaje de piezas con un destino que evita el relleno sanitario |
+| 🔒 Discos con borrado seguro | Discos borrados de cuántos hay |
+| ⚖️ Pesos medidos | Cuántas piezas tienen peso real y no estimado |
+| Meta del semestre | Avance contra la meta (se cambia en ⚙️ Admin) |
+
+Debajo hay tres gráficos (por categoría, por destino y por estado) y los últimos movimientos.
+Las cifras se actualizan solas cuando alguien registra o mueve una pieza.
+
+### Versión para proyector
+
+1. Abre **https://raee.smarteksoft.com/panel?tv=1** y presiona **F11** (pantalla completa).
+2. Queda sin menú y con letra grande.
+3. Cada cambio aparece como aviso (por ejemplo *"🌱 RAEE-0001 → PC-15"*) y las cifras suben con
+   animación.
+
+> Si se cae la conexión en vivo, la página se recarga sola cada 30 segundos.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
