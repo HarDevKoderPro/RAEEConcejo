@@ -9,15 +9,15 @@
     <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
     <div class="campo">
       <label for="nombre">Nombre completo</label>
-      <input id="nombre" name="nombre" type="text" maxlength="80" required autofocus value="<%= valores.nombre || '' %>">
+      <input id="nombre" name="nombre" type="text" maxlength="80" required autofocus autocomplete="off" value="<%= valores.nombre || '' %>">
     </div>
     <div class="campo">
       <label for="documento">Documento de identidad</label>
-      <input id="documento" name="documento" type="text" maxlength="20" required inputmode="numeric" placeholder="sin puntos" value="<%= valores.documento || '' %>">
+      <input id="documento" name="documento" type="text" maxlength="20" required inputmode="numeric" autocomplete="off" placeholder="sin puntos" value="<%= valores.documento || '' %>">
     </div>
     <div class="campo">
       <label for="usuario">Usuario para entrar</label>
-      <input id="usuario" name="usuario" type="text" maxlength="30" required autocapitalize="none" spellcheck="false" placeholder="ej.: admin" value="<%= valores.usuario || '' %>">
+      <input id="usuario" name="usuario" type="text" maxlength="30" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="ej.: admin" value="<%= valores.usuario || '' %>">
     </div>
     <div class="campo">
       <label for="contrasena">Contraseña <span class="recomendado">mín. 8</span></label>

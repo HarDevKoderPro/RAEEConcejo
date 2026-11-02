@@ -45,7 +45,7 @@
       <div class="rejilla-campos">
         <div class="campo">
           <label for="n-nombre">Nombre completo</label>
-          <input id="n-nombre" name="nombre" type="text" maxlength="80" required value="<%= nuevo.nombre || '' %>" placeholder="ej.: Ana María Gómez Ruiz">
+          <input id="n-nombre" name="nombre" type="text" maxlength="80" required value="<%= nuevo.nombre || '' %>" placeholder="ej.: Ana María Gómez Ruiz" autocomplete="off">
         </div>
         <div class="campo">
           <label for="n-documento">Documento de identidad</label>
@@ -53,7 +53,7 @@
         </div>
         <div class="campo">
           <label for="n-usuario">Usuario para entrar</label>
-          <input id="n-usuario" name="usuario" type="text" maxlength="30" required value="<%= nuevo.usuario || '' %>" placeholder="ej.: aprendiz.ana" autocapitalize="none" spellcheck="false">
+          <input id="n-usuario" name="usuario" type="text" maxlength="30" required value="<%= nuevo.usuario || '' %>" placeholder="ej.: aprendiz.ana" autocomplete="off" autocapitalize="none" spellcheck="false">
         </div>
         <div class="campo">
           <label for="n-rol">Rol</label>

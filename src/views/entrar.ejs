@@ -3,17 +3,17 @@
   <h1>Entrar</h1>
   <p class="subtitulo">Consultar es libre. Para registrar o mover piezas necesitas un usuario. Pídeselo al administrador.</p>
   <% if (error) { %><p class="campo-error-general" role="alert"><%= error %></p><% } %>
-  <form action="/entrar" method="post" class="formulario">
+  <form action="/entrar" method="post" class="formulario" autocomplete="off">
     <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
     <input type="hidden" name="siguiente" value="<%= siguiente %>">
     <div class="campo">
       <label for="usuario">Usuario</label>
-      <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none"
+      <input id="usuario" name="usuario" type="text" autocomplete="off" autocapitalize="none" spellcheck="false"
              required maxlength="30" value="<%= usuarioEscrito %>" autofocus>
     </div>
     <div class="campo">
       <label for="contrasena">Contraseña</label>
-      <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" required maxlength="200">
+      <input id="contrasena" name="contrasena" type="password" autocomplete="off" required maxlength="200">
     </div>
     <button class="boton boton-grande" type="submit">Entrar</button>
   </form>
