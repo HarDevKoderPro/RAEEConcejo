@@ -1,10 +1,10 @@
 <%- include('parciales/cabecera') %>
 <div class="pagina-form">
   <h1>⚙️ Administración</h1>
-  <p class="subtitulo">Usuarios, piezas eliminadas, respaldo y limpieza de los datos de demostración.</p>
+  <p class="subtitulo">Usuarios, piezas eliminadas, exportar, respaldar y reiniciar el sitio.</p>
 
   <nav class="indice-admin" aria-label="Secciones">
-    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#demo">Datos de demostración</a> · <a href="#reiniciar">Reiniciar el sitio</a>
+    <a href="#usuarios">Usuarios</a> · <a href="#eliminadas">Piezas eliminadas</a> · <a href="#datos">Exportar y respaldar</a> · <a href="#reiniciar">Reiniciar el sitio</a>
   </nav>
 
   <section class="tarjeta" id="usuarios" aria-labelledby="t-usuarios">
@@ -104,25 +104,6 @@
       En el VPS, además, se hace un respaldo automático cada noche a las 2:00 a. m. y se guardan 14 días.</p>
   </section>
 
-  <section class="tarjeta zona-peligro" id="demo" aria-labelledby="t-demo">
-    <h2 id="t-demo">🧹 Datos de demostración</h2>
-    <% if (demo.piezas) { %>
-    <p>Hay <strong><%= demo.piezas %></strong> piezas de demostración y <strong><%= demo.reales %></strong> real<%= demo.reales === 1 ? '' : 'es' %>.
-      Bórralas <strong>después de la exposición</strong>, cuando empiecen a cargar las piezas reales. Las piezas reales (como RAEE-0001) y las etiquetas impresas no se tocan.</p>
-    <form action="/admin/limpiar-demo" method="post" class="formulario">
-      <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
-      <div class="campo">
-        <label for="confirmar">Para confirmar, escribe <strong class="mono"><%= frase %></strong></label>
-        <input id="confirmar" name="confirmar" type="text" autocomplete="off" spellcheck="false" maxlength="30"
-          <%- errores.demo ? 'aria-invalid="true" aria-describedby="e-demo"' : '' %>>
-        <% if (errores.demo) { %><p class="campo-error" id="e-demo"><%= errores.demo %></p><% } %>
-      </div>
-      <button class="boton boton-peligro" type="submit">Borrar las <%= demo.piezas %> piezas de demostración</button>
-    </form>
-    <% } else { %>
-    <p class="vacio">No quedan datos de demostración: todo el inventario es real.</p>
-    <% } %>
-  </section>
   <section class="tarjeta zona-peligro" id="reiniciar" aria-labelledby="t-reiniciar">
     <h2 id="t-reiniciar">🔄 Reiniciar el sitio</h2>
     <p>Borra <strong>todos los usuarios</strong> (también el tuyo) y cierra todas las sesiones. El sitio vuelve a la

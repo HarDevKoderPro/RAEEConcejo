@@ -1,4 +1,4 @@
-// /admin (solo rol admin): usuarios, piezas eliminadas, exportar, respaldo y limpiar demo.
+// /admin (solo rol admin): usuarios, piezas eliminadas, exportar, respaldo y reiniciar.
 import path from 'node:path';
 import { Router } from 'express';
 import { requiereAdmin, crearUsuario, NOMBRES_ROL } from '../lib/auth.js';
@@ -6,10 +6,9 @@ import { avisar } from '../lib/sesiones.js';
 import { emitir } from '../lib/eventos.js';
 import { hoyLocal } from '../lib/validacion.js';
 import {
-  resumenDemo, limpiarDemo, listarUsuarios, cambiarActivo, listarEliminadas, crearRespaldo, reiniciarSitio,
+  listarUsuarios, cambiarActivo, listarEliminadas, crearRespaldo, reiniciarSitio,
 } from '../lib/admin.js';
 
-export const FRASE_LIMPIAR = 'BORRAR DEMO';
 export const FRASE_REINICIAR = 'REINICIAR';
 
 export function rutasAdmin({ db, ajustes }) {
@@ -23,8 +22,6 @@ export function rutasAdmin({ db, ajustes }) {
       eliminadas: listarEliminadas(db),
       nombresRol: NOMBRES_ROL,
       nuevo: valores.nuevo ?? {},
-      demo: resumenDemo(db),
-      frase: FRASE_LIMPIAR,
       fraseReiniciar: FRASE_REINICIAR,
       errores,
     });
@@ -92,15 +89,6 @@ export function rutasAdmin({ db, ajustes }) {
     } catch (err) {
       next(err);
     }
-  });
-
-  r.post('/admin/limpiar-demo', (req, res) => {
-    if (String(req.body.confirmar ?? '').trim().toUpperCase() !== FRASE_LIMPIAR) {
-      return ver(res, { errores: { demo: `Para confirmar, escribe exactamente: ${FRASE_LIMPIAR}` }, estado: 422 });
-    }
-    const n = limpiarDemo(db, path.resolve(ajustes.fotosDir));
-    avisar(req, 'ok', `Se borraron ${n} piezas de demostración con su historial. Las piezas reales no se tocaron.`);
-    res.redirect(303, '/admin');
   });
 
   return r;

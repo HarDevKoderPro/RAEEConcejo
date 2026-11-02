@@ -298,7 +298,7 @@ celular del jurado y en el panel.
 | `/p/:id/editar` | editor | Editar todo + subir foto |
 | `/movimiento` | editor | **Actualización rápida por escaneo:** se escanea y aparecen botones grandes de estado, destino y ubicación. Ideal para la demo en vivo |
 | `/etiquetas` | editor | Generar hojas A4 imprimibles (§8): por rango, por IDs nuevos (reservar N) o reimpresión de lote antiguo |
-| `/admin` | admin | Usuarios, catálogos (categorías, ubicaciones, meta), exportar o respaldar, limpiar datos demo |
+| `/admin` | admin | Usuarios, piezas eliminadas, exportar o respaldar y reiniciar el sitio. *(La sección para limpiar datos demo se quitó el 2026-11-02 a pedido de la persona; queda `npm run demo:limpiar`)* |
 | `/api/piezas/:id` | público | JSON para `/consulta` (sin campo `notas` si no hay sesión) |
 | `/api/buscar` | público | JSON de búsqueda |
 | `/salud` | público | `{"ok":true,"piezas":N}` para monitorear |

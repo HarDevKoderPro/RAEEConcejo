@@ -87,4 +87,5 @@ Eso guarda una copia de la base anterior y vuelve a cargar los 36 registros de e
 a mano y los usuarios, así que después repite el Paso 0.
 
 Cuando empiecen a cargar las **piezas reales**, borra los datos de demostración desde
-**⚙️ Admin → Datos de demostración** (RAEE-0001, que es real, no se toca).
+el servidor con `docker exec -it raee-app-1 npm run demo:limpiar` (RAEE-0001, que es real, no se toca),
+o con **⚙️ Admin → Reiniciar el sitio** marcando *También vaciar el inventario*.

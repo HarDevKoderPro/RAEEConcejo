@@ -10,6 +10,7 @@ import { crearApp } from '../src/app.js';
 import { crearUsuario } from '../src/lib/auth.js';
 import { reservarIds, idsSolicitados, marcarImpresas } from '../src/lib/etiquetas.js';
 import { siguienteId } from '../src/lib/ids.js';
+import { limpiarDemo } from '../src/lib/admin.js';
 import { crearDbPrueba } from './ayuda.js';
 
 const EDITOR = { usuario: 'editor.cierre', nombre: 'Editor Cierre', contrasena: 'clave-de-prueba-789' };
@@ -305,15 +306,15 @@ describe('administración', () => {
     assert.equal(res.body.subarray(0, 15).toString(), 'SQLite format 3');
   });
 
-  test('limpiar demo exige la frase y nunca toca RAEE-0001', async () => {
+  test('limpiar demo (npm run demo:limpiar) nunca toca RAEE-0001; /admin ya no tiene esa sección', async () => {
     const agente = await entrar(ADMIN);
     const pagina = await agente.get('/admin').expect(200);
-    const sinFrase = await agente.post('/admin/limpiar-demo').type('form').send({ _csrf: tokenDe(pagina.text), confirmar: 'si' }).expect(422);
-    assert.match(sinFrase.text, /BORRAR DEMO/);
+    assert.doesNotMatch(pagina.text, /Datos de demostración|limpiar-demo/);
+    await agente.post('/admin/limpiar-demo').type('form').send({ _csrf: tokenDe(pagina.text), confirmar: 'BORRAR DEMO' }).expect(404);
     assert.equal(prueba.db.prepare('SELECT COUNT(*) AS n FROM piezas WHERE demo = 1').get().n > 0, true);
     const real = prueba.db.prepare("SELECT * FROM piezas WHERE id = 'RAEE-0001'").get();
 
-    await agente.post('/admin/limpiar-demo').type('form').send({ _csrf: tokenDe(pagina.text), confirmar: 'borrar demo' }).expect(303);
+    limpiarDemo(prueba.db, fs.mkdtempSync(path.join(os.tmpdir(), 'raee-fotos-')));
     assert.equal(prueba.db.prepare('SELECT COUNT(*) AS n FROM piezas WHERE demo = 1').get().n, 0);
     assert.deepEqual(prueba.db.prepare("SELECT * FROM piezas WHERE id = 'RAEE-0001'").get(), real);
     assert.equal(prueba.db.prepare("SELECT COUNT(*) AS n FROM movimientos WHERE pieza_id <> 'RAEE-0001'").get().n, 0);
