@@ -13,7 +13,7 @@ import { middlewareSesion, csrf } from './lib/sesiones.js';
 import { rutasPanel } from './routes/panel.js';
 import { rutasEtiquetas } from './routes/etiquetas.js';
 import { rutasAdmin } from './routes/admin.js';
-import { conectarEventos, emitir, eventoMovimiento } from './lib/eventos.js';
+import { conectarEventos, conectarPrivado, emitir, eventoMovimiento } from './lib/eventos.js';
 import { alRegistrarMovimiento } from './lib/movimientos.js';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -60,11 +60,14 @@ export function crearApp({ db, opciones = {} }) {
 
   // Canal en vivo (§6.6): antes de las sesiones, para no tocar la base por cada conexión.
   alRegistrarMovimiento(db, (mov) => emitir('movimiento', eventoMovimiento(db, mov)));
-  app.get('/eventos', conectarEventos);
+  // /eventos?mios=1 es el canal privado del usuario (necesita sesión): se atiende más abajo.
+  // Va por la misma ruta para que Caddy tampoco lo comprima.
+  app.get('/eventos', (req, res, next) => (req.query.mios ? next() : conectarEventos(req, res)));
 
   app.use('/fotos', express.static(path.resolve(ajustes.fotosDir), { maxAge: '7d', immutable: true, fallthrough: false }));
 
   app.use(middlewareSesion(db, ajustes));
+  app.get('/eventos', conectarPrivado);
   app.use(express.urlencoded({ extended: false, limit: '100kb' }));
   app.use(express.json({ limit: '20kb' }));
 

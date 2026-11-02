@@ -7,6 +7,7 @@ import { kg } from '../lib/formato.js';
 import { libroInventario } from '../lib/excel.js';
 import { hoyLocal } from '../lib/validacion.js';
 import { leerConfig } from '../lib/admin.js';
+import { emitirA } from '../lib/eventos.js';
 import { mapaUbicaciones, obtenerUbicacion, ubicacionDePieza } from '../lib/ubicaciones.js';
 
 export function rutasPublicas({ db, ajustes = {} }) {
@@ -48,6 +49,11 @@ export function rutasPublicas({ db, ajustes = {} }) {
 
     const editor = Boolean(req.session?.usuario);
     const datos = buscarPorId(db, id, { privado: editor });
+    // Escáner con el celular: si quien tiene sesión abre la etiqueta (cámara del celular), su PC
+    // la recibe como si la hubiera leído un lector. Las recargas en vivo de la ficha no cuentan.
+    if (editor && esNavegacion(req)) {
+      emitirA(req.session.usuario.id, 'escaneo', { id });
+    }
     if (datos.resultado === 'registrada') {
       return res.render('ficha', { titulo: `${datos.pieza.id} · ${datos.pieza.categoria}`, ...datos });
     }
@@ -122,4 +128,11 @@ export function rutasPublicas({ db, ajustes = {} }) {
   });
 
   return r;
+}
+
+// Navegación real (abrir el enlace del QR), no una petición fetch de la propia página.
+function esNavegacion(req) {
+  if (req.get('x-refresco')) return false;
+  const modo = req.get('sec-fetch-mode');
+  return !modo || modo === 'navigate';
 }

@@ -315,6 +315,14 @@ select:focus-visible { outline: 3px solid #f2b705; outline-offset: 2px; }
 .estado-escaneo { margin: .5rem 0 0; font-weight: 600; color: #d7efe8; min-height: 1.5em; }
 .ayuda-escaneo { margin: .3rem 0 0; font-size: .9rem; color: #d7efe8; opacity: .9; }
 .ayuda-escaneo strong { color: #fff; }
+.escaner-remoto { margin: .5rem 0 0; font-size: .9rem; color: #d7efe8; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; border-radius: 8px; padding: .2rem .4rem; }
+.escaner-remoto strong { color: #fff; }
+.escaner-punto { width: .6rem; height: .6rem; border-radius: 50%; background: #9aa; flex: none; }
+.escaner-remoto[data-estado="conectado"] .escaner-punto { background: #4ade80; }
+.escaner-remoto[data-estado="reconectando"] .escaner-punto { background: #f2b705; }
+.escaner-recibido { animation: escaner-destello 1.2s ease-out; }
+@keyframes escaner-destello { from { background: rgb(74 222 128 / 35%); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .escaner-recibido { animation: none; } }
 
 .aparece { animation: aparecer .25s ease-out; }
 @keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

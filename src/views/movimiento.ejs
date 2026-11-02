@@ -9,6 +9,7 @@
            aria-describedby="estado-escaneo" value="<%= idInicial %>">
     <p id="estado-escaneo" class="estado-escaneo" aria-live="polite">Listo para escanear.</p>
     <p class="ayuda-escaneo">Con <strong>Barcode to PC</strong> o un lector USB, el código se escribe solo. Sin lector, escríbelo (ej.: <span class="mono">RAEE-0001</span>) y presiona Enter.</p>
+    <% if (usuario) { %><p class="escaner-remoto" id="escaner-remoto" hidden><span class="escaner-punto" aria-hidden="true"></span> 📱 <strong>Celular como lector:</strong> entra con tu usuario en el celular y lee el QR con la cámara; aparece aquí.</p><% scripts.push('/js/escaner-remoto.js') %><% } %>
   </form>
 </section>
 

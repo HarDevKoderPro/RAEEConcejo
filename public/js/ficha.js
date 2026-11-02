@@ -7,7 +7,7 @@ const id = ficha?.dataset.pieza;
 
 async function recargarFicha() {
   try {
-    const res = await fetch(window.location.pathname, { headers: { Accept: 'text/html' }, cache: 'no-store' });
+    const res = await fetch(window.location.pathname, { headers: { Accept: 'text/html', 'X-Refresco': '1' }, cache: 'no-store' });
     if (res.status === 404) return window.location.reload(); // la pieza se eliminó
     if (!res.ok) return;
     const doc = new DOMParser().parseFromString(await res.text(), 'text/html');

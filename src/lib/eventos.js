@@ -5,15 +5,20 @@ const MAX_CLIENTES = 300; // protege al servidor (256 MB) si alguien abre muchas
 const LATIDO_MS = 25_000;
 
 const clientes = new Set();
+// Canal privado por usuario (celular como lector): usuarioId → Set de respuestas.
+const privados = new Map();
+const totalPrivados = () => [...privados.values()].reduce((n, c) => n + c.size, 0);
 
 const latido = setInterval(() => {
   for (const res of clientes) res.write(':\n\n'); // comentario: mantiene viva la conexión
+  for (const conjunto of privados.values()) for (const res of conjunto) res.write(':\n\n');
 }, LATIDO_MS);
 latido.unref();
 
-export function conectarEventos(req, res) {
-  if (clientes.size >= MAX_CLIENTES) {
-    return res.status(503).type('text').send('Demasiadas conexiones en vivo. Recarga en un momento.');
+function abrirCanal(res) {
+  if (clientes.size + totalPrivados() >= MAX_CLIENTES) {
+    res.status(503).type('text').send('Demasiadas conexiones en vivo. Recarga en un momento.');
+    return false;
   }
   res.writeHead(200, {
     'Content-Type': 'text/event-stream; charset=utf-8',
@@ -23,8 +28,35 @@ export function conectarEventos(req, res) {
   });
   res.write('retry: 3000\n\n');
   res.write(`event: hola\ndata: ${JSON.stringify({ ok: true })}\n\n`);
+  return true;
+}
+
+export function conectarEventos(req, res) {
+  if (!abrirCanal(res)) return;
   clientes.add(res);
   req.on('close', () => clientes.delete(res));
+}
+
+// Canal privado (/eventos?mios=1): solo recibe lo que el mismo usuario abre desde su celular.
+export function conectarPrivado(req, res) {
+  const usuarioId = req.session?.usuario?.id;
+  if (!usuarioId) return res.redirect(303, '/entrar');
+  if (!abrirCanal(res)) return;
+  if (!privados.has(usuarioId)) privados.set(usuarioId, new Set());
+  privados.get(usuarioId).add(res);
+  req.on('close', () => {
+    const conjunto = privados.get(usuarioId);
+    conjunto?.delete(res);
+    if (conjunto && !conjunto.size) privados.delete(usuarioId);
+  });
+}
+
+export function emitirA(usuarioId, tipo, datos) {
+  const conjunto = privados.get(usuarioId);
+  if (!conjunto) return 0;
+  const mensaje = `event: ${tipo}\ndata: ${JSON.stringify(datos)}\n\n`;
+  for (const res of conjunto) res.write(mensaje);
+  return conjunto.size;
 }
 
 export function emitir(tipo, datos) {
