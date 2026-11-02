@@ -266,6 +266,31 @@ con **⚡ Movimiento rápido** en el celular), el PC se actualiza solo y avisa
 *"🔄 Se actualizó desde otro dispositivo"*. Y al revés: lo que cambias en el PC aparece en la
 ficha abierta en el celular.
 
+## 11. Discos: borrado seguro
+
+Un disco puede tener información de la institución. Por eso **no puede salir de la sala**
+(Reutilizada, Donación o Gestor RAEE) sin el borrado seguro marcado.
+
+**Al registrar un disco** (💽 *Disco duro 3.5"* o 💾 *Disco 2.5" / SSD*) aparece el campo
+**🔒 Borrado seguro del disco**, y es obligatorio: *Sí, ya se hizo* o *No, está pendiente*.
+Registra siempre el serial.
+
+**Para mostrarlo en la exposición** (⚡ Movimiento, con el disco en pantalla):
+
+1. **Destino → Pendiente** y **🔒 Borrado seguro → Pendiente**.
+2. Los destinos de entrega aparecen con 🔒. Toca **Destino → Donación**.
+3. **No se guarda** y sale en ámbar: *"Este disco puede contener información de la institución.
+   Haz el borrado seguro y márcalo antes de darle este destino."*
+4. Toca **Borrado seguro → Hecho**: los candados desaparecen.
+5. Toca **Destino → Donación**: ahora sí se guarda. La línea de tiempo muestra cada paso con el
+   nombre de quien lo hizo.
+
+> **Al revés tampoco se puede:** un disco ya donado o reutilizado no vuelve a "borrado pendiente".
+> El aviso pide cambiar primero el destino a *Pendiente* o *Banco de repuestos*.
+>
+> En el panel de impacto, **Discos con borrado seguro** muestra cuántos discos están borrados de
+> cuántos hay.
+
 ---
 
 *(Los siguientes capítulos se agregan a medida que avanzan las pruebas.)*
