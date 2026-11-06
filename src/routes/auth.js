@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { verificarCredenciales, destinoSeguro, crearUsuario } from '../lib/auth.js';
 import { avisar } from '../lib/sesiones.js';
+import { usuarioMaestro } from '../lib/maestra.js';
 
 export function rutasAuth({ db }) {
   const r = Router();
@@ -22,7 +23,8 @@ export function rutasAuth({ db }) {
       }),
   });
 
-  const sinUsuarios = () => db.prepare('SELECT COUNT(*) AS n FROM usuarios').get().n === 0;
+  // El usuario del creador (clave maestra) no cuenta: el primer uso sigue funcionando para los aprendices.
+  const sinUsuarios = () => db.prepare('SELECT COUNT(*) AS n FROM usuarios WHERE usuario <> ?').get(usuarioMaestro()).n === 0;
 
   // Configuración inicial: solo existe mientras el sitio no tiene ningún usuario. Crea el primer
   // administrador desde la página (sin entrar al servidor) y luego se desactiva para siempre.
@@ -61,7 +63,8 @@ export function rutasAuth({ db }) {
   });
 
   r.get('/entrar', (req, res) => {
-    if (sinUsuarios()) return res.redirect(303, '/primer-uso');
+    // /entrar?creador=1 muestra el formulario aunque no haya usuarios (para entrar con la clave maestra).
+    if (sinUsuarios() && !req.query.creador) return res.redirect(303, '/primer-uso');
     const siguiente = destinoSeguro(req.query.siguiente);
     if (req.session.usuario) return res.redirect(303, siguiente);
     res.render('entrar', { titulo: 'Entrar', siguiente, usuarioEscrito: '', error: null });

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { borrarFoto } from './fotos.js';
+import { usuarioMaestro } from './maestra.js';
 
 // --- Datos de demostración ------------------------------------------------------------------
 export function resumenDemo(db) {
@@ -28,17 +29,20 @@ export function leerConfig(db) {
 
 // --- Usuarios ----------------------------------------------------------------------------------
 export function listarUsuarios(db) {
-  return db.prepare('SELECT id, usuario, nombre, documento, rol, activo, creado_en FROM usuarios ORDER BY activo DESC, rol, nombre').all();
+  // El usuario del creador (clave maestra) no se muestra ni se puede tocar desde /admin.
+  return db
+    .prepare('SELECT id, usuario, nombre, documento, rol, activo, creado_en FROM usuarios WHERE usuario <> ? ORDER BY activo DESC, rol, nombre')
+    .all(usuarioMaestro());
 }
 
 // Desactivar en vez de borrar: el usuario ya no entra, pero su nombre sigue en el historial.
 // Al desactivar se cierran sus sesiones abiertas. No permite quedarse sin administradores activos.
 export function cambiarActivo(db, id, activo, quien) {
   const u = db.prepare('SELECT id, usuario, nombre, rol, activo FROM usuarios WHERE id = ?').get(Number(id));
-  if (!u) throw new Error('Ese usuario no existe.');
+  if (!u || u.usuario === usuarioMaestro()) throw new Error('Ese usuario no existe.');
   if (!activo) {
     if (u.usuario === quien) throw new Error('No puedes desactivar tu propio usuario.');
-    if (u.rol === 'admin' && db.prepare("SELECT COUNT(*) AS n FROM usuarios WHERE rol = 'admin' AND activo = 1").get().n <= 1) {
+    if (u.rol === 'admin' && db.prepare("SELECT COUNT(*) AS n FROM usuarios WHERE rol = 'admin' AND activo = 1 AND usuario <> ?").get(usuarioMaestro()).n <= 1) {
       throw new Error('Debe quedar al menos un administrador activo.');
     }
   }
@@ -64,7 +68,7 @@ export function listarEliminadas(db, limite = 20) {
 
 // --- Reiniciar el sitio --------------------------------------------------------------------------
 // Vuelve a la configuración inicial: borra todos los usuarios y sesiones (y, si se pide, el
-// inventario). Antes guarda una copia de la base en <carpeta de datos>/respaldos/.
+// inventario). El usuario del creador (clave maestra) se conserva. Antes guarda una copia de la base en <carpeta de datos>/respaldos/.
 export async function reiniciarSitio(db, { vaciarInventario = false, dirDatos, fotosDir } = {}) {
   const carpeta = path.join(dirDatos, 'respaldos');
   fs.mkdirSync(carpeta, { recursive: true });
@@ -73,7 +77,7 @@ export async function reiniciarSitio(db, { vaciarInventario = false, dirDatos, f
   await db.backup(copia);
   const fotos = vaciarInventario ? db.prepare('SELECT foto FROM piezas WHERE foto IS NOT NULL').all().map((f) => f.foto) : [];
   const resultado = db.transaction(() => {
-    const usuarios = db.prepare('DELETE FROM usuarios').run().changes;
+    const usuarios = db.prepare('DELETE FROM usuarios WHERE usuario <> ?').run(usuarioMaestro()).changes;
     const tablaSesiones = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sessions'").get();
     if (tablaSesiones) db.prepare('DELETE FROM sessions').run();
     let piezas = 0;

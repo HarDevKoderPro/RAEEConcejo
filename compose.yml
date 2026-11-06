@@ -17,6 +17,9 @@ services:
       SESSION_SECRET: ${SESSION_SECRET}
       MOSTRAR_AVISO_DEMO: ${MOSTRAR_AVISO_DEMO:-true}
       TRUST_PROXY: '1'
+      # Clave maestra del creador (src/lib/maestra.js). Sin hash, queda apagada.
+      CLAVE_MAESTRA_USUARIO: ${CLAVE_MAESTRA_USUARIO:-creador}
+      CLAVE_MAESTRA_HASH: ${CLAVE_MAESTRA_HASH:-}
     volumes:
       - raee_data:/app/data
     networks: [proxy]

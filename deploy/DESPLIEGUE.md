@@ -38,6 +38,20 @@ ENV
 
 El secreto se genera en el servidor y no sale de ahí.
 
+### Clave maestra del creador (opcional)
+
+Permite al instructor entrar siempre como administrador aunque los aprendices creen sus propios
+administradores o reinicien el sitio. Se genera el hash (en el PC o en el contenedor):
+
+```bash
+npm run maestra:hash        # o: docker exec -it raee-app-1 npm run maestra:hash
+```
+
+y se agregan al `.env` las dos líneas que imprime (el hash **entre comillas simples**, porque
+lleva `$`). Luego `docker compose up -d` para que el contenedor lea el `.env` nuevo. Se entra en
+`/entrar?creador=1` con el usuario `creador`. Ese usuario no aparece en `/admin`, no se puede
+crear, desactivar ni borrar, y se conserva al reiniciar el sitio.
+
 ## 3. Contenedor
 
 ```bash

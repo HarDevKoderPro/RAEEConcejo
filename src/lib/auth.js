@@ -1,5 +1,6 @@
 // Usuarios y control de acceso (CLAUDE.md §10.1): consultar es público, editar exige sesión.
 import bcrypt from 'bcryptjs';
+import { esMaestro, entrarComoMaestro } from './maestra.js';
 
 export const COSTO_BCRYPT = 12;
 
@@ -14,6 +15,7 @@ export function normalizarDocumento(texto) {
 export function crearUsuario(db, { usuario, nombre, contrasena, rol = 'editor', documento = null }, costo = COSTO_BCRYPT) {
   const u = String(usuario ?? '').trim().toLowerCase();
   if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('El usuario debe tener de 3 a 30 letras, números, punto, guion o guion bajo.');
+  if (esMaestro(u)) throw new Error('Ese nombre de usuario está reservado. Elige otro.');
   if (String(nombre ?? '').trim().length < 3) throw new Error('Escribe el nombre completo de la persona.');
   const doc = documento == null || documento === '' ? null : normalizarDocumento(documento);
   if (doc !== null && !/^[0-9A-Z-]{5,15}$/.test(doc)) throw new Error('El documento debe tener de 5 a 15 números o letras, sin puntos.');
@@ -29,6 +31,8 @@ export function crearUsuario(db, { usuario, nombre, contrasena, rol = 'editor', 
 // para no delatar por el tiempo de respuesta qué usuarios existen.
 const HASH_FALSO = bcrypt.hashSync('contrasena-que-no-existe', COSTO_BCRYPT);
 export async function verificarCredenciales(db, usuario, contrasena) {
+  // El usuario reservado del creador solo entra con la clave maestra del .env, nunca con la de la base.
+  if (esMaestro(usuario)) return entrarComoMaestro(db, contrasena);
   const fila = db
     .prepare('SELECT id, usuario, nombre, rol, hash, activo FROM usuarios WHERE usuario = ?')
     .get(String(usuario ?? '').trim().toLowerCase());
